@@ -26,6 +26,7 @@ const PATHS = {
   clock: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 1 1 0 16 8 8 0 0 1 0-16Zm-1 3v6l5 2 .8-1.8L13 11.4V7h-2Z",
   arrow: "M5 12h12.2l-4.6-4.6L14 6l7 6-7 6-1.4-1.4 4.6-4.6H5v-2Z",
   check: "m9.6 16.2-3.8-3.8L4.4 13.8l5.2 5.2L20 8.6l-1.4-1.4-9 9Z",
+  mega: "M4 3h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H8.4L4 20V4a1 1 0 0 1 1-1Zm3 5v2h10V8H7Zm0 4v2h7v-2H7Z",
 };
 
 /* ---------- logotipo: "SIM" em primary, "OVE" em success (IDENTITY.md §1) ----------

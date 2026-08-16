@@ -1,0 +1,37 @@
+.map-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-card);
+}
+
+.map-view canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+/* Rótulo desenhado sobre o canvas. Fica abaixo do piso de 14 px da escala
+   porque é etiqueta dentro de um desenho, não texto de leitura — o nome da
+   loja aparece em tamanho normal na lista abaixo do mapa. */
+.map-label {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-primary-foreground);
+  background: var(--color-primary);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.map-label.entrance {
+  background: var(--color-success);
+  color: var(--color-success-foreground);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

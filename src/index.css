@@ -56,6 +56,30 @@
   --color-setor-vermelho: oklch(0.55 0.17 25);
   --color-setor-verde: oklch(0.57 0.11 150);
   --color-setor-texto: oklch(1 0 0);
+
+  /* ---- Cores da maquete 3D do galpão. São o prédio, não a interface: parede
+         azul, coluna vermelha, telha metálica e tela verde do CPC Geraldo
+         Machado. Ficam aqui para que o Three.js as leia por token, não por
+         hexadecimal solto no meio da cena. ---- */
+  --map-parede-azul: #1565c0;
+  --map-faixa-azul: #42a5f5;
+  --map-coluna-vermelha: #b0413e;
+  --map-telha-metal: #bfc6cd;
+  --map-telha-sob: #9aa2ab;
+  --map-viga: #7d8791;
+  --map-ceramica: #cbb89a;
+  --map-ceramica-topo: #e7e0d3;
+  --map-tela-verde: #4f7c46;
+  --map-piso: #e4e4e2;
+  --map-forro: #f4f4f0;
+  --map-vidro: #d6dbe0;
+  --map-grade-a: #c2c2be;
+  --map-grade-b: #d6d6d2;
+  --map-luz-branca: #ffffff;
+  --map-luz-ceu: #dceaff;
+  --map-luz-chao: #cfcabb;
+  --map-luz-sol: #fff6ea;
+  --map-luz-preenchimento: #bcd4ff;
 }
 
 @layer theme {
