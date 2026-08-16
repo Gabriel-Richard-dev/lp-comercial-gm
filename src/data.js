@@ -21,9 +21,9 @@ export const PHOTOS = {
     caption: "Fachada na Rua Manoel Pereira, no Centro de Maracanaú.",
   },
   mercado: {
-    src: "/fotos/cpc-fachada.jpg",
-    alt: "Fachada do Centro Público Comercial Geraldo Machado vista da Rua Manoel Pereira",
-    caption: "Quem passa na Rua Manoel Pereira vê a fachada. Quem não passa não fica sabendo que o Centro existe.",
+    src: "/fotos/mercado.jpg",
+    alt: "Movimento de clientes e permissionários no Centro Público Comercial",
+    caption: "O Centro antes da requalificação. O movimento sempre existiu; o que falta é quem venha de fora do bairro.",
   },
   musica: {
     src: "/fotos/musica.webp",
