@@ -1,175 +1,110 @@
 @import "tailwindcss";
+@import "./tokens.web.css";
+@import "./tokens.projeto.css";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SIMOVE — design tokens
-   Valores de design/tokens.css (pipeline get-shit-pretty). Auditoria de
-   contraste em design/APLICACAO.md: 60 pares fg/bg, 0 reprovações.
+   SIMOVE — folha da landing
 
-   Nenhuma cor, tamanho de texto ou raio pode ser escrito à mão fora deste
-   arquivo. Se falta um valor, ele vira token aqui — não literal no componente.
+   Toda cor, tamanho de texto e raio vem de tokens.web.css (gerado) ou de
+   tokens.projeto.css (extensão deste projeto). Nada de literal aqui nem no JSX:
+   cor que não é token é cor que a auditoria de contraste não enxerga.
    ───────────────────────────────────────────────────────────────────────────── */
 
-@theme {
-  /* ---- Raio: 14 px. Botão e campo usam md; card usa lg. ---- */
-  --radius: 14px;
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+/* Ponte para as utilidades do Tailwind v4. `inline` é o que faz bg-primary
+   resolver para var(--cor-primary) em tempo de uso — sem isso, trocar o tema
+   com data-theme="dark" não chegaria nas classes. */
+@theme inline {
+  --color-background: var(--cor-background);
+  --color-foreground: var(--cor-foreground);
+  --color-card: var(--cor-card);
+  --color-card-foreground: var(--cor-card-foreground);
+  --color-popover: var(--cor-popover);
+  --color-popover-foreground: var(--cor-popover-foreground);
+  --color-primary: var(--cor-primary);
+  --color-primary-foreground: var(--cor-primary-foreground);
+  --color-secondary: var(--cor-secondary);
+  --color-secondary-foreground: var(--cor-secondary-foreground);
+  --color-muted: var(--cor-muted);
+  --color-muted-foreground: var(--cor-muted-foreground);
+  --color-accent: var(--cor-accent);
+  --color-accent-foreground: var(--cor-accent-foreground);
+  --color-destructive: var(--cor-destructive);
+  --color-success: var(--cor-success);
+  --color-success-foreground: var(--cor-success-foreground);
+  --color-warning: var(--cor-warning);
+  --color-warning-foreground: var(--cor-warning-foreground);
+  --color-border: var(--cor-border);
+  --color-input: var(--cor-input);
+  --color-ring: var(--cor-ring);
+  --color-chart-1: var(--cor-chart-1);
+  --color-chart-2: var(--cor-chart-2);
+  --color-chart-3: var(--cor-chart-3);
+  --color-chart-4: var(--cor-chart-4);
+  --color-chart-5: var(--cor-chart-5);
 
-  /* ---- Escala tipográfica: corpo em 18 px. 14 px é o piso absoluto. ---- */
-  --text-xs: 14px;
-  --text-xs--line-height: 1.45;
-  --text-sm: 16px;
-  --text-sm--line-height: 1.5;
-  --text-base: 18px;
-  --text-base--line-height: 1.6;
-  --text-lg: 20px;
-  --text-lg--line-height: 1.5;
-  --text-xl: 24px;
-  --text-xl--line-height: 1.4;
-  --text-2xl: 28px;
-  --text-2xl--line-height: 1.3;
-  --text-3xl: 34px;
-  --text-3xl--line-height: 1.25;
-  --text-4xl: 40px;
-  --text-4xl--line-height: 1.15;
-  --text-5xl: 48px;
-  --text-5xl--line-height: 1.1;
+  /* Sinalização do prédio, fora da paleta de interface. */
+  --color-setor-azul: var(--cor-setor-azul);
+  --color-setor-amarelo: var(--cor-setor-amarelo);
+  --color-setor-vermelho: var(--cor-setor-vermelho);
+  --color-setor-verde: var(--cor-setor-verde);
+  --color-setor-texto: var(--cor-setor-texto);
 
-  /* Título de página numa landing pede um degrau acima do app. Fluido entre
-     text-4xl e o dobro de text-5xl, para não estourar em telas estreitas. */
-  --text-display: clamp(var(--text-4xl), 8vw, 96px);
-  --text-display--line-height: 1;
-  --text-secao: clamp(var(--text-2xl), 4.5vw, var(--text-5xl));
-  --text-secao--line-height: 1.1;
+  --font-sans: var(--fonte);
+  --font-display: var(--fonte);
 
-  /* ---- Família única: Nunito, a do logotipo (IDENTITY.md §3). ---- */
-  --font-sans: "Nunito", system-ui, sans-serif;
-  --font-display: "Nunito", system-ui, sans-serif;
+  --text-xs: var(--texto-xs);
+  --text-xs--line-height: var(--entrelinha-xs);
+  --text-sm: var(--texto-sm);
+  --text-sm--line-height: var(--entrelinha-sm);
+  --text-base: var(--texto-base);
+  --text-base--line-height: var(--entrelinha-base);
+  --text-lg: var(--texto-lg);
+  --text-lg--line-height: var(--entrelinha-lg);
+  --text-xl: var(--texto-xl);
+  --text-xl--line-height: var(--entrelinha-xl);
+  --text-2xl: var(--texto-2xl);
+  --text-2xl--line-height: var(--entrelinha-2xl);
+  --text-3xl: var(--texto-3xl);
+  --text-3xl--line-height: var(--entrelinha-3xl);
+  --text-4xl: var(--texto-4xl);
+  --text-4xl--line-height: var(--entrelinha-4xl);
+  --text-5xl: var(--texto-5xl);
+  --text-5xl--line-height: var(--entrelinha-5xl);
 
-  /* ---- Cores de sinalização física do Centro. Não são cores de interface:
-         são as quatro cores dos setores pintados no prédio e repetidas no
-         totem. Ficam aqui para não virarem hexadecimal solto no componente. ---- */
-  --color-setor-azul: oklch(0.55 0.11 255);
-  --color-setor-amarelo: oklch(0.76 0.13 78);
-  --color-setor-vermelho: oklch(0.55 0.17 25);
-  --color-setor-verde: oklch(0.57 0.11 150);
-  --color-setor-texto: oklch(1 0 0);
+  /* Fluidos, mas presos entre dois degraus da escala: numa landing o título
+     precisa acompanhar a largura sem inventar tamanho fora do sistema. */
+  --text-display: clamp(var(--texto-3xl), 6vw, var(--texto-5xl));
+  --text-display--line-height: var(--entrelinha-5xl);
+  --text-secao: clamp(var(--texto-2xl), 4vw, var(--texto-3xl));
+  --text-secao--line-height: var(--entrelinha-3xl);
 
-  /* ---- Cores da maquete 3D do galpão. São o prédio, não a interface: parede
-         azul, coluna vermelha, telha metálica e tela verde do CPC Geraldo
-         Machado. Ficam aqui para que o Three.js as leia por token, não por
-         hexadecimal solto no meio da cena. ---- */
-  --map-parede-azul: #1565c0;
-  --map-faixa-azul: #42a5f5;
-  --map-coluna-vermelha: #b0413e;
-  --map-telha-metal: #bfc6cd;
-  --map-telha-sob: #9aa2ab;
-  --map-viga: #7d8791;
-  --map-ceramica: #cbb89a;
-  --map-ceramica-topo: #e7e0d3;
-  --map-tela-verde: #4f7c46;
-  --map-piso: #e4e4e2;
-  --map-forro: #f4f4f0;
-  --map-vidro: #d6dbe0;
-  --map-grade-a: #c2c2be;
-  --map-grade-b: #d6d6d2;
-  --map-luz-branca: #ffffff;
-  --map-luz-ceu: #dceaff;
-  --map-luz-chao: #cfcabb;
-  --map-luz-sol: #fff6ea;
-  --map-luz-preenchimento: #bcd4ff;
+  --radius-sm: var(--raio-sm);
+  --radius-md: var(--raio-md);
+  --radius-lg: var(--raio-lg);
+  --radius-xl: var(--raio-xl);
 }
 
-@layer theme {
-  :root {
-    --color-background: oklch(0.985 0.004 100);
-    --color-foreground: oklch(0.235 0.03 261);
-    --color-card: oklch(1 0 0);
-    --color-card-foreground: oklch(0.235 0.03 261);
-    --color-popover: oklch(1 0 0);
-    --color-popover-foreground: oklch(0.235 0.03 261);
-    --color-primary: oklch(0.39 0.106 261);
-    --color-primary-foreground: oklch(0.99 0.005 100);
-    --color-secondary: oklch(0.93 0.028 261);
-    --color-secondary-foreground: oklch(0.31 0.09 261);
-    --color-muted: oklch(0.95 0.008 100);
-    --color-muted-foreground: oklch(0.43 0.025 261);
-    --color-accent: oklch(0.93 0.043 60);
-    --color-accent-foreground: oklch(0.32 0.08 50);
-    --color-destructive: oklch(0.48 0.19 27);
-    /* `border` e `input` são deliberadamente escuros (3,21:1 e 3,77:1 contra o
-       fundo). Um campo cuja borda não se enxerga é um campo que não existe. */
-    --color-border: oklch(0.64 0.02 261);
-    --color-input: oklch(0.6 0.03 261);
-    --color-ring: oklch(0.5 0.12 261);
-    --color-chart-1: oklch(0.45 0.12 261);
-    --color-chart-2: oklch(0.55 0.09 178);
-    --color-chart-3: oklch(0.66 0.15 56);
-    --color-chart-4: oklch(0.55 0.19 15);
-    --color-chart-5: oklch(0.5 0.13 305);
-    /* Verde da marca. RESERVADO a "aberto agora" e "falar no WhatsApp". */
-    --color-success: oklch(0.5 0.09 178);
-    --color-success-foreground: oklch(0.99 0.005 100);
-    /* Laranja da etiqueta do logotipo. Atenção sem erro. */
-    --color-warning: oklch(0.79 0.148 60);
-    --color-warning-foreground: oklch(0.28 0.065 50);
-  }
-
-  /* Modo escuro é suporte, não identidade: a página abre em claro e só segue o
-     sistema operacional se ele pedir escuro. Mesmos matizes, claridade
-     invertida, auditados nos mesmos 30 pares. */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-background: oklch(0.205 0.02 261);
-      --color-foreground: oklch(0.965 0.005 100);
-      --color-card: oklch(0.255 0.022 261);
-      --color-card-foreground: oklch(0.965 0.005 100);
-      --color-popover: oklch(0.255 0.022 261);
-      --color-popover-foreground: oklch(0.965 0.005 100);
-      --color-primary: oklch(0.76 0.1 258);
-      --color-primary-foreground: oklch(0.205 0.04 261);
-      --color-secondary: oklch(0.32 0.03 261);
-      --color-secondary-foreground: oklch(0.965 0.005 100);
-      --color-muted: oklch(0.32 0.03 261);
-      --color-muted-foreground: oklch(0.78 0.02 261);
-      --color-accent: oklch(0.34 0.045 60);
-      --color-accent-foreground: oklch(0.97 0.01 100);
-      --color-destructive: oklch(0.66 0.19 27);
-      --color-border: oklch(0.55 0.02 261);
-      --color-input: oklch(0.6 0.025 261);
-      --color-ring: oklch(0.7 0.11 259);
-      --color-chart-1: oklch(0.7 0.11 261);
-      --color-chart-2: oklch(0.75 0.1 178);
-      --color-chart-3: oklch(0.79 0.14 60);
-      --color-chart-4: oklch(0.7 0.17 15);
-      --color-chart-5: oklch(0.7 0.14 305);
-      --color-success: oklch(0.74 0.1 178);
-      --color-success-foreground: oklch(0.2 0.038 178);
-      --color-warning: oklch(0.8 0.138 60);
-      --color-warning-foreground: oklch(0.25 0.06 50);
-    }
-  }
-}
-
+/* A página abre em claro. O escuro só entra com data-theme="dark" na raiz,
+   nunca por prefers-color-scheme: o uso real é com sol na tela, e os limites
+   de contraste deste sistema foram calculados sobre fundo claro. */
 html {
+  color-scheme: light;
   scroll-behavior: smooth;
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+  background: var(--cor-background);
+  color: var(--cor-foreground);
+  font-family: var(--fonte);
+  font-size: var(--texto-base);
+  line-height: var(--entrelinha-base);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: var(--color-primary);
-  color: var(--color-primary-foreground);
+  background: var(--cor-primary);
+  color: var(--cor-primary-foreground);
 }
 
 img {
@@ -177,112 +112,111 @@ img {
   max-width: 100%;
 }
 
-/* Anel de foco: 3 px, nunca removido (foundations.md). */
+/* Anel de foco de 3 px, nunca removido. */
 :focus-visible {
-  outline: 3px solid var(--color-ring);
+  outline: 3px solid var(--cor-ring);
   outline-offset: 2px;
 }
 
-/* Chapa sólida atrás de texto sobre foto — o DS proíbe gradiente e proíbe
-   texto sobre foto sem chapa. */
+/* Chapa sólida atrás de texto sobre foto. Gradiente é anti-padrão. */
 .chapa {
-  background: var(--color-primary);
-  color: var(--color-primary-foreground);
+  background: var(--cor-primary);
+  color: var(--cor-primary-foreground);
 }
 
-/* Barra fixa depois que a página rola. Alternativa a animar cor no JS, onde o
-   valor teria de ser escrito à mão. */
+/* Barra fixa depois que a página rola: a cor mora aqui, não numa string de JS. */
 .nav-solida {
-  background: color-mix(in oklab, var(--color-background) 92%, transparent);
+  background: color-mix(in oklab, var(--cor-background) 92%, transparent);
   backdrop-filter: blur(10px);
-  border-bottom-color: var(--color-border);
+  border-bottom-color: var(--cor-border);
 }
 
 .rule {
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--cor-border);
 }
 
-/* Card: bg-card + border-border + rounded-lg (components/card.md). A separação
-   de superfície é por cor e borda, não por sombra. */
+/* Card: superfície branca, borda visível, raio lg. A separação vem da cor e da
+   borda, não da sombra — sob sol a sombra some. */
 .hairline {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--cor-border);
+  border-radius: var(--raio-lg);
 }
 
-/* Botão: 56 px de altura, rótulo em text-sm (16 px), raio md (components/button.md). */
+/* Botão: alvo de toque de 56 px, rótulo em 16 px, verbo primeiro. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-height: 56px;
+  min-height: var(--alvo-toque);
   padding-inline: 1.5rem;
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
+  border-radius: var(--raio-md);
+  font-size: var(--texto-sm);
+  line-height: var(--entrelinha-sm);
   font-weight: 600;
   transition: background-color 120ms ease, color 120ms ease;
 }
 .btn-primary {
-  background: var(--color-primary);
-  color: var(--color-primary-foreground);
+  background: var(--cor-primary);
+  color: var(--cor-primary-foreground);
 }
 .btn-primary:hover {
-  background: color-mix(in oklab, var(--color-primary) 90%, black);
+  background: color-mix(in oklab, var(--cor-primary) 88%, black);
 }
 .btn-outline {
-  background: var(--color-background);
-  color: var(--color-foreground);
-  border: 1px solid var(--color-border);
+  background: var(--cor-background);
+  color: var(--cor-foreground);
+  border: 1px solid var(--cor-border);
 }
 .btn-outline:hover {
-  background: var(--color-accent);
-  color: var(--color-accent-foreground);
+  background: var(--cor-accent);
+  color: var(--cor-accent-foreground);
 }
-/* Verde reservado: só leva ao WhatsApp. */
+/* Verde reservado: este botão só pode levar ao WhatsApp. */
 .btn-whatsapp {
-  background: var(--color-success);
-  color: var(--color-success-foreground);
+  background: var(--cor-success);
+  color: var(--cor-success-foreground);
 }
 .btn-whatsapp:hover {
-  background: color-mix(in oklab, var(--color-success) 90%, black);
+  background: color-mix(in oklab, var(--cor-success) 88%, black);
 }
 
-/* Campo: 56 px, borda de 2 px em `input` (3,77:1), texto em text-lg
-   (components/input.md). A borda é o que anuncia que o campo existe. */
+/* Campo: 56 px, borda de 2 px em --cor-input (3,8:1), texto em 20 px.
+   A borda é o que anuncia que ali existe um campo. */
 .campo {
   width: 100%;
-  min-height: 56px;
+  min-height: var(--alvo-toque);
   padding-inline: 1rem;
-  border: 2px solid var(--color-input);
-  border-radius: var(--radius-md);
-  background: var(--color-card);
-  color: var(--color-foreground);
-  font-size: var(--text-lg);
-  line-height: var(--text-lg--line-height);
+  border: 2px solid var(--cor-input);
+  border-radius: var(--raio-md);
+  background: var(--cor-card);
+  color: var(--cor-foreground);
+  font-size: var(--texto-lg);
+  line-height: var(--entrelinha-lg);
 }
 .campo::placeholder {
-  color: var(--color-muted-foreground);
+  color: var(--cor-muted-foreground);
 }
 .campo:focus {
-  border-color: var(--color-ring);
+  border-color: var(--cor-ring);
 }
 .campo[aria-invalid="true"] {
-  border-color: var(--color-destructive);
+  border-color: var(--cor-destructive);
 }
 
-/* Rótulo de campo: sempre visível, acima, text-lg peso 600. */
+/* Rótulo de campo: sempre visível, acima, 20 px, peso 600. */
 .rotulo {
   display: block;
-  font-size: var(--text-lg);
-  line-height: var(--text-lg--line-height);
+  font-size: var(--texto-lg);
+  line-height: var(--entrelinha-lg);
   font-weight: 600;
 }
 
-/* Legenda e rodapé: piso da escala, nunca usado em instrução. */
+/* Legenda e rodapé: piso da escala. Nunca em instrução. */
 .caption {
-  font-size: var(--text-xs);
-  line-height: var(--text-xs--line-height);
-  color: var(--color-muted-foreground);
+  font-size: var(--texto-xs);
+  line-height: var(--entrelinha-xs);
+  color: var(--cor-muted-foreground);
 }
 
 @keyframes slide {
@@ -308,7 +242,7 @@ img {
   animation: pulse-ring 2.4s ease-out infinite;
 }
 
-/* Movimento: 120 ms para estado, 200 ms para tela (foundations.md). */
+/* Nenhuma animação atrasa uma ação; sem movimento, só opacidade. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

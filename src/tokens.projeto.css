@@ -1,0 +1,43 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   SIMOVE — tokens deste projeto
+   Extensão de `tokens.web.css`, que é gerado e não se edita à mão.
+
+   Aqui moram as cores que não são de interface e por isso não estão na auditoria
+   de contraste: a sinalização pintada no prédio e as cores da maquete 3D do
+   galpão. Elas existem como token pelo mesmo motivo que as outras — cor escrita
+   dentro de componente é cor que ninguém revisa.
+
+   Nenhuma delas carrega texto. O número do box sobre a cor do setor usa
+   `--cor-setor-texto`, e esse par foi conferido à parte.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Sinalização dos quatro setores do Centro, repetida no totem. */
+  --cor-setor-azul: oklch(0.55 0.11 255);
+  --cor-setor-amarelo: oklch(0.76 0.13 78);
+  --cor-setor-vermelho: oklch(0.55 0.17 25);
+  --cor-setor-verde: oklch(0.57 0.11 150);
+  --cor-setor-texto: oklch(1 0 0);
+
+  /* Maquete 3D: parede azul, coluna vermelha, telha metálica e tela verde do
+     CPC Geraldo Machado. Lidas pelo Three.js em src/map/tokens.js. */
+  --mapa-parede-azul: oklch(0.51 0.16 259);
+  --mapa-faixa-azul: oklch(0.71 0.13 250);
+  --mapa-coluna-vermelha: oklch(0.51 0.15 27);
+  --mapa-telha-metal: oklch(0.81 0.02 250);
+  --mapa-telha-sob: oklch(0.68 0.02 250);
+  --mapa-viga: oklch(0.58 0.02 250);
+  --mapa-ceramica: oklch(0.78 0.05 76);
+  --mapa-ceramica-topo: oklch(0.9 0.02 76);
+  --mapa-tela-verde: oklch(0.5 0.09 141);
+  --mapa-piso: oklch(0.91 0.002 100);
+  --mapa-forro: oklch(0.96 0.004 100);
+  --mapa-vidro: oklch(0.87 0.01 250);
+  --mapa-grade-a: oklch(0.79 0.005 100);
+  --mapa-grade-b: oklch(0.86 0.002 100);
+  --mapa-luz-branca: oklch(1 0 0);
+  --mapa-luz-ceu: oklch(0.92 0.03 250);
+  --mapa-luz-chao: oklch(0.83 0.02 96);
+  --mapa-luz-sol: oklch(0.97 0.02 76);
+  --mapa-luz-preenchimento: oklch(0.85 0.05 250);
+}

@@ -4,30 +4,30 @@ import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer
 import { CATEGORIES, LAYOUT, MAP_BOXES } from "./layout";
 import { cssColorInt } from "./tokens";
 
-// Toda cor da cena vem de um token CSS (ver o bloco --map-* em src/index.css).
+// Toda cor da cena vem de um token CSS (ver o bloco --mapa-* em src/index.css).
 // O getter adia a leitura para depois que a folha de estilo carregou.
 const cor = (token) => ({ get: () => cssColorInt(token) });
 const PALETTE = new Proxy(
   {
-    blueWall: "--map-parede-azul",
-    blueBand: "--map-faixa-azul",
-    redColumn: "--map-coluna-vermelha",
-    roofMetal: "--map-telha-metal",
-    roofUnder: "--map-telha-sob",
-    beam: "--map-viga",
-    tile: "--map-ceramica",
-    tileTop: "--map-ceramica-topo",
-    mesh: "--map-tela-verde",
-    floor: "--map-piso",
-    forro: "--map-forro",
-    vidro: "--map-vidro",
-    gradeA: "--map-grade-a",
-    gradeB: "--map-grade-b",
-    branco: "--map-luz-branca",
-    luzCeu: "--map-luz-ceu",
-    luzChao: "--map-luz-chao",
-    sol: "--map-luz-sol",
-    preenchimento: "--map-luz-preenchimento",
+    blueWall: "--mapa-parede-azul",
+    blueBand: "--mapa-faixa-azul",
+    redColumn: "--mapa-coluna-vermelha",
+    roofMetal: "--mapa-telha-metal",
+    roofUnder: "--mapa-telha-sob",
+    beam: "--mapa-viga",
+    tile: "--mapa-ceramica",
+    tileTop: "--mapa-ceramica-topo",
+    mesh: "--mapa-tela-verde",
+    floor: "--mapa-piso",
+    forro: "--mapa-forro",
+    vidro: "--mapa-vidro",
+    gradeA: "--mapa-grade-a",
+    gradeB: "--mapa-grade-b",
+    branco: "--mapa-luz-branca",
+    luzCeu: "--mapa-luz-ceu",
+    luzChao: "--mapa-luz-chao",
+    sol: "--mapa-luz-sol",
+    preenchimento: "--mapa-luz-preenchimento",
     fundo: "--color-card",
     destaque: "--color-primary",
   },

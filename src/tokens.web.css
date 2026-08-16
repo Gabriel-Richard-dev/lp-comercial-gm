@@ -1,0 +1,103 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   SIMOVE — tokens para web
+   Gerado por `node design/scripts/tokens.mjs`. Não edite à mão.
+
+   Mesmas cores de `design/tokens.css` (o app Expo), em CSS puro: qualquer projeto
+   web consome — Next, Vite, Astro, HTML solto. O arquivo do app usa `hairlineWidth()`
+   e `@variant`, que são do Uniwind e não compilam fora dele.
+
+   Auditoria: 60 pares fg/bg, 0 reprovações. Corpo de texto em AAA (7:1), rótulo sobre
+   superfície colorida em AA (4,5:1), borda e anel de foco acima de 3:1 (WCAG 1.4.11).
+
+   O tema claro é a identidade. O escuro existe, está auditado, e só entra quando a
+   página escolhe — nunca por conta do sistema operacional. Por isso não há
+   `prefers-color-scheme` aqui: para usar o escuro, ponha `data-theme="dark"` na raiz.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --cor-background: oklch(0.985 0.004 100);
+  --cor-foreground: oklch(0.235 0.03 261);
+  --cor-card: oklch(1 0 0);
+  --cor-card-foreground: oklch(0.235 0.03 261);
+  --cor-popover: oklch(1 0 0);
+  --cor-popover-foreground: oklch(0.235 0.03 261);
+  --cor-primary: oklch(0.39 0.106 261);
+  --cor-primary-foreground: oklch(0.99 0.005 100);
+  --cor-secondary: oklch(0.93 0.028 261);
+  --cor-secondary-foreground: oklch(0.31 0.09 261);
+  --cor-muted: oklch(0.95 0.008 100);
+  --cor-muted-foreground: oklch(0.43 0.025 261);
+  --cor-accent: oklch(0.93 0.043 60);
+  --cor-accent-foreground: oklch(0.32 0.08 50);
+  --cor-destructive: oklch(0.48 0.19 27);
+  --cor-success: oklch(0.5 0.09 178);
+  --cor-success-foreground: oklch(0.99 0.005 100);
+  --cor-warning: oklch(0.79 0.148 60);
+  --cor-warning-foreground: oklch(0.28 0.065 50);
+  --cor-border: oklch(0.64 0.02 261);
+  --cor-input: oklch(0.6 0.03 261);
+  --cor-ring: oklch(0.5 0.12 261);
+  --cor-chart-1: oklch(0.45 0.12 261);
+  --cor-chart-2: oklch(0.55 0.09 178);
+  --cor-chart-3: oklch(0.66 0.15 56);
+  --cor-chart-4: oklch(0.55 0.19 15);
+  --cor-chart-5: oklch(0.5 0.13 305);
+
+  /* Tipografia — corpo em 18px porque o público primário tem presbiopia. */
+  --fonte: Nunito, system-ui, -apple-system, sans-serif;
+  --texto-xs: 14px;
+  --entrelinha-xs: 1.45;
+  --texto-sm: 16px;
+  --entrelinha-sm: 1.5;
+  --texto-base: 18px;
+  --entrelinha-base: 1.6;
+  --texto-lg: 20px;
+  --entrelinha-lg: 1.5;
+  --texto-xl: 24px;
+  --entrelinha-xl: 1.4;
+  --texto-2xl: 28px;
+  --entrelinha-2xl: 1.3;
+  --texto-3xl: 34px;
+  --entrelinha-3xl: 1.25;
+  --texto-4xl: 40px;
+  --entrelinha-4xl: 1.15;
+  --texto-5xl: 48px;
+  --entrelinha-5xl: 1.1;
+
+  /* Forma */
+  --raio-sm: 10px;
+  --raio-md: 12px;
+  --raio-lg: 14px;
+  --raio-xl: 18px;
+  --alvo-toque: 56px;
+}
+
+[data-theme="dark"] {
+  --cor-background: oklch(0.205 0.02 261);
+  --cor-foreground: oklch(0.965 0.005 100);
+  --cor-card: oklch(0.255 0.022 261);
+  --cor-card-foreground: oklch(0.965 0.005 100);
+  --cor-popover: oklch(0.255 0.022 261);
+  --cor-popover-foreground: oklch(0.965 0.005 100);
+  --cor-primary: oklch(0.76 0.1 258);
+  --cor-primary-foreground: oklch(0.205 0.04 261);
+  --cor-secondary: oklch(0.32 0.03 261);
+  --cor-secondary-foreground: oklch(0.965 0.005 100);
+  --cor-muted: oklch(0.32 0.03 261);
+  --cor-muted-foreground: oklch(0.78 0.02 261);
+  --cor-accent: oklch(0.34 0.045 60);
+  --cor-accent-foreground: oklch(0.97 0.01 100);
+  --cor-destructive: oklch(0.66 0.19 27);
+  --cor-success: oklch(0.74 0.1 178);
+  --cor-success-foreground: oklch(0.2 0.038 178);
+  --cor-warning: oklch(0.8 0.138 60);
+  --cor-warning-foreground: oklch(0.25 0.06 50);
+  --cor-border: oklch(0.55 0.02 261);
+  --cor-input: oklch(0.6 0.025 261);
+  --cor-ring: oklch(0.7 0.11 259);
+  --cor-chart-1: oklch(0.7 0.11 261);
+  --cor-chart-2: oklch(0.75 0.1 178);
+  --cor-chart-3: oklch(0.79 0.14 60);
+  --cor-chart-4: oklch(0.7 0.17 15);
+  --cor-chart-5: oklch(0.7 0.14 305);
+}
