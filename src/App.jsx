@@ -6,7 +6,7 @@ import {
   BRAND, PHOTOS, HERO, STATS, SEGMENTS, PROBLEMS, PILLARS, MAP, PRIZE,
   STEPS, EVENTS, AUDIENCES, ROADMAP, FORM,
 } from "./data";
-import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, FloorMap, Totem, useReveal } from "./ui";
+import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, FloorMap, Totem, Wordmark, useReveal } from "./ui";
 
 /* ============================== NAV ============================== */
 function Nav() {
@@ -14,30 +14,20 @@ function Nav() {
   useGSAP(
     () => {
       gsap.from(ref.current, { y: -70, opacity: 0, duration: 0.9, ease: "power3.out", delay: 0.15 });
-      gsap.to(ref.current, {
-        backgroundColor: "rgba(255,255,255,0.92)",
-        backdropFilter: "blur(10px)",
-        borderBottomColor: "rgba(16,20,24,0.14)",
-        scrollTrigger: { start: 70, end: 71, toggleActions: "play none none reverse" },
-      });
+      // a cor da barra vem de .nav-solida, no CSS — nenhum literal aqui
+      ScrollTrigger.create({ start: 70, onToggle: (s) => ref.current?.classList.toggle("nav-solida", s.isActive) });
     },
     { scope: ref }
   );
 
   return (
-    <nav
-      ref={ref}
-      className="fixed inset-x-0 top-0 z-50 border-b border-transparent"
-      style={{ backgroundColor: "rgba(255,255,255,0)" }}
-    >
+    <nav ref={ref} className="fixed inset-x-0 top-0 z-50 border-b border-transparent transition-colors">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
         <a href="#topo" className="flex items-baseline gap-2">
-          <span className="font-display text-base font-bold tracking-tight">
-            Si<span className="text-accent">Move</span>
-          </span>
-          <span className="hidden text-[11px] text-mist sm:inline">{BRAND.tagline}</span>
+          <Wordmark className="text-lg" />
+          <span className="hidden text-xs text-muted-foreground sm:inline">{BRAND.tagline}</span>
         </a>
-        <div className="hidden items-center gap-6 text-[13px] text-mist lg:flex">
+        <div className="hidden items-center gap-6 text-xs text-muted-foreground lg:flex">
           {[
             ["Hoje", "#hoje"],
             ["Plataforma", "#plataforma"],
@@ -45,10 +35,10 @@ function Nav() {
             ["Compra Premiada", "#premiada"],
             ["Como funciona", "#como"],
           ].map(([l, h]) => (
-            <a key={h} href={h} className="transition hover:text-ink">{l}</a>
+            <a key={h} href={h} className="transition hover:text-foreground">{l}</a>
           ))}
         </div>
-        <a href="#cta" className="bg-accent px-4 py-2 text-[13px] font-semibold text-paper transition hover:bg-navy">
+        <a href="#cta" className="btn btn-primary">
           Receber ofertas
         </a>
       </div>
@@ -82,20 +72,20 @@ function Hero() {
   return (
     <header ref={ref} id="topo" className="pt-28 sm:pt-32">
       <div className="mx-auto max-w-6xl px-5">
-        <p className="hero-eyebrow text-[11px] font-semibold uppercase tracking-[0.22em] text-mist">
+        <p className="hero-eyebrow text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
           {HERO.eyebrow}
         </p>
 
-        <h1 className="mt-6 font-display text-[clamp(2.6rem,7vw,5rem)] font-bold leading-[0.98] tracking-[-0.035em]">
+        <h1 className="mt-6 font-display text-display font-bold leading-[0.98] tracking-[-0.035em]">
           {HERO.title.map((w, i) => (
             <span key={i} className="block overflow-hidden py-[0.04em]">
-              <span className={`word inline-block ${i === 2 ? "text-accent" : ""}`}>{w}</span>
+              <span className={`word inline-block ${i === 2 ? "text-primary" : ""}`}>{w}</span>
             </span>
           ))}
         </h1>
 
         <div className="rule mt-10 grid gap-8 pt-8 md:grid-cols-[1.2fr_1fr]">
-          <p className="hero-sub max-w-xl text-[17px] leading-relaxed text-mist">{HERO.sub}</p>
+          <p className="hero-sub max-w-xl text-base leading-relaxed text-muted-foreground">{HERO.sub}</p>
           <div className="flex flex-col items-start gap-4">
             <div className="flex flex-wrap gap-2.5">
               {HERO.ctas.map((c) => (
@@ -104,8 +94,8 @@ function Hero() {
                   href={c.href}
                   className={
                     c.primary
-                      ? "hero-cta inline-flex items-center gap-2 bg-accent px-5 py-3 text-sm font-semibold text-paper transition hover:bg-navy"
-                      : "hero-cta inline-flex items-center gap-2 hairline px-5 py-3 text-sm font-semibold transition hover:bg-sand"
+                      ? "hero-cta btn btn-primary"
+                      : "hero-cta btn btn-outline"
                   }
                 >
                   {c.label}
@@ -113,7 +103,7 @@ function Hero() {
                 </a>
               ))}
             </div>
-            <p className="hero-meta flex items-start gap-2 text-xs leading-relaxed text-mist">
+            <p className="hero-meta flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
               <Icon name="pin" className="mt-px h-3.5 w-3.5 shrink-0" />
               {BRAND.address}, {BRAND.city}.
             </p>
@@ -122,7 +112,7 @@ function Hero() {
       </div>
 
       <div className="hero-photo mt-14 overflow-hidden">
-        <div className="aspect-[16/9] max-h-[70vh] w-full overflow-hidden bg-sand sm:aspect-[21/9]">
+        <div className="aspect-[16/9] max-h-[70vh] w-full overflow-hidden bg-muted sm:aspect-[21/9]">
           <img
             src={PHOTOS.entrada.src}
             alt={PHOTOS.entrada.alt}
@@ -143,15 +133,15 @@ function Marquee() {
   const strip = (hidden) => (
     <div className="marquee-track flex shrink-0 items-center gap-6 pr-6" aria-hidden={hidden || undefined}>
       {row.map((s, i) => (
-        <span key={i} className="flex items-center gap-6 whitespace-nowrap text-sm text-mist">
+        <span key={i} className="flex items-center gap-6 whitespace-nowrap text-sm text-muted-foreground">
           {s}
-          <span className="h-1 w-1 rounded-full bg-mist/40" />
+          <span className="h-1 w-1 rounded-full bg-border" />
         </span>
       ))}
     </div>
   );
   return (
-    <div className="mt-20 flex overflow-hidden border-y border-[color:var(--edge)] py-3.5">
+    <div className="mt-20 flex overflow-hidden border-y border-border py-3.5">
       {strip(false)}
       {strip(true)}
     </div>
@@ -165,11 +155,11 @@ function Stats() {
       <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {STATS.map((s) => (
           <div key={s.label} data-reveal className="rule pt-5">
-            <p className="font-display text-[2.6rem] font-bold leading-none tracking-tight">
+            <p className="font-display text-4xl font-bold leading-none tracking-tight">
               <Counter value={s.value} suffix={s.suffix} />
             </p>
             <p className="mt-3 text-sm font-semibold">{s.label}</p>
-            <p className="mt-1 text-[13px] leading-relaxed text-mist">{s.note}</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{s.note}</p>
           </div>
         ))}
       </div>
@@ -180,16 +170,16 @@ function Stats() {
 /* ============================== HOJE (o problema) ============================== */
 function Problems() {
   return (
-    <section id="hoje" className="bg-sand py-24">
+    <section id="hoje" className="bg-muted py-24">
       <div className="mx-auto max-w-6xl px-5">
         <div className="grid gap-14 lg:grid-cols-[1fr_1fr] lg:items-start">
           <div>
-            <p data-reveal className="text-[11px] font-semibold uppercase tracking-[0.22em] text-mist">
+            <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
               Como está hoje
             </p>
             <h2
               data-reveal
-              className="mt-5 max-w-lg font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+              className="mt-5 max-w-lg font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
             >
               O movimento existe. O alcance é que para na calçada.
             </h2>
@@ -200,10 +190,10 @@ function Problems() {
             {PROBLEMS.map((p) => (
               <div key={p.n} data-reveal className="rule py-7 first:border-t-0 first:pt-0">
                 <div className="flex gap-5">
-                  <span className="font-display text-sm font-bold text-accent">{p.n}</span>
+                  <span className="font-display text-sm font-bold text-primary">{p.n}</span>
                   <div>
                     <h3 className="font-display text-lg font-bold leading-snug">{p.title}</h3>
-                    <p className="mt-2.5 text-[15px] leading-relaxed text-mist">{p.body}</p>
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
                   </div>
                 </div>
               </div>
@@ -220,16 +210,16 @@ function Pillars() {
   return (
     <section id="plataforma" className="mx-auto max-w-6xl px-5 py-24">
       <div className="max-w-2xl">
-        <p data-reveal className="text-[11px] font-semibold uppercase tracking-[0.22em] text-mist">
+        <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
           A plataforma
         </p>
         <h2
           data-reveal
-          className="mt-5 font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+          className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
         >
           Onze recursos, quatro objetivos.
         </h2>
-        <p data-reveal className="mt-5 text-[17px] leading-relaxed text-mist">
+        <p data-reveal className="mt-5 text-base leading-relaxed text-muted-foreground">
           Trazer gente nova, fazer voltar, ampliar a venda de cada box e entregar número à Secretaria.
         </p>
       </div>
@@ -238,24 +228,24 @@ function Pillars() {
         {PILLARS.map((p) => (
           <div key={p.id}>
             <div data-reveal className="rule flex flex-wrap items-baseline gap-x-4 gap-y-1 pt-5">
-              <span className="font-display text-sm font-bold text-accent">{p.n}</span>
+              <span className="font-display text-sm font-bold text-primary">{p.n}</span>
               <h3 className="font-display text-xl font-bold tracking-tight">{p.title}</h3>
-              <p className="text-sm text-mist">{p.lead}</p>
+              <p className="text-sm text-muted-foreground">{p.lead}</p>
             </div>
 
             <div className="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
               {p.features.map((f) => (
                 <article key={f.title} data-reveal>
-                  <Icon name={f.icon} className="h-5 w-5 text-accent" />
-                  <h4 className="mt-4 font-display text-[15px] font-bold leading-snug">
+                  <Icon name={f.icon} className="h-5 w-5 text-primary" />
+                  <h4 className="mt-4 font-display text-sm font-bold leading-snug">
                     {f.title}
                     {f.badge && (
-                      <span className="ml-2 align-middle text-[10px] font-semibold uppercase tracking-wider text-accent">
+                      <span className="ml-2 align-middle text-xs font-semibold uppercase tracking-wider text-primary">
                         {f.badge}
                       </span>
                     )}
                   </h4>
-                  <p className="mt-2 text-[14px] leading-relaxed text-mist">{f.body}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{f.body}</p>
                 </article>
               ))}
             </div>
@@ -269,26 +259,26 @@ function Pillars() {
 /* ============================== TOTEM ============================== */
 function MapSection() {
   return (
-    <section id="totem" className="bg-sand py-24">
+    <section id="totem" className="bg-muted py-24">
       <div className="mx-auto grid max-w-6xl items-start gap-14 px-5 lg:grid-cols-[1fr_auto]">
         <div className="max-w-xl">
-          <p data-reveal className="text-[11px] font-semibold uppercase tracking-[0.22em] text-mist">
+          <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             {MAP.n}
           </p>
           <h2
             data-reveal
-            className="mt-5 font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+            className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
           >
             {MAP.title}
           </h2>
-          <p data-reveal className="mt-5 text-[17px] leading-relaxed text-mist">{MAP.lead}</p>
-          <p data-reveal className="mt-4 text-[17px] leading-relaxed text-mist">{MAP.body}</p>
+          <p data-reveal className="mt-5 text-base leading-relaxed text-muted-foreground">{MAP.lead}</p>
+          <p data-reveal className="mt-4 text-base leading-relaxed text-muted-foreground">{MAP.body}</p>
 
           <div data-reveal className="mt-10">
             {MAP.bullets.map(([b, rest]) => (
               <div key={b} className="rule py-4">
-                <p className="text-[15px] leading-relaxed">
-                  <strong>{b}</strong>, <span className="text-mist">{rest}</span>
+                <p className="text-sm leading-relaxed">
+                  <strong>{b}</strong>, <span className="text-muted-foreground">{rest}</span>
                 </p>
               </div>
             ))}
@@ -297,7 +287,7 @@ function MapSection() {
           <a
             data-reveal
             href="/totem"
-            className="mt-8 inline-flex items-center gap-2 bg-accent px-5 py-3 text-sm font-semibold text-paper transition hover:bg-navy"
+            className="btn btn-primary mt-8"
           >
             Abrir a simulação do totem
             <Icon name="arrow" className="h-4 w-4" />
@@ -322,22 +312,22 @@ function Prize() {
     <section id="premiada" className="mx-auto max-w-6xl px-5 py-24">
       <div className="grid items-start gap-14 lg:grid-cols-[1.1fr_1fr]">
         <div>
-          <p data-reveal className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent">
+          <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             {PRIZE.n}
           </p>
           <h2
             data-reveal
-            className="mt-5 font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+            className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
           >
             {PRIZE.title}
           </h2>
-          <p data-reveal className="mt-5 max-w-lg text-[17px] leading-relaxed text-mist">{PRIZE.body}</p>
+          <p data-reveal className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground">{PRIZE.body}</p>
 
           <div data-reveal className="mt-10">
             {PRIZE.points.map(([b, rest]) => (
               <div key={b} className="rule py-4">
-                <p className="text-[15px] leading-relaxed">
-                  <strong>{b}</strong> <span className="text-mist">{rest}</span>
+                <p className="text-sm leading-relaxed">
+                  <strong>{b}</strong> <span className="text-muted-foreground">{rest}</span>
                 </p>
               </div>
             ))}
@@ -345,17 +335,17 @@ function Prize() {
         </div>
 
         <div className="lg:pt-16">
-          <div data-reveal className="hairline bg-sand p-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-mist">
+          <div data-reveal className="hairline bg-muted p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Seu número da sorte
             </p>
             <div className="mt-5">
               <PrizeRoll digits={PRIZE.ticket} />
             </div>
-            <p className="mt-5 text-sm text-mist">Sorteio no dia 30.</p>
+            <p className="mt-5 text-sm text-muted-foreground">Sorteio no dia 30.</p>
           </div>
           <p data-reveal className="caption mt-6">
-            <strong className="text-ink">Atenção jurídica.</strong> {PRIZE.note}
+            <strong className="text-foreground">Atenção jurídica.</strong> {PRIZE.note}
           </p>
         </div>
       </div>
@@ -405,21 +395,21 @@ function How() {
   );
 
   return (
-    <section id="como" ref={ref} className="overflow-hidden bg-navy py-24 text-paper md:py-0">
+    <section id="como" ref={ref} className="overflow-hidden bg-primary py-24 text-primary-foreground md:py-0">
       <div className="md:flex md:h-screen md:items-center">
         <div className="track flex flex-col gap-10 px-5 md:flex-row md:gap-16 md:px-[8vw]">
           <div className="panel shrink-0 md:w-[34vw]">
             <div className="panel-in">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-paper/50">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-foreground">
                 Como funciona
               </p>
-              <h2 className="mt-5 font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]">
+              <h2 className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]">
                 Do post do influenciador ao painel da Secretaria.
               </h2>
-              <p className="mt-5 max-w-md text-[16px] leading-relaxed text-paper/60">
+              <p className="mt-5 max-w-md text-sm leading-relaxed text-primary-foreground">
                 Um caminho só, sem maquininha nova e sem exigir que o permissionário instale nada.
               </p>
-              <div className="mt-8 hidden items-center gap-2 text-xs text-paper/40 md:flex">
+              <div className="mt-8 hidden items-center gap-2 text-xs text-primary-foreground md:flex">
                 <Icon name="arrow" className="h-4 w-4" /> role para o lado
               </div>
             </div>
@@ -427,10 +417,10 @@ function How() {
 
           {STEPS.map((s) => (
             <article key={s.k} className="panel shrink-0 md:w-[24vw]">
-              <div className="panel-in border-t border-paper/20 pt-5">
-                <span className="font-display text-sm font-bold text-accent">{s.k}</span>
+              <div className="panel-in border-t border-primary-foreground pt-5">
+                <span className="font-display text-sm font-bold text-primary">{s.k}</span>
                 <h3 className="mt-3 font-display text-lg font-bold leading-snug">{s.title}</h3>
-                <p className="mt-3 text-[14px] leading-relaxed text-paper/60">{s.body}</p>
+                <p className="mt-3 text-xs leading-relaxed text-primary-foreground">{s.body}</p>
               </div>
             </article>
           ))}
@@ -452,16 +442,16 @@ function Events() {
     <section className="mx-auto max-w-6xl px-5 py-24">
       <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.1fr]">
         <div>
-          <p data-reveal className="text-[11px] font-semibold uppercase tracking-[0.22em] text-mist">
+          <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             {EVENTS.n}
           </p>
           <h2
             data-reveal
-            className="mt-5 font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+            className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
           >
             {EVENTS.title}
           </h2>
-          <p data-reveal className="mt-5 max-w-lg text-[17px] leading-relaxed text-mist">{EVENTS.body}</p>
+          <p data-reveal className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground">{EVENTS.body}</p>
         </div>
         <Photo photo={PHOTOS.musica} ratio="aspect-[3/2]" />
       </div>
@@ -472,15 +462,15 @@ function Events() {
 /* ============================== PARA QUEM ============================== */
 function Audiences() {
   return (
-    <section className="bg-sand py-24">
+    <section className="bg-muted py-24">
       <div className="mx-auto max-w-6xl px-5">
         <h2
           data-reveal
-          className="max-w-xl font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+          className="max-w-xl font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
         >
           Três lados, o mesmo sistema.
         </h2>
-        <p data-reveal className="mt-5 max-w-xl text-[17px] leading-relaxed text-mist">
+        <p data-reveal className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
           O lado do permissionário vive no WhatsApp. Se depender de instalar aplicativo, ele não usa.
         </p>
 
@@ -490,8 +480,8 @@ function Audiences() {
               <h3 className="font-display text-lg font-bold">{a.who}</h3>
               <ul className="mt-5 space-y-3">
                 {a.items.map((it) => (
-                  <li key={it} className="flex gap-2.5 text-[14px] leading-relaxed text-mist">
-                    <Icon name="check" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+                  <li key={it} className="flex gap-2.5 text-xs leading-relaxed text-muted-foreground">
+                    <Icon name="check" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                     {it}
                   </li>
                 ))}
@@ -523,22 +513,22 @@ function Roadmap() {
     <section id="roadmap" ref={ref} className="mx-auto max-w-6xl px-5 py-24">
       <h2
         data-reveal
-        className="font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+        className="font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
       >
         O que roda agora e o que vem depois.
       </h2>
       <div className="relative mb-10 mt-12 h-px w-full bg-[color:var(--edge)]">
-        <div className="line-fill h-px w-full bg-accent" />
+        <div className="line-fill h-px w-full bg-primary" />
       </div>
       <div className="grid gap-8 md:grid-cols-4">
         {ROADMAP.map((r, i) => (
           <div key={r.phase} data-reveal>
             <div className="mb-3 flex items-center gap-2">
-              <span className={`h-1.5 w-1.5 ${i === 0 ? "bg-accent" : "bg-mist/40"}`} />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-mist">{r.phase}</span>
+              <span className={`h-1.5 w-1.5 ${i === 0 ? "bg-primary" : "bg-border"}`} />
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{r.phase}</span>
             </div>
             <h3 className="font-display text-lg font-bold">{r.label}</h3>
-            <ul className="mt-3 space-y-1.5 text-[14px] leading-relaxed text-mist">
+            <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
               {r.items.map((it) => (
                 <li key={it}>{it}</li>
               ))}
@@ -553,26 +543,26 @@ function Roadmap() {
 /* ============================== CTA ============================== */
 function Cta() {
   return (
-    <section id="cta" className="bg-sand py-24">
+    <section id="cta" className="bg-muted py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 lg:grid-cols-[1fr_1fr]">
         <div>
-          <p data-reveal className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-zap">
-            <Icon name="zap" className="h-4 w-4" /> WhatsApp
+          <p data-reveal className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-success">
+            <Icon name="success" className="h-4 w-4" /> WhatsApp
           </p>
           <h2
             data-reveal
-            className="mt-5 font-display text-[clamp(1.8rem,4vw,2.8rem)] font-bold leading-[1.08] tracking-[-0.025em]"
+            className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]"
           >
             {FORM.title}
           </h2>
-          <p data-reveal className="mt-5 max-w-md text-[17px] leading-relaxed text-mist">{FORM.sub}</p>
-          <p data-reveal className="mt-6 text-[14px] text-mist">
+          <p data-reveal className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">{FORM.sub}</p>
+          <p data-reveal className="mt-6 text-xs text-muted-foreground">
             Prefere a página completa?{" "}
-            <a href="/cadastro" className="font-semibold text-accent-ink underline underline-offset-2">
+            <a href="/cadastro" className="font-semibold text-primary underline underline-offset-2">
               Abrir o cadastro
             </a>{" "}
             ·{" "}
-            <a href="/pontos" className="font-semibold text-accent-ink underline underline-offset-2">
+            <a href="/pontos" className="font-semibold text-primary underline underline-offset-2">
               Consultar meus pontos
             </a>
           </p>
@@ -588,14 +578,14 @@ function Cta() {
 function Footer() {
   return (
     <footer className="mx-auto max-w-6xl px-5 py-12">
-      <div className="rule flex flex-col gap-4 pt-6 text-[13px] text-mist sm:flex-row sm:items-start sm:justify-between">
+      <div className="rule flex flex-col gap-4 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="font-display text-sm font-bold text-ink">
-            {BRAND.name} <span className="font-normal text-mist">· {BRAND.tagline}</span>
+          <p className="font-display text-sm font-bold text-foreground">
+            {BRAND.name} <span className="font-normal text-muted-foreground">· {BRAND.tagline}</span>
           </p>
           <p className="mt-1">{BRAND.place}, {BRAND.city}.</p>
         </div>
-        <p className="max-w-sm text-[12px] leading-relaxed sm:text-right">
+        <p className="max-w-sm text-xs leading-relaxed sm:text-right">
           {PHOTOS.credit} Dados do Centro e do município: Prefeitura de Maracanaú e IBGE.
           Projeto de hackathon, sem vínculo oficial com a Prefeitura.
         </p>

@@ -1,24 +1,132 @@
 @import "tailwindcss";
 
-@theme {
-  --color-paper: #ffffff;
-  --color-sand: #f2f5fa; /* fundo alternado, azulado */
-  --color-sand-2: #e1e9f4;
-  --color-ink: #0f1620;
-  --color-mist: #5b6675;
-  --color-navy: #0e2f5c; /* azul profundo, para blocos cheios */
-  --color-accent: #1b5aa8; /* azul principal */
-  --color-accent-ink: #14447f; /* azul para texto miúdo */
-  --color-zap: #1d9e5e; /* verde só onde o assunto é WhatsApp */
+/* ─────────────────────────────────────────────────────────────────────────────
+   SIMOVE — design tokens
+   Valores de design/tokens.css (pipeline get-shit-pretty). Auditoria de
+   contraste em design/APLICACAO.md: 60 pares fg/bg, 0 reprovações.
 
-  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+   Nenhuma cor, tamanho de texto ou raio pode ser escrito à mão fora deste
+   arquivo. Se falta um valor, ele vira token aqui — não literal no componente.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* ---- Raio: 14 px. Botão e campo usam md; card usa lg. ---- */
+  --radius: 14px;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* ---- Escala tipográfica: corpo em 18 px. 14 px é o piso absoluto. ---- */
+  --text-xs: 14px;
+  --text-xs--line-height: 1.45;
+  --text-sm: 16px;
+  --text-sm--line-height: 1.5;
+  --text-base: 18px;
+  --text-base--line-height: 1.6;
+  --text-lg: 20px;
+  --text-lg--line-height: 1.5;
+  --text-xl: 24px;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 28px;
+  --text-2xl--line-height: 1.3;
+  --text-3xl: 34px;
+  --text-3xl--line-height: 1.25;
+  --text-4xl: 40px;
+  --text-4xl--line-height: 1.15;
+  --text-5xl: 48px;
+  --text-5xl--line-height: 1.1;
+
+  /* Título de página numa landing pede um degrau acima do app. Fluido entre
+     text-4xl e o dobro de text-5xl, para não estourar em telas estreitas. */
+  --text-display: clamp(var(--text-4xl), 8vw, 96px);
+  --text-display--line-height: 1;
+  --text-secao: clamp(var(--text-2xl), 4.5vw, var(--text-5xl));
+  --text-secao--line-height: 1.1;
+
+  /* ---- Família única: Nunito, a do logotipo (IDENTITY.md §3). ---- */
+  --font-sans: "Nunito", system-ui, sans-serif;
+  --font-display: "Nunito", system-ui, sans-serif;
+
+  /* ---- Cores de sinalização física do Centro. Não são cores de interface:
+         são as quatro cores dos setores pintados no prédio e repetidas no
+         totem. Ficam aqui para não virarem hexadecimal solto no componente. ---- */
+  --color-setor-azul: oklch(0.55 0.11 255);
+  --color-setor-amarelo: oklch(0.76 0.13 78);
+  --color-setor-vermelho: oklch(0.55 0.17 25);
+  --color-setor-verde: oklch(0.57 0.11 150);
+  --color-setor-texto: oklch(1 0 0);
 }
 
-:root {
-  color-scheme: light;
-  --edge: rgba(14, 47, 92, 0.16);
-  --edge-soft: rgba(14, 47, 92, 0.08);
+@layer theme {
+  :root {
+    --color-background: oklch(0.985 0.004 100);
+    --color-foreground: oklch(0.235 0.03 261);
+    --color-card: oklch(1 0 0);
+    --color-card-foreground: oklch(0.235 0.03 261);
+    --color-popover: oklch(1 0 0);
+    --color-popover-foreground: oklch(0.235 0.03 261);
+    --color-primary: oklch(0.39 0.106 261);
+    --color-primary-foreground: oklch(0.99 0.005 100);
+    --color-secondary: oklch(0.93 0.028 261);
+    --color-secondary-foreground: oklch(0.31 0.09 261);
+    --color-muted: oklch(0.95 0.008 100);
+    --color-muted-foreground: oklch(0.43 0.025 261);
+    --color-accent: oklch(0.93 0.043 60);
+    --color-accent-foreground: oklch(0.32 0.08 50);
+    --color-destructive: oklch(0.48 0.19 27);
+    /* `border` e `input` são deliberadamente escuros (3,21:1 e 3,77:1 contra o
+       fundo). Um campo cuja borda não se enxerga é um campo que não existe. */
+    --color-border: oklch(0.64 0.02 261);
+    --color-input: oklch(0.6 0.03 261);
+    --color-ring: oklch(0.5 0.12 261);
+    --color-chart-1: oklch(0.45 0.12 261);
+    --color-chart-2: oklch(0.55 0.09 178);
+    --color-chart-3: oklch(0.66 0.15 56);
+    --color-chart-4: oklch(0.55 0.19 15);
+    --color-chart-5: oklch(0.5 0.13 305);
+    /* Verde da marca. RESERVADO a "aberto agora" e "falar no WhatsApp". */
+    --color-success: oklch(0.5 0.09 178);
+    --color-success-foreground: oklch(0.99 0.005 100);
+    /* Laranja da etiqueta do logotipo. Atenção sem erro. */
+    --color-warning: oklch(0.79 0.148 60);
+    --color-warning-foreground: oklch(0.28 0.065 50);
+  }
+
+  /* Modo escuro é suporte, não identidade: a página abre em claro e só segue o
+     sistema operacional se ele pedir escuro. Mesmos matizes, claridade
+     invertida, auditados nos mesmos 30 pares. */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background: oklch(0.205 0.02 261);
+      --color-foreground: oklch(0.965 0.005 100);
+      --color-card: oklch(0.255 0.022 261);
+      --color-card-foreground: oklch(0.965 0.005 100);
+      --color-popover: oklch(0.255 0.022 261);
+      --color-popover-foreground: oklch(0.965 0.005 100);
+      --color-primary: oklch(0.76 0.1 258);
+      --color-primary-foreground: oklch(0.205 0.04 261);
+      --color-secondary: oklch(0.32 0.03 261);
+      --color-secondary-foreground: oklch(0.965 0.005 100);
+      --color-muted: oklch(0.32 0.03 261);
+      --color-muted-foreground: oklch(0.78 0.02 261);
+      --color-accent: oklch(0.34 0.045 60);
+      --color-accent-foreground: oklch(0.97 0.01 100);
+      --color-destructive: oklch(0.66 0.19 27);
+      --color-border: oklch(0.55 0.02 261);
+      --color-input: oklch(0.6 0.025 261);
+      --color-ring: oklch(0.7 0.11 259);
+      --color-chart-1: oklch(0.7 0.11 261);
+      --color-chart-2: oklch(0.75 0.1 178);
+      --color-chart-3: oklch(0.79 0.14 60);
+      --color-chart-4: oklch(0.7 0.17 15);
+      --color-chart-5: oklch(0.7 0.14 305);
+      --color-success: oklch(0.74 0.1 178);
+      --color-success-foreground: oklch(0.2 0.038 178);
+      --color-warning: oklch(0.8 0.138 60);
+      --color-warning-foreground: oklch(0.25 0.06 50);
+    }
+  }
 }
 
 html {
@@ -26,21 +134,18 @@ html {
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: var(--color-background);
+  color: var(--color-foreground);
   font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: #fff;
-}
-
-.font-display {
-  font-stretch: 105%;
-  letter-spacing: -0.02em;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
 }
 
 img {
@@ -48,21 +153,112 @@ img {
   max-width: 100%;
 }
 
-.rule {
-  border-top: 1px solid var(--edge);
-}
-.rule-soft {
-  border-top: 1px solid var(--edge-soft);
-}
-.hairline {
-  border: 1px solid var(--edge);
+/* Anel de foco: 3 px, nunca removido (foundations.md). */
+:focus-visible {
+  outline: 3px solid var(--color-ring);
+  outline-offset: 2px;
 }
 
-/* legenda de foto, no estilo de jornal */
+/* Chapa sólida atrás de texto sobre foto — o DS proíbe gradiente e proíbe
+   texto sobre foto sem chapa. */
+.chapa {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+
+/* Barra fixa depois que a página rola. Alternativa a animar cor no JS, onde o
+   valor teria de ser escrito à mão. */
+.nav-solida {
+  background: color-mix(in oklab, var(--color-background) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom-color: var(--color-border);
+}
+
+.rule {
+  border-top: 1px solid var(--color-border);
+}
+
+/* Card: bg-card + border-border + rounded-lg (components/card.md). A separação
+   de superfície é por cor e borda, não por sombra. */
+.hairline {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Botão: 56 px de altura, rótulo em text-sm (16 px), raio md (components/button.md). */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 56px;
+  padding-inline: 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+}
+.btn-primary:hover {
+  background: color-mix(in oklab, var(--color-primary) 90%, black);
+}
+.btn-outline {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+}
+.btn-outline:hover {
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
+}
+/* Verde reservado: só leva ao WhatsApp. */
+.btn-whatsapp {
+  background: var(--color-success);
+  color: var(--color-success-foreground);
+}
+.btn-whatsapp:hover {
+  background: color-mix(in oklab, var(--color-success) 90%, black);
+}
+
+/* Campo: 56 px, borda de 2 px em `input` (3,77:1), texto em text-lg
+   (components/input.md). A borda é o que anuncia que o campo existe. */
+.campo {
+  width: 100%;
+  min-height: 56px;
+  padding-inline: 1rem;
+  border: 2px solid var(--color-input);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  color: var(--color-foreground);
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+}
+.campo::placeholder {
+  color: var(--color-muted-foreground);
+}
+.campo:focus {
+  border-color: var(--color-ring);
+}
+.campo[aria-invalid="true"] {
+  border-color: var(--color-destructive);
+}
+
+/* Rótulo de campo: sempre visível, acima, text-lg peso 600. */
+.rotulo {
+  display: block;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+  font-weight: 600;
+}
+
+/* Legenda e rodapé: piso da escala, nunca usado em instrução. */
 .caption {
-  font-size: 0.6875rem;
-  line-height: 1.5;
-  color: var(--color-mist);
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  color: var(--color-muted-foreground);
 }
 
 @keyframes slide {
@@ -88,6 +284,7 @@ img {
   animation: pulse-ring 2.4s ease-out infinite;
 }
 
+/* Movimento: 120 ms para estado, 200 ms para tela (foundations.md). */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

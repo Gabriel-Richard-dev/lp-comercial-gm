@@ -12,7 +12,7 @@ const PATHS = {
   ticket:
     "M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8Zm6 1v6h2V9H9Z",
   tag: "M11 2h9v9l-9 9-9-9 9-9Zm5 3a1.6 1.6 0 1 0 0 3.2A1.6 1.6 0 0 0 16 5Z",
-  zap: "M12 3C6.9 3 3 6.6 3 11c0 2.3 1.1 4.3 2.9 5.7L5 21l4.6-1.6c.8.2 1.6.3 2.4.3 5.1 0 9-3.6 9-8S17.1 3 12 3Z",
+  success: "M12 3C6.9 3 3 6.6 3 11c0 2.3 1.1 4.3 2.9 5.7L5 21l4.6-1.6c.8.2 1.6.3 2.4.3 5.1 0 9-3.6 9-8S17.1 3 12 3Z",
   music: "M9 18.5a2.8 2.8 0 1 1-2-2.7V5.2L19 3v10.3a2.8 2.8 0 1 1-2-2.7V5.4L9 6.9v11.6Z",
   star: "m12 2 3 6.5 7 .9-5.1 4.8 1.3 7L12 17.8 5.8 21.2l1.3-7L2 9.4l7-.9L12 2Z",
   stars: "m9 2 2.2 4.8L16 7.5l-3.6 3.4.9 5L9 13.4 4.7 15.9l.9-5L2 7.5l4.8-.7L9 2Zm8.5 10 1.2 2.6 2.8.4-2 1.9.5 2.8-2.5-1.4-2.5 1.4.5-2.8-2-1.9 2.8-.4L17.5 12Z",
@@ -27,6 +27,27 @@ const PATHS = {
   arrow: "M5 12h12.2l-4.6-4.6L14 6l7 6-7 6-1.4-1.4 4.6-4.6H5v-2Z",
   check: "m9.6 16.2-3.8-3.8L4.4 13.8l5.2 5.2L20 8.6l-1.4-1.4-9 9Z",
 };
+
+/* ---------- logotipo: "SIM" em primary, "OVE" em success (IDENTITY.md §1) ----------
+   A divisão de cor no meio da palavra é o traço mais reconhecível da marca. É a única
+   superfície em que o verde aparece fora de "aberto agora" e "falar no WhatsApp". */
+export function Wordmark({ className = "text-lg", descritivo = false, mono = false }) {
+  return (
+    <span className={`font-display font-extrabold uppercase tracking-tight ${className}`}>
+      <span className={mono ? undefined : "text-primary"}>SIM</span>
+      <span className={mono ? undefined : "text-success"}>OVE</span>
+      {descritivo && (
+        <span
+          className={`ml-2 align-middle text-xs font-bold uppercase tracking-[0.08em] ${
+            mono ? "" : "text-primary"
+          }`}
+        >
+          Maracanaú modas e artigos
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function Icon({ name, className = "h-5 w-5" }) {
   return (
@@ -90,7 +111,7 @@ export function Photo({ photo, className = "", ratio = "aspect-[3/2]", priority 
 
   return (
     <figure ref={ref} className={className}>
-      <div className={`overflow-hidden bg-sand ${ratio}`}>
+      <div className={`overflow-hidden bg-muted ${ratio}`}>
         <img
           src={photo.src}
           alt={photo.alt}
@@ -128,12 +149,12 @@ export function PrizeRoll({ digits }) {
   return (
     <div ref={ref} className="flex gap-1.5" role="img" aria-label={`Número da sorte ${digits.join("")}`}>
       {digits.map((d, i) => (
-        <div key={i} className="h-16 w-11 overflow-hidden bg-ink sm:h-20 sm:w-14" aria-hidden="true">
+        <div key={i} className="h-16 w-11 overflow-hidden bg-primary sm:h-20 sm:w-14" aria-hidden="true">
           <div className="reel-strip">
             {Array.from({ length: STRIP }, (_, j) => (
               <div
                 key={j}
-                className="flex h-16 items-center justify-center font-display text-3xl font-bold text-paper sm:h-20 sm:text-4xl"
+                className="flex h-16 items-center justify-center font-display text-3xl font-bold text-primary-foreground sm:h-20 sm:text-4xl"
               >
                 {j % 10}
               </div>
@@ -163,46 +184,50 @@ export function WhatsForm() {
 
   if (sent)
     return (
-      <div className="flex items-center gap-3 border border-zap/30 bg-zap/8 p-5">
-        <Icon name="check" className="h-6 w-6 shrink-0 text-zap" />
+      <div className="flex items-center gap-3 hairline border-success bg-card p-5">
+        <Icon name="check" className="h-6 w-6 shrink-0 text-success" />
         <p className="text-sm">
           Pronto, <strong>{name.split(" ")[0]}</strong>. As ofertas do Centro vão chegar no seu WhatsApp.
         </p>
       </div>
     );
 
+  // Rótulo sempre visível acima do campo: o DS proíbe placeholder como rótulo.
   return (
-    <form onSubmit={submit} noValidate className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-      <label className="sr-only" htmlFor="nome">Nome</label>
-      <input
-        id="nome"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Seu nome"
-        autoComplete="given-name"
-        className="hairline bg-paper px-4 py-3 text-sm outline-none placeholder:text-mist focus:border-navy"
-      />
-      <label className="sr-only" htmlFor="zap">WhatsApp</label>
-      <input
-        id="zap"
-        value={phone}
-        onChange={(e) => setPhone(maskPhone(e.target.value))}
-        placeholder="(85) 9 9999-9999"
-        inputMode="tel"
-        autoComplete="tel"
-        aria-invalid={!!err}
-        className="hairline bg-paper px-4 py-3 text-sm outline-none placeholder:text-mist focus:border-navy"
-      />
-      <button
-        type="submit"
-        className="inline-flex items-center justify-center gap-2 bg-navy px-6 py-3 text-sm font-semibold text-paper transition hover:bg-ink"
-      >
-        Quero receber <Icon name="arrow" className="h-4 w-4" />
+    <form onSubmit={submit} noValidate className="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label className="rotulo" htmlFor="wf-nome">Nome</label>
+        <input
+          id="wf-nome"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Como quer ser chamado"
+          autoComplete="given-name"
+          className="campo mt-2"
+        />
+      </div>
+      <div>
+        <label className="rotulo" htmlFor="wf-whats">WhatsApp</label>
+        <input
+          id="wf-whats"
+          value={phone}
+          onChange={(e) => setPhone(maskPhone(e.target.value))}
+          placeholder="(85) 9 9999-9999"
+          inputMode="tel"
+          autoComplete="tel"
+          aria-invalid={!!err}
+          aria-describedby={err ? "wf-erro" : undefined}
+          className="campo mt-2"
+        />
+      </div>
+      <button type="submit" className="btn btn-whatsapp sm:col-span-2">
+        <Icon name="success" className="h-5 w-5" />
+        Receber no WhatsApp
       </button>
       {err && (
-        <p role="alert" className="text-xs text-accent-ink sm:col-span-3">{err}</p>
+        <p id="wf-erro" role="alert" className="text-sm text-destructive sm:col-span-2">{err}</p>
       )}
-      <p className="caption sm:col-span-3">
+      <p className="caption sm:col-span-2">
         Só ofertas do Centro Geraldo Machado. Para sair, basta responder SAIR. O consentimento fica registrado, como pede a LGPD.
       </p>
     </form>
@@ -212,13 +237,13 @@ export function WhatsForm() {
 /* ---------- QR gerado em CSS ---------- */
 export function FakeQR({ className = "h-14 w-14" }) {
   return (
-    <div className={`grid grid-cols-9 gap-px bg-paper p-1 ${className}`} aria-hidden="true">
+    <div className={`grid grid-cols-9 gap-px bg-card p-1 ${className}`} aria-hidden="true">
       {Array.from({ length: 81 }, (_, i) => {
         const r = Math.floor(i / 9);
         const c = i % 9;
         const corner = (r < 3 && c < 3) || (r < 3 && c > 5) || (r > 5 && c < 3);
         const on = corner ? (r === 0 || r === 2 || c === 0 || c === 2 || (r === 1 && c === 1)) : (i * 7) % 3 === 0;
-        return <div key={i} className={on ? "bg-ink" : "bg-paper"} />;
+        return <div key={i} className={on ? "bg-primary" : "bg-card"} />;
       })}
     </div>
   );
@@ -273,8 +298,8 @@ export function FloorMap() {
             key={s}
             onClick={() => setActive(active === s ? null : s)}
             aria-pressed={active === s}
-            className={`px-2.5 py-1 text-[11px] font-semibold transition ${
-              active === s ? "bg-ink text-paper" : "hairline text-mist hover:text-ink"
+            className={`px-2.5 py-1 text-xs font-semibold transition ${
+              active === s ? "bg-primary text-primary-foreground" : "hairline text-muted-foreground hover:text-foreground"
             }`}
           >
             {s}
@@ -292,7 +317,7 @@ export function FloorMap() {
             onMouseLeave={() => setHover(null)}
             onFocus={() => setHover(b)}
             onBlur={() => setHover(null)}
-            className="box-cell grid place-items-center text-[8px] font-bold text-white outline-none focus-visible:ring-2 focus-visible:ring-ink sm:text-[10px]"
+            className="box-cell grid place-items-center text-xs font-bold text-setor-texto outline-none sm:text-xs"
             aria-label={`Box ${b.n}, ${b.name}, ${b.seg}, ${SECTORS[b.s].label}`}
           >
             {b.n}
@@ -301,39 +326,39 @@ export function FloorMap() {
 
         <div
           style={{ gridColumn: "4 / 9", gridRow: "4 / 9" }}
-          className="relative grid place-items-center bg-sand-2"
+          className="relative grid place-items-center bg-secondary"
         >
-          <p className="text-[9px] font-bold uppercase leading-tight tracking-[0.2em] text-mist sm:text-[10px]">
+          <p className="text-xs font-bold uppercase leading-tight tracking-[0.2em] text-muted-foreground sm:text-xs">
             Circulação
           </p>
-          <span className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-1 text-[8px] font-semibold text-accent-ink sm:text-[9px]">
+          <span className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-1 text-xs font-semibold text-primary sm:text-xs">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="ping absolute inline-flex h-full w-full rounded-full bg-accent" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+              <span className="ping absolute inline-flex h-full w-full rounded-full bg-primary" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
             </span>
             você está aqui
           </span>
         </div>
       </div>
 
-      <div className="rule-soft mt-3 flex min-h-9 flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-3">
+      <div className="rule mt-3 flex min-h-9 flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-3">
         <div className="flex flex-wrap gap-2.5">
           {Object.values(SECTORS).map((s) => (
-            <span key={s.label} className="flex items-center gap-1 text-[10px] text-mist">
+            <span key={s.label} className="flex items-center gap-1 text-xs text-muted-foreground">
               <span className="h-2 w-2" style={{ backgroundColor: s.hex }} />
               {s.label.replace("Setor ", "")}
             </span>
           ))}
         </div>
-        <p className="text-[11px] font-semibold" aria-live="polite">
+        <p className="text-xs font-semibold" aria-live="polite">
           {shown ? (
             <>
-              {shown.n} · {shown.name} <span className="font-normal text-mist">· {shown.seg}</span>
+              {shown.n} · {shown.name} <span className="font-normal text-muted-foreground">· {shown.seg}</span>
             </>
           ) : active ? (
             `${hits} boxes vendem ${active}`
           ) : (
-            <span className="font-normal text-mist">Escolha um segmento</span>
+            <span className="font-normal text-muted-foreground">Escolha um segmento</span>
           )}
         </p>
       </div>
@@ -344,23 +369,23 @@ export function FloorMap() {
 /* ---------- o totem ---------- */
 export function Totem({ children }) {
   return (
-    <div className="mx-auto w-full max-w-sm bg-ink p-3">
-      <div className="bg-paper">
-        <div className="border-b border-navy/15 px-5 py-5 text-center">
-          <p className="text-[8px] font-semibold uppercase tracking-[0.3em] text-mist">
+    <div className="mx-auto w-full max-w-sm bg-primary p-3">
+      <div className="bg-card">
+        <div className="border-b border-border px-5 py-5 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
             Centro Público Comercial
           </p>
-          <p className="font-display text-lg font-bold uppercase tracking-tight text-navy">Geraldo Machado</p>
-          <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-mist">Maracanaú</p>
+          <p className="font-display text-lg font-bold uppercase tracking-tight text-primary">Geraldo Machado</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">Maracanaú</p>
         </div>
 
         <div className="px-4 py-5">{children}</div>
 
-        <div className="flex items-center gap-3 bg-navy px-4 py-3">
+        <div className="flex items-center gap-3 bg-primary px-4 py-3">
           <FakeQR className="h-12 w-12" />
           <div>
-            <p className="font-display text-[11px] font-bold text-paper">Baixe o SiMove</p>
-            <p className="text-[9px] leading-snug text-paper/70">
+            <p className="font-display text-xs font-bold text-primary-foreground">Baixe o SIMOVE</p>
+            <p className="text-xs leading-snug text-primary-foreground">
               Ofertas, eventos, pontos e a Compra Premiada.
             </p>
           </div>
@@ -376,24 +401,24 @@ const SCREENS = [
     head: "WhatsApp",
     body: (
       <>
-        <div className="flex items-center gap-2 border-b border-ink/10 pb-2">
-          <div className="grid h-6 w-6 place-items-center rounded-full bg-zap text-white">
-            <Icon name="zap" className="h-3.5 w-3.5" />
+        <div className="flex items-center gap-2 border-b border-border pb-2">
+          <div className="grid h-6 w-6 place-items-center rounded-full bg-success text-success-foreground">
+            <Icon name="success" className="h-3.5 w-3.5" />
           </div>
-          <p className="text-[10px] font-semibold">SiMove Maracanaú</p>
+          <p className="text-xs font-semibold">SIMOVE Maracanaú</p>
         </div>
-        <div className="max-w-[88%] bg-sand p-2.5">
-          <p className="text-[10px] leading-relaxed">
+        <div className="max-w-[88%] bg-muted p-2.5">
+          <p className="text-xs leading-relaxed">
             Hoje no Box 12: sandália a partir de <strong>R$ 29,90</strong>.
           </p>
         </div>
-        <div className="max-w-[88%] bg-sand p-2.5">
-          <p className="text-[10px] leading-relaxed">
+        <div className="max-w-[88%] bg-muted p-2.5">
+          <p className="text-xs leading-relaxed">
             Cupom <strong>LARISSA10</strong> vale 10% até sexta.
           </p>
         </div>
-        <div className="ml-auto max-w-[70%] bg-zap/15 p-2.5">
-          <p className="text-[10px]">quero!</p>
+        <div className="ml-auto max-w-[70%] bg-muted p-2.5">
+          <p className="text-xs">quero!</p>
         </div>
       </>
     ),
@@ -402,17 +427,17 @@ const SCREENS = [
     head: "Seus pontos",
     body: (
       <>
-        <div className="bg-navy p-3.5 text-paper">
-          <p className="text-[9px] opacity-70">Saldo</p>
+        <div className="bg-primary p-3.5 text-primary-foreground">
+          <p className="text-xs opacity-70">Saldo</p>
           <p className="font-display text-3xl font-bold">340</p>
-          <p className="text-[9px] opacity-70">dois cafés nos boxes de alimentação</p>
+          <p className="text-xs opacity-70">dois cafés nos boxes de alimentação</p>
         </div>
         <div className="hairline p-3">
-          <p className="text-[10px] font-semibold">Indique e ganhe</p>
-          <p className="mt-1 text-[9px] text-mist">A pessoa compra, vocês dois pontuam.</p>
-          <div className="mt-2 flex items-center gap-1.5 bg-sand px-2 py-1.5">
-            <Icon name="share" className="h-3 w-3 text-accent" />
-            <span className="text-[9px] font-semibold">simove.app/gabi</span>
+          <p className="text-xs font-semibold">Indique e ganhe</p>
+          <p className="mt-1 text-xs text-muted-foreground">A pessoa compra, vocês dois pontuam.</p>
+          <div className="mt-2 flex items-center gap-1.5 bg-muted px-2 py-1.5">
+            <Icon name="share" className="h-3 w-3 text-primary" />
+            <span className="text-xs font-semibold">simove.app/gabi</span>
           </div>
         </div>
       </>
@@ -422,14 +447,14 @@ const SCREENS = [
     head: "Compra Premiada",
     body: (
       <>
-        <div className="border border-dashed border-accent/50 bg-accent/6 p-4 text-center">
-          <Icon name="gift" className="mx-auto h-5 w-5 text-accent" />
-          <p className="mt-1.5 text-[9px] text-mist">Seu número da sorte</p>
+        <div className="border border-dashed border-primary bg-secondary p-4 text-center">
+          <Icon name="gift" className="mx-auto h-5 w-5 text-primary" />
+          <p className="mt-1.5 text-xs text-muted-foreground">Seu número da sorte</p>
           <p className="font-display text-2xl font-bold tracking-[0.15em]">042817</p>
         </div>
-        <div className="bg-sand p-3">
-          <p className="text-[10px] font-semibold">Sorteio dia 30</p>
-          <p className="mt-1 text-[9px] text-mist">Você tem 3 números este mês.</p>
+        <div className="bg-muted p-3">
+          <p className="text-xs font-semibold">Sorteio dia 30</p>
+          <p className="mt-1 text-xs text-muted-foreground">Você tem 3 números este mês.</p>
         </div>
       </>
     ),
@@ -460,12 +485,12 @@ export function Phone({ className = "" }) {
 
   return (
     <div ref={ref} className={`relative ${className}`}>
-      <div className="relative h-[400px] w-[200px] rounded-[1.75rem] bg-ink p-2.5 shadow-xl shadow-ink/20">
-        <div className="absolute left-1/2 top-3 z-10 h-1 w-12 -translate-x-1/2 rounded-full bg-white/25" />
-        <div className="relative h-full overflow-hidden rounded-[1.25rem] bg-paper">
+      <div className="relative h-[400px] w-[200px] rounded-[1.75rem] bg-primary p-2.5 shadow-sm">
+        <div className="absolute left-1/2 top-3 z-10 h-1 w-12 -translate-x-1/2 rounded-full bg-primary-foreground" />
+        <div className="relative h-full overflow-hidden rounded-[1.25rem] bg-card">
           {SCREENS.map((s) => (
             <div key={s.head} className="screen absolute inset-0 flex flex-col gap-2 px-3 pb-4 pt-8">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-mist">{s.head}</p>
+              <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{s.head}</p>
               {s.body}
             </div>
           ))}

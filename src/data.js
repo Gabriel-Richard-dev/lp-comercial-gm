@@ -1,8 +1,8 @@
 // Todo o texto e os dados da página moram aqui.
 
 export const BRAND = {
-  name: "SiMove Maracanaú",
-  short: "SiMove",
+  name: "SIMOVE Maracanaú",
+  short: "SIMOVE",
   tagline: "modas e artigos",
   place: "Centro Público Comercial Geraldo Machado",
   address: "Rua Manoel Pereira, Centro, próximo à Praça da Estação",
@@ -36,9 +36,9 @@ export const PHOTOS = {
 export const HERO = {
   eyebrow: "Centro Público Comercial Geraldo Machado",
   title: ["Sessenta boxes", "num só", "lugar."],
-  sub: "O Centro tem 1.200 m² de comércio no meio de Maracanaú e nenhuma vitrine fora dele. O SiMove coloca as 60 lojas no celular de quem mora aqui.",
+  sub: "O Centro tem 1.200 m² de comércio no meio de Maracanaú e nenhuma vitrine fora dele. O SIMOVE coloca as 60 lojas no celular de quem mora aqui.",
   ctas: [
-    { label: "Ver o que o SiMove faz", href: "#plataforma", primary: true },
+    { label: "Ver o que o SIMOVE faz", href: "#plataforma", primary: true },
     { label: "Compra Premiada", href: "#premiada" },
   ],
 };
@@ -177,12 +177,12 @@ export const PILLARS = [
   },
 ];
 
-/* --- Planta do térreo: quatro blocos de 15 boxes em volta da praça. --- */
+/* --- Planta do térreo: quatro blocos de 15 boxes em volta da circulação central. --- */
 export const SECTORS = {
-  azul: { label: "Setor Azul", hex: "#3D7CB8" },
-  amarelo: { label: "Setor Amarelo", hex: "#DFA22A" },
-  vermelho: { label: "Setor Vermelho", hex: "#C8443A" },
-  verde: { label: "Setor Verde", hex: "#46925A" },
+  azul: { label: "Setor Azul", hex: "var(--color-setor-azul)" },
+  amarelo: { label: "Setor Amarelo", hex: "var(--color-setor-amarelo)" },
+  vermelho: { label: "Setor Vermelho", hex: "var(--color-setor-vermelho)" },
+  verde: { label: "Setor Verde", hex: "var(--color-setor-verde)" },
 };
 
 export const SEG_FILTERS = ["Modas", "Calçados", "Acessórios", "Beleza", "Eletrônicos", "Alimentação"];
@@ -224,7 +224,7 @@ export const BOXES = [
 export const MAP = {
   n: "Totem",
   title: "A placa da entrada responde perguntas.",
-  lead: "O totem traz a planta, os quatro setores e o código para baixar o aplicativo. Ligado ao SiMove, ele deixa de ser uma placa.",
+  lead: "O totem traz a planta, os quatro setores e o código para baixar o aplicativo. Ligado ao SIMOVE, ele deixa de ser uma placa.",
   body: "O cliente escolhe o que procura e os boxes que vendem aquilo acendem na planta. Quem não quis instalar nada é atendido ali mesmo, de pé, na porta.",
   bullets: [
     ["Para quem chega sem o aplicativo", "o totem responde na entrada, sem cadastro."],
@@ -278,7 +278,7 @@ export const STEPS = [
 export const EVENTS = {
   n: "Eventos",
   title: "A programação já existe. Falta avisar.",
-  body: "A Sala do Empreendedor e a Secult mantêm música ao vivo nos espaços públicos do município. Hoje quem descobre é quem estava passando. Com a agenda dentro do SiMove, o show de sábado vira promoção de sábado, e o box sabe com uma semana de antecedência que vai ter movimento.",
+  body: "A Sala do Empreendedor e a Secult mantêm música ao vivo nos espaços públicos do município. Hoje quem descobre é quem estava passando. Com a agenda dentro do SIMOVE, o show de sábado vira promoção de sábado, e o box sabe com uma semana de antecedência que vai ter movimento.",
 };
 
 export const AUDIENCES = [
