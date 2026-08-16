@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { BRAND, PHOTOS, SECTORS, BOXES, OFERTAS, AGENDA, MOTIVOS } from "./data";
-import { Icon, FakeQR, FloorMap } from "./ui";
+import { BRAND, PHOTOS, SECTORS, BOXES, SEG_FILTERS, OFERTAS, AGENDA, OUVIDORIA_TIPOS } from "./data";
+import { Icon, FakeQR } from "./ui";
 import { maskPhone, validPhone } from "./phone";
 import { saldoDe } from "./pontos";
+import MapView from "./map/MapView";
+import { CATEGORIES } from "./map/layout";
 
 const IDLE_MS = 45000; // volta para a tela de espera, como num totem de verdade
 
@@ -14,7 +16,7 @@ const MENU = [
   { id: "ofertas", icon: "tag", label: "Ofertas do dia", sub: "Válidas até as 18h" },
   { id: "agenda", icon: "music", label: "Eventos", sub: "Shows e feiras da semana" },
   { id: "pontos", icon: "gift", label: "Meus pontos", sub: "Saldo e Compra Premiada" },
-  { id: "fale", icon: "stars", label: "Fale com a administração", sub: "Elogio, sugestão ou reclamação" },
+  { id: "ouvidoria", icon: "mega", label: "Ouvidoria", sub: "Reclamação, elogio ou sugestão" },
 ];
 
 /* ---------- cabeçalho de tela interna ---------- */
@@ -116,14 +118,74 @@ function Home({ go }) {
 }
 
 function Mapa({ onBack }) {
+  const [mode, setMode] = useState("2d");
+  const [active, setActive] = useState(null);
+  const [sel, setSel] = useState(null);
+
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <Bar title="Mapa das lojas" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto p-5">
-        <FloorMap />
-        <p className="caption mt-5">
-          Toque num segmento para ver quem vende. Passe o dedo sobre um box para ver o nome da loja.
+
+      <div className="flex items-center gap-2 border-b border-ink/10 px-3 py-2">
+        <div className="flex shrink-0 rounded bg-sand p-0.5">
+          {[
+            ["2d", "2D"],
+            ["3d", "3D"],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setMode(id)}
+              className={`px-2.5 py-1 text-[11px] font-semibold transition ${
+                mode === id ? "bg-navy text-paper" : "text-mist"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto">
+          {SEG_FILTERS.map((s) => (
+            <button
+              key={s}
+              onClick={() => setActive(active === s ? null : s)}
+              aria-pressed={active === s}
+              className={`shrink-0 px-2 py-1 text-[10px] font-semibold transition ${
+                active === s ? "bg-ink text-paper" : "border border-ink/12 text-mist"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative min-h-0 flex-1">
+        <MapView mode={mode} filter={active} onSelect={setSel} />
+      </div>
+
+      <div className="border-t border-ink/10 px-4 py-3">
+        <p className="text-[12px] font-semibold" aria-live="polite">
+          {sel ? (
+            <>
+              {sel.number} · {sel.name}{" "}
+              <span className="font-normal text-mist">
+                · {sel.seg ?? "vago"} · {sel.aisle}
+              </span>
+            </>
+          ) : (
+            <span className="font-normal text-mist">
+              Toque num box. Arraste para mover, pinça para zoom.
+            </span>
+          )}
         </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {Object.values(CATEGORIES).map((c) => (
+            <span key={c.label} className="flex items-center gap-1 text-[10px] text-mist">
+              <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: c.hex }} />
+              {c.label}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -357,22 +419,29 @@ function Pontos({ onBack }) {
   );
 }
 
-function Fale({ onBack }) {
-  const [motivo, setMotivo] = useState(null);
-  const [box, setBox] = useState("");
-  const [ok, setOk] = useState(false);
+function protocoloDemo() {
+  const n = String(Math.floor(1000 + Math.random() * 9000));
+  return `OUV-${new Date().getFullYear()}-${n}`;
+}
 
-  if (ok)
+function Ouvidoria({ onBack }) {
+  const [tipo, setTipo] = useState(null);
+  const [box, setBox] = useState("");
+  const [msg, setMsg] = useState("");
+  const [protocolo, setProtocolo] = useState(null);
+
+  if (protocolo)
     return (
       <div className="flex h-full flex-col">
-        <Bar title="Fale com a administração" onBack={onBack} />
+        <Bar title="Ouvidoria" onBack={onBack} />
         <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
           <Icon name="check" className="h-12 w-12 text-zap" />
-          <p className="mt-4 font-display text-xl font-bold">Registrado.</p>
+          <p className="mt-4 font-display text-xl font-bold">Manifestação registrada.</p>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-mist">
-            A mensagem vai para a Secretaria do Trabalho sem identificar quem enviou. O protocolo fica
-            disponível no aplicativo.
+            Vai para a Secretaria do Trabalho sem identificar quem enviou. Guarde o protocolo para consultar
+            no aplicativo.
           </p>
+          <p className="mt-6 bg-sand px-5 py-3 font-display text-lg font-bold tracking-widest">{protocolo}</p>
           <button onClick={onBack} className="mt-8 bg-accent px-6 py-3 text-sm font-semibold text-paper">
             Voltar ao início
           </button>
@@ -382,26 +451,29 @@ function Fale({ onBack }) {
 
   return (
     <div className="flex h-full flex-col">
-      <Bar title="Fale com a administração" onBack={onBack} />
+      <Bar title="Ouvidoria" onBack={onBack} />
       <div className="flex-1 overflow-y-auto p-5">
         <p className="text-sm leading-relaxed text-mist">
-          Escolha o motivo. O envio é anônimo e vai direto para a Secretaria do Trabalho.
+          Canal anônimo da Secretaria do Trabalho. Escolha o tipo e descreva o que aconteceu.
         </p>
-        <div className="mt-4 space-y-2">
-          {MOTIVOS.map((m) => (
+
+        <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-mist">Tipo</p>
+        <div className="mt-2 space-y-2">
+          {OUVIDORIA_TIPOS.map((t) => (
             <button
-              key={m}
-              onClick={() => setMotivo(m)}
-              className={`w-full border p-3.5 text-left text-sm transition ${
-                motivo === m ? "border-navy bg-sand font-semibold" : "border-ink/12 text-mist hover:border-navy"
+              key={t.id}
+              onClick={() => setTipo(t.id)}
+              className={`w-full border p-3.5 text-left transition ${
+                tipo === t.id ? "border-navy bg-sand" : "border-ink/12 hover:border-navy"
               }`}
             >
-              {m}
+              <span className="block font-display text-sm font-bold">{t.label}</span>
+              <span className="block text-[11px] text-mist">{t.hint}</span>
             </button>
           ))}
         </div>
 
-        {motivo && (
+        {tipo && (
           <>
             <label htmlFor="boxnum" className="mt-6 block text-xs font-semibold uppercase tracking-wider text-mist">
               Número do box (opcional)
@@ -414,9 +486,30 @@ function Fale({ onBack }) {
               inputMode="numeric"
               className="mt-2 w-full border border-ink/15 px-4 py-3 text-base outline-none focus:border-navy"
             />
-            <button onClick={() => setOk(true)} className="mt-4 w-full bg-accent px-5 py-3.5 font-semibold text-paper">
-              Enviar
+
+            <label htmlFor="ouvmsg" className="mt-5 block text-xs font-semibold uppercase tracking-wider text-mist">
+              Relato
+            </label>
+            <textarea
+              id="ouvmsg"
+              value={msg}
+              onChange={(e) => setMsg(e.target.value.slice(0, 400))}
+              placeholder="Escreva em poucas palavras. Não é obrigatório se identificar."
+              rows={4}
+              className="mt-2 w-full resize-none border border-ink/15 px-4 py-3 text-base outline-none placeholder:text-mist focus:border-navy"
+            />
+            <p className="mt-1 text-right text-[11px] text-mist">{msg.length}/400</p>
+
+            <button
+              onClick={() => setProtocolo(protocoloDemo())}
+              className="mt-3 w-full bg-accent px-5 py-3.5 font-semibold text-paper"
+            >
+              Enviar para a Ouvidoria
             </button>
+            <p className="caption mt-4">
+              Nesta demonstração o registro não sai do totem. No sistema real a Secretaria recebe e responde
+              pelo protocolo.
+            </p>
           </>
         )}
       </div>
@@ -487,7 +580,7 @@ export default function TotemApp() {
     ofertas: <Ofertas onBack={voltar} />,
     agenda: <Agenda onBack={voltar} />,
     pontos: <Pontos onBack={voltar} />,
-    fale: <Fale onBack={voltar} />,
+    ouvidoria: <Ouvidoria onBack={voltar} />,
     app: <BaixarApp onBack={voltar} />,
   };
 
@@ -516,7 +609,7 @@ export default function TotemApp() {
             <span>{hora}</span>
           </div>
         )}
-        <div ref={telaRef} className="min-h-0 flex-1">
+        <div ref={telaRef} className="flex min-h-0 flex-1 flex-col">
           {telas[screen]}
         </div>
       </div>

@@ -346,6 +346,14 @@ export const MOTIVOS = [
   "Problema na estrutura (luz, água, limpeza)",
 ];
 
+export const OUVIDORIA_TIPOS = [
+  { id: "reclamacao", label: "Reclamação", hint: "Atendimento, box fechado ou cobrança" },
+  { id: "elogio", label: "Elogio", hint: "Um permissionário ou o Centro" },
+  { id: "sugestao", label: "Sugestão", hint: "Ideia para melhorar o espaço" },
+  { id: "denuncia", label: "Denúncia", hint: "Irregularidade, sem se identificar" },
+  { id: "info", label: "Informação", hint: "Horário, documentos, funcionamento" },
+];
+
 export const FORM = {
   title: "Receba as ofertas do Centro no WhatsApp",
   sub: "Oferta do dia, cupom de influenciador e agenda de eventos. Sem aplicativo e sem custo.",
