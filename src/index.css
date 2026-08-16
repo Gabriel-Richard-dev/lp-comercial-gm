@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #ffffff;
+  --color-sand: #f2f5fa; /* fundo alternado, azulado */
+  --color-sand-2: #e1e9f4;
+  --color-ink: #0f1620;
+  --color-mist: #5b6675;
+  --color-navy: #0e2f5c; /* azul profundo, para blocos cheios */
+  --color-accent: #1b5aa8; /* azul principal */
+  --color-accent-ink: #14447f; /* azul para texto miúdo */
+  --color-zap: #1d9e5e; /* verde só onde o assunto é WhatsApp */
+
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  --edge: rgba(14, 47, 92, 0.16);
+  --edge-soft: rgba(14, 47, 92, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.font-display {
+  font-stretch: 105%;
+  letter-spacing: -0.02em;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.rule {
+  border-top: 1px solid var(--edge);
+}
+.rule-soft {
+  border-top: 1px solid var(--edge-soft);
+}
+.hairline {
+  border: 1px solid var(--edge);
+}
+
+/* legenda de foto, no estilo de jornal */
+.caption {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--color-mist);
+}
+
+@keyframes slide {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: slide 34s linear infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+.ping {
+  animation: pulse-ring 2.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,531 @@
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { BRAND, PHOTOS, SECTORS, BOXES, OFERTAS, AGENDA, MOTIVOS } from "./data";
+import { Icon, FakeQR, FloorMap } from "./ui";
+import { maskPhone, validPhone } from "./phone";
+import { saldoDe } from "./pontos";
+
+const IDLE_MS = 45000; // volta para a tela de espera, como num totem de verdade
+
+const MENU = [
+  { id: "mapa", icon: "pin", label: "Mapa das lojas", sub: "Onde fica cada box" },
+  { id: "busca", icon: "bag", label: "O que você procura?", sub: "Ache quem vende" },
+  { id: "ofertas", icon: "tag", label: "Ofertas do dia", sub: "Válidas até as 18h" },
+  { id: "agenda", icon: "music", label: "Eventos", sub: "Shows e feiras da semana" },
+  { id: "pontos", icon: "gift", label: "Meus pontos", sub: "Saldo e Compra Premiada" },
+  { id: "fale", icon: "stars", label: "Fale com a administração", sub: "Elogio, sugestão ou reclamação" },
+];
+
+/* ---------- cabeçalho de tela interna ---------- */
+function Bar({ title, onBack }) {
+  return (
+    <div className="flex items-center gap-3 border-b border-ink/10 px-5 py-4">
+      <button
+        onClick={onBack}
+        className="grid h-10 w-10 shrink-0 place-items-center bg-sand text-ink transition hover:bg-sand-2"
+        aria-label="Voltar"
+      >
+        <Icon name="arrow" className="h-5 w-5 rotate-180" />
+      </button>
+      <h2 className="font-display text-lg font-bold tracking-tight">{title}</h2>
+    </div>
+  );
+}
+
+/* ---------- telas ---------- */
+function Idle({ onStart }) {
+  return (
+    <button
+      onClick={onStart}
+      className="relative flex h-full w-full flex-col items-center justify-end overflow-hidden text-left"
+    >
+      <img src={PHOTOS.entrada.src} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/30" />
+      <div className="relative w-full px-8 pb-16 text-center text-paper">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-paper/60">
+          Centro Público Comercial
+        </p>
+        <p className="font-display text-2xl font-bold uppercase tracking-tight">Geraldo Machado</p>
+        <p className="mt-8 font-display text-4xl font-bold leading-tight">
+          Si<span className="text-accent">Move</span>
+        </p>
+        <p className="text-sm text-paper/70">{BRAND.tagline}</p>
+        <p className="mt-10 inline-block border border-paper/40 px-6 py-3 text-sm font-semibold">
+          Toque na tela para começar
+        </p>
+        <p className="mt-6 text-xs text-paper/50">60 boxes · 4 setores sinalizados por cor</p>
+      </div>
+    </button>
+  );
+}
+
+function Home({ go }) {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="border-b border-ink/10 px-6 py-6 text-center">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.3em] text-mist">
+          Centro Público Comercial
+        </p>
+        <p className="font-display text-xl font-bold uppercase tracking-tight text-navy">Geraldo Machado</p>
+        <p className="mt-3 font-display text-lg font-bold">Seja bem-vindo.</p>
+        <p className="text-sm text-mist">O que você quer fazer?</p>
+      </div>
+
+      <div className="grid flex-1 grid-cols-2 gap-3 overflow-y-auto p-5">
+        {MENU.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => go(m.id)}
+            className="menu-item flex flex-col items-start gap-2 border border-ink/12 p-4 text-left transition hover:border-navy hover:bg-sand"
+          >
+            <Icon name={m.icon} className="h-6 w-6 text-navy" />
+            <span className="font-display text-sm font-bold leading-tight">{m.label}</span>
+            <span className="text-[11px] leading-snug text-mist">{m.sub}</span>
+          </button>
+        ))}
+      </div>
+
+      <a
+        href="/cadastro"
+        className="flex items-center gap-3 border-t border-ink/10 bg-zap/10 px-5 py-3.5 text-left transition hover:bg-zap/20"
+      >
+        <span className="grid h-9 w-9 shrink-0 place-items-center bg-zap text-paper">
+          <Icon name="zap" className="h-5 w-5" />
+        </span>
+        <span>
+          <span className="block font-display text-sm font-bold">Receber ofertas no WhatsApp</span>
+          <span className="block text-[11px] text-mist">Deixe seu número aqui mesmo</span>
+        </span>
+        <Icon name="arrow" className="ml-auto h-5 w-5 text-mist" />
+      </a>
+
+      <button
+        onClick={() => go("app")}
+        className="flex items-center gap-3 bg-navy px-5 py-4 text-left text-paper transition hover:bg-ink"
+      >
+        <FakeQR className="h-12 w-12" />
+        <span>
+          <span className="block font-display text-sm font-bold">Leve o SiMove no celular</span>
+          <span className="block text-[11px] text-paper/70">Ofertas, pontos e Compra Premiada</span>
+        </span>
+        <Icon name="arrow" className="ml-auto h-5 w-5" />
+      </button>
+    </div>
+  );
+}
+
+function Mapa({ onBack }) {
+  return (
+    <div className="flex h-full flex-col">
+      <Bar title="Mapa das lojas" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto p-5">
+        <FloorMap />
+        <p className="caption mt-5">
+          Toque num segmento para ver quem vende. Passe o dedo sobre um box para ver o nome da loja.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Busca({ onBack }) {
+  const [q, setQ] = useState("");
+  const termo = q.trim().toLowerCase();
+  const achados = termo
+    ? BOXES.filter(
+        (b) => b.name.toLowerCase().includes(termo) || b.seg.toLowerCase().includes(termo)
+      )
+    : [];
+
+  const sugestoes = ["sandália", "fone", "vestido", "açaí", "bolsa", "tênis", "perfume"];
+
+  return (
+    <div className="flex h-full flex-col">
+      <Bar title="O que você procura?" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto p-5">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Digite o produto ou a loja"
+          autoFocus
+          className="w-full border border-ink/15 px-4 py-3.5 text-base outline-none placeholder:text-mist focus:border-navy"
+        />
+
+        {!termo && (
+          <>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-mist">
+              Procurados hoje
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {sugestoes.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setQ(s)}
+                  className="border border-ink/15 px-3 py-1.5 text-sm text-mist transition hover:border-navy hover:text-ink"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            <p className="caption mt-8">
+              No SiMove completo esta busca também vai para o WhatsApp dos 60 boxes. O primeiro que responder
+              fica com a venda.
+            </p>
+          </>
+        )}
+
+        {termo && (
+          <div className="mt-5">
+            <p className="text-sm text-mist">
+              {achados.length === 0
+                ? "Nenhum box encontrado. A busca fica registrada para a Secretaria."
+                : `${achados.length} ${achados.length === 1 ? "resultado" : "resultados"}`}
+            </p>
+            <div className="mt-3 divide-y divide-ink/10">
+              {achados.map((b) => (
+                <div key={b.n} className="flex items-center gap-3 py-3">
+                  <span
+                    className="grid h-10 w-10 shrink-0 place-items-center text-xs font-bold text-white"
+                    style={{ backgroundColor: SECTORS[b.s].hex }}
+                  >
+                    {b.n}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-display text-sm font-bold">{b.name}</p>
+                    <p className="text-xs text-mist">
+                      {b.seg} · {SECTORS[b.s].label}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Ofertas({ onBack }) {
+  return (
+    <div className="flex h-full flex-col">
+      <Bar title="Ofertas do dia" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto">
+        <div className="divide-y divide-ink/10">
+          {OFERTAS.map((o) => (
+            <div key={o.box + o.item} className="flex items-center gap-4 px-5 py-4">
+              <span className="grid h-12 w-12 shrink-0 place-items-center bg-sand font-display text-sm font-bold">
+                {o.box}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-sm font-bold leading-tight">{o.item}</p>
+                <p className="text-xs text-mist">{o.loja}</p>
+                {o.cupom && (
+                  <p className="mt-1 inline-block bg-accent/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-ink">
+                    cupom {o.cupom}
+                  </p>
+                )}
+              </div>
+              <div className="shrink-0 text-right">
+                <p className="text-[11px] text-mist line-through">R$ {o.de}</p>
+                <p className="font-display text-base font-bold text-accent-ink">R$ {o.por}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="caption px-5 py-5">
+          Cupons com nome são de influenciadores da cidade. Cada resgate é contado no ranking deles.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Agenda({ onBack }) {
+  return (
+    <div className="flex h-full flex-col">
+      <Bar title="Eventos da semana" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto">
+        <img src={PHOTOS.musica.src} alt={PHOTOS.musica.alt} className="h-40 w-full object-cover" />
+        <div className="divide-y divide-ink/10">
+          {AGENDA.map((e) => (
+            <div key={e.titulo + e.data} className="flex items-center gap-4 px-5 py-4">
+              <div className="w-12 shrink-0 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-mist">{e.dia}</p>
+                <p className="font-display text-2xl font-bold leading-none">{e.data}</p>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-sm font-bold leading-tight">{e.titulo}</p>
+                <p className="text-xs text-mist">
+                  {e.hora} · {e.local}
+                </p>
+              </div>
+              <span className="shrink-0 border border-ink/15 px-2 py-0.5 text-[10px] text-mist">{e.tipo}</span>
+            </div>
+          ))}
+        </div>
+        <p className="caption px-5 py-5">
+          Programação da Sala do Empreendedor com a Secult. No aplicativo, quem marca presença recebe lembrete
+          no WhatsApp.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Pontos({ onBack }) {
+  const [tel, setTel] = useState("");
+  const [erro, setErro] = useState("");
+  const [dados, setDados] = useState(null);
+
+  const consultar = (e) => {
+    e.preventDefault();
+    if (!validPhone(tel)) return setErro("Digite o DDD e o número, como (85) 9 9999-9999.");
+    setErro("");
+    setDados(saldoDe(tel)); // mesma conta da página /pontos
+  };
+
+  return (
+    <div className="flex h-full flex-col">
+      <Bar title="Meus pontos" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto p-5">
+        {!dados ? (
+          <form onSubmit={consultar}>
+            <p className="text-sm leading-relaxed text-mist">
+              Digite o WhatsApp cadastrado para ver seu saldo e seus números da Compra Premiada.
+            </p>
+            <input
+              value={tel}
+              onChange={(e) => setTel(maskPhone(e.target.value))}
+              placeholder="(85) 9 9999-9999"
+              inputMode="tel"
+              aria-invalid={!!erro}
+              className="mt-4 w-full border border-ink/15 px-4 py-3.5 text-base outline-none placeholder:text-mist focus:border-navy"
+            />
+            {erro && (
+              <p role="alert" className="mt-2 text-xs text-accent-ink">
+                {erro}
+              </p>
+            )}
+            <button type="submit" className="mt-4 w-full bg-accent px-5 py-3.5 font-semibold text-paper">
+              Consultar
+            </button>
+            <p className="caption mt-6">
+              Nesta demonstração o saldo é gerado a partir do próprio número. No sistema real vem do histórico
+              de compras confirmadas por Pix.
+            </p>
+          </form>
+        ) : (
+          <div>
+            <div className="bg-navy p-6 text-paper">
+              <p className="text-[11px] uppercase tracking-wider text-paper/60">Saldo de pontos</p>
+              <p className="font-display text-5xl font-bold leading-none">{dados.saldo}</p>
+              <p className="mt-2 text-sm text-paper/70">
+                dá para {dados.cafes} {dados.cafes === 1 ? "café" : "cafés"} nos boxes de alimentação
+              </p>
+            </div>
+
+            <div className="mt-4 border border-dashed border-accent/50 bg-accent/5 p-5 text-center">
+              <Icon name="gift" className="mx-auto h-6 w-6 text-accent" />
+              <p className="mt-2 text-xs text-mist">Compra Premiada · sorteio dia 30</p>
+              <p className="font-display text-2xl font-bold">
+                {dados.numeros.length} {dados.numeros.length === 1 ? "número" : "números"}
+              </p>
+              <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+                {dados.numeros.map((n) => (
+                  <span key={n} className="bg-paper px-2 py-1 font-display text-xs font-bold tracking-widest">
+                    {n}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setDados(null);
+                setTel("");
+              }}
+              className="mt-4 w-full border border-ink/15 px-5 py-3 text-sm font-semibold"
+            >
+              Consultar outro número
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Fale({ onBack }) {
+  const [motivo, setMotivo] = useState(null);
+  const [box, setBox] = useState("");
+  const [ok, setOk] = useState(false);
+
+  if (ok)
+    return (
+      <div className="flex h-full flex-col">
+        <Bar title="Fale com a administração" onBack={onBack} />
+        <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+          <Icon name="check" className="h-12 w-12 text-zap" />
+          <p className="mt-4 font-display text-xl font-bold">Registrado.</p>
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-mist">
+            A mensagem vai para a Secretaria do Trabalho sem identificar quem enviou. O protocolo fica
+            disponível no aplicativo.
+          </p>
+          <button onClick={onBack} className="mt-8 bg-accent px-6 py-3 text-sm font-semibold text-paper">
+            Voltar ao início
+          </button>
+        </div>
+      </div>
+    );
+
+  return (
+    <div className="flex h-full flex-col">
+      <Bar title="Fale com a administração" onBack={onBack} />
+      <div className="flex-1 overflow-y-auto p-5">
+        <p className="text-sm leading-relaxed text-mist">
+          Escolha o motivo. O envio é anônimo e vai direto para a Secretaria do Trabalho.
+        </p>
+        <div className="mt-4 space-y-2">
+          {MOTIVOS.map((m) => (
+            <button
+              key={m}
+              onClick={() => setMotivo(m)}
+              className={`w-full border p-3.5 text-left text-sm transition ${
+                motivo === m ? "border-navy bg-sand font-semibold" : "border-ink/12 text-mist hover:border-navy"
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+
+        {motivo && (
+          <>
+            <label htmlFor="boxnum" className="mt-6 block text-xs font-semibold uppercase tracking-wider text-mist">
+              Número do box (opcional)
+            </label>
+            <input
+              id="boxnum"
+              value={box}
+              onChange={(e) => setBox(e.target.value.replace(/\D/g, "").slice(0, 2))}
+              placeholder="Ex: 12"
+              inputMode="numeric"
+              className="mt-2 w-full border border-ink/15 px-4 py-3 text-base outline-none focus:border-navy"
+            />
+            <button onClick={() => setOk(true)} className="mt-4 w-full bg-accent px-5 py-3.5 font-semibold text-paper">
+              Enviar
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function BaixarApp({ onBack }) {
+  return (
+    <div className="flex h-full flex-col">
+      <Bar title="Leve o SiMove" onBack={onBack} />
+      <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+        <FakeQR className="h-44 w-44 border border-ink/10" />
+        <p className="mt-6 font-display text-xl font-bold">Aponte a câmera do celular.</p>
+        <p className="mt-3 max-w-xs text-sm leading-relaxed text-mist">
+          Ofertas no WhatsApp, pontos por compra, seu link de indicação e os números da Compra Premiada.
+        </p>
+        <p className="caption mt-8 max-w-xs">
+          Nesta demonstração o código não leva a lugar nenhum.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- carcaça do totem ---------- */
+export default function TotemApp() {
+  const [screen, setScreen] = useState("idle");
+  const [clock, setClock] = useState(() => new Date());
+  const telaRef = useRef(null);
+  const timer = useRef(null);
+
+  useEffect(() => {
+    const id = setInterval(() => setClock(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  // volta sozinho para a tela de espera, como um totem de verdade
+  useEffect(() => {
+    clearTimeout(timer.current);
+    if (screen !== "idle") timer.current = setTimeout(() => setScreen("idle"), IDLE_MS);
+    return () => clearTimeout(timer.current);
+  }, [screen]);
+
+  const toque = () => {
+    if (screen === "idle") return;
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setScreen("idle"), IDLE_MS);
+  };
+
+  useGSAP(
+    () => {
+      gsap.fromTo(
+        telaRef.current,
+        { autoAlpha: 0, y: 18 },
+        { autoAlpha: 1, y: 0, duration: 0.35, ease: "power2.out" }
+      );
+    },
+    { dependencies: [screen] }
+  );
+
+  const voltar = () => setScreen("home");
+  const telas = {
+    idle: <Idle onStart={() => setScreen("home")} />,
+    home: <Home go={setScreen} />,
+    mapa: <Mapa onBack={voltar} />,
+    busca: <Busca onBack={voltar} />,
+    ofertas: <Ofertas onBack={voltar} />,
+    agenda: <Agenda onBack={voltar} />,
+    pontos: <Pontos onBack={voltar} />,
+    fale: <Fale onBack={voltar} />,
+    app: <BaixarApp onBack={voltar} />,
+  };
+
+  const hora = clock.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-sand-2 p-0 sm:p-6">
+      <div className="mb-4 hidden items-center gap-3 text-xs text-mist sm:flex">
+        <a href="/" className="underline underline-offset-2 hover:text-ink">
+          ← voltar para a apresentação
+        </a>
+        <span>·</span>
+        <span>Simulação do totem. Volta à tela de espera após 45 s parado.</span>
+      </div>
+
+      <div
+        onPointerDown={toque}
+        className="flex h-screen w-full flex-col overflow-hidden bg-paper sm:h-[calc(100vh-6rem)] sm:max-h-[880px] sm:w-auto sm:rounded-[1.75rem] sm:border-[10px] sm:border-navy sm:shadow-2xl sm:shadow-ink/25"
+        style={{ aspectRatio: "9 / 16" }}
+      >
+        {screen !== "idle" && (
+          <div className="flex items-center justify-between border-b border-ink/10 bg-sand px-4 py-1.5 text-[10px] text-mist">
+            <span className="font-semibold uppercase tracking-wider">
+              Si<span className="text-accent">Move</span> · {BRAND.tagline}
+            </span>
+            <span>{hora}</span>
+          </div>
+        )}
+        <div ref={telaRef} className="min-h-0 flex-1">
+          {telas[screen]}
+        </div>
+      </div>
+
+      <p className="mt-3 px-4 text-center text-[11px] text-mist sm:hidden">
+        <a href="/" className="underline underline-offset-2">
+          voltar para a apresentação
+        </a>
+      </p>
+    </div>
+  );
+}
