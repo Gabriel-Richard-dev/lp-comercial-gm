@@ -21,9 +21,9 @@ export const PHOTOS = {
     caption: "Fachada na Rua Manoel Pereira, no Centro de Maracanaú.",
   },
   mercado: {
-    src: "/fotos/cpc-reinauguracao.jpg",
-    alt: "Movimento de clientes e permissionários no Centro Público Comercial",
-    caption: "Movimento de fim de tarde no corredor central do Centro.",
+    src: "/fotos/cpc-entrada.webp",
+    alt: "Clientes, crianças de bicicleta e permissionários em frente aos boxes do Centro Público Comercial",
+    caption: "Movimento em frente aos boxes, na entrada do Centro.",
   },
   musica: {
     src: "/fotos/musica.webp",
