@@ -6,7 +6,7 @@ import {
   BRAND, PHOTOS, HERO, STATS, SEGMENTS, PROBLEMS, PILLARS, MAP, PRIZE,
   STEPS, EVENTS, AUDIENCES, ROADMAP, FORM,
 } from "./data";
-import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, Wordmark, useReveal } from "./ui";
+import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, Wordmark, useReveal, MENOS_MOVIMENTO } from "./ui";
 
 /* ============================== NAV ============================== */
 function Nav() {
@@ -59,12 +59,15 @@ function Hero() {
         .from(".hero-cta", { y: 14, opacity: 0, duration: 0.6, stagger: 0.08 }, "-=0.55")
         .from(".hero-meta", { opacity: 0, duration: 0.8 }, "-=0.5");
 
-      // a foto sobe devagar enquanto a página rola
-      gsap.to(".hero-photo img", {
-        yPercent: -8,
-        ease: "none",
-        scrollTrigger: { trigger: ".hero-photo", start: "top bottom", end: "bottom top", scrub: 0.6 },
-      });
+      // a foto sobe devagar enquanto a página rola (scrub não passa pela linha
+      // do tempo global, então o modo "menos movimento" precisa cortar aqui)
+      if (!MENOS_MOVIMENTO) {
+        gsap.to(".hero-photo img", {
+          yPercent: -8,
+          ease: "none",
+          scrollTrigger: { trigger: ".hero-photo", start: "top bottom", end: "bottom top", scrub: 0.6 },
+        });
+      }
     },
     { scope: ref }
   );
@@ -116,6 +119,10 @@ function Hero() {
           <img
             src={PHOTOS.entrada.src}
             alt={PHOTOS.entrada.alt}
+            width="1280"
+            height="714"
+            fetchPriority="high"
+            decoding="async"
             className="h-full w-full scale-110 object-cover"
           />
         </div>

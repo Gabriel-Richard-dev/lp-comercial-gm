@@ -11,9 +11,9 @@ export const BRAND = {
 
 export const PHOTOS = {
   entrada: {
-    src: "/fotos/cpc-reinauguracao.jpg",
-    alt: "Clientes caminhando em frente aos boxes do Centro Público Comercial Geraldo Machado",
-    caption: "A entrada do CPC Geraldo Machado depois da reforma, em outubro de 2023.",
+    src: "/fotos/cpc-entrada.webp",
+    alt: "Entrada do Centro Público Comercial Geraldo Machado, com clientes caminhando entre os boxes em dia de sol",
+    caption: "A entrada do CPC Geraldo Machado, na Rua Manoel Pereira.",
   },
   fachada: {
     src: "/fotos/cpc-fachada.jpg",
@@ -21,9 +21,9 @@ export const PHOTOS = {
     caption: "Fachada na Rua Manoel Pereira, no Centro de Maracanaú.",
   },
   mercado: {
-    src: "/fotos/mercado.jpg",
+    src: "/fotos/cpc-reinauguracao.jpg",
     alt: "Movimento de clientes e permissionários no Centro Público Comercial",
-    caption: "O Centro antes da requalificação. O movimento sempre existiu; o que falta é quem venha de fora do bairro.",
+    caption: "O movimento do Centro já existe. O que falta é quem venha de fora do bairro.",
   },
   musica: {
     src: "/fotos/musica.webp",

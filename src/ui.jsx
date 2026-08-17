@@ -7,6 +7,13 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
+/* Quem marcou "menos movimento" no sistema recebe a página parada: acelerar a
+   linha do tempo global faz toda animação do gsap terminar no primeiro quadro,
+   sem tocar em tween nenhum. O resto (marquee, rolagem suave) o CSS corta. */
+export const MENOS_MOVIMENTO =
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+if (MENOS_MOVIMENTO) gsap.globalTimeline.timeScale(1000);
+
 /* ---------- ícones ---------- */
 const PATHS = {
   ticket:

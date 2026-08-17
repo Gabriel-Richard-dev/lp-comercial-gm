@@ -1,20 +1,21 @@
-import { StrictMode } from 'react'
+import { StrictMode, Suspense, lazy } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import TotemApp from './TotemApp.jsx'
-import { CadastroPage, PontosPage } from './pages.jsx'
 
-// quatro páginas, sem router
+// quatro páginas, sem router. As outras três entram por import dinâmico: quem
+// abre a landing não baixa o three.js do mapa do totem (uns 700 kB).
 const ROTAS = {
-  '/totem': TotemApp,
-  '/cadastro': CadastroPage,
-  '/pontos': PontosPage,
+  '/totem': lazy(() => import('./TotemApp.jsx')),
+  '/cadastro': lazy(() => import('./pages.jsx').then((m) => ({ default: m.CadastroPage }))),
+  '/pontos': lazy(() => import('./pages.jsx').then((m) => ({ default: m.PontosPage }))),
 }
 const Page = ROTAS[window.location.pathname.replace(/\/+$/, '')] ?? App
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Page />
+    <Suspense fallback={null}>
+      <Page />
+    </Suspense>
   </StrictMode>,
 )
