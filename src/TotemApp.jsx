@@ -5,6 +5,7 @@ import { BRAND, PHOTOS, SECTORS, BOXES, SEG_FILTERS, OFERTAS, AGENDA, OUVIDORIA_
 import { Icon, FakeQR, Wordmark } from "./ui";
 import { maskPhone, validPhone } from "./phone";
 import { saldoDe } from "./pontos";
+import { catalogoDe } from "./catalogo";
 import MapView from "./map/MapView";
 import { CATEGORIES } from "./map/layout";
 
@@ -156,34 +157,139 @@ function Mapa({ onBack }) {
       </div>
 
       <div className="relative min-h-0 flex-1">
-        <MapView mode={mode} filter={active} onSelect={setSel} />
+        <MapView mode={mode} filter={active} selectedId={sel?.id ?? null} onSelect={setSel} />
       </div>
 
-      <div className="border-t border-border px-4 py-3">
-        <p className="text-xs font-semibold" aria-live="polite">
-          {sel ? (
-            <>
-              {sel.number} · {sel.name}{" "}
-              <span className="font-normal text-muted-foreground">
-                · {sel.seg ?? "vago"} · {sel.aisle}
-              </span>
-            </>
-          ) : (
-            <span className="font-normal text-muted-foreground">
-              Toque num box. Arraste para mover, pinça para zoom.
-            </span>
-          )}
-        </p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {Object.values(CATEGORIES).map((c) => (
-            <span key={c.label} className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: c.hex }} />
-              {c.label}
-            </span>
-          ))}
-        </div>
+      {sel ? <PainelLoja box={sel} onClose={() => setSel(null)} /> : <Legenda />}
+    </div>
+  );
+}
+
+function Legenda() {
+  return (
+    <div className="border-t border-border px-5 py-4">
+      <p className="text-sm font-semibold" aria-live="polite">
+        Toque num box para ver a loja
+      </p>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        Arraste para mover, pinça para aproximar.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+        {Object.values(CATEGORIES).map((c) => (
+          <span key={c.label} className="flex items-center gap-1.5 text-xs font-semibold">
+            <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: c.hex }} />
+            {c.label}
+          </span>
+        ))}
       </div>
     </div>
+  );
+}
+
+/* ---------- ficha da loja, embaixo do mapa ---------- */
+function PainelLoja({ box, onClose }) {
+  const { itens, oferta, redes } = catalogoDe(box);
+  const setor = SECTORS[box.s];
+  const vago = box.status === "Vago";
+
+  return (
+    // A altura é limitada e o miolo rola: a ficha cresce até quase metade da
+    // tela e para, senão a loja escolhida some do mapa junto com o toque.
+    <section
+      className="flex max-h-[52%] shrink-0 flex-col border-t-2 border-primary bg-card"
+      aria-live="polite"
+    >
+      <div className="flex items-start gap-3 px-5 pt-4">
+        <span
+          className="grid h-12 w-12 shrink-0 place-items-center font-display text-lg font-bold"
+          style={
+            setor
+              ? { backgroundColor: setor.hex, color: "var(--color-setor-texto)" }
+              : { backgroundColor: "var(--color-muted)" }
+          }
+        >
+          {box.number}
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-xl font-bold leading-tight">{box.name}</h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {vago ? "Disponível para locação" : box.seg}
+            {setor && ` · ${setor.label}`}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {box.aisle} · {box.area}
+          </p>
+        </div>
+
+        {/* 48px: alvo de toque de dedo, não de cursor. */}
+        <button
+          onClick={onClose}
+          aria-label="Fechar a ficha da loja"
+          className="grid h-12 w-12 shrink-0 place-items-center bg-muted text-foreground transition hover:bg-secondary"
+        >
+          <span aria-hidden="true" className="text-xl font-bold leading-none">
+            ×
+          </span>
+        </button>
+      </div>
+
+      {!vago && (
+        <>
+          <div className="mt-3 flex flex-wrap gap-2 px-5">
+            <span className="flex items-center gap-1.5 bg-muted px-3 py-2 text-xs font-semibold">
+              <Icon name="instagram" className="h-4 w-4" />
+              {redes.instagram}
+            </span>
+            <span className="flex items-center gap-1.5 bg-muted px-3 py-2 text-xs font-semibold">
+              <Icon name="facebook" className="h-4 w-4" />
+              {redes.facebook}
+            </span>
+            {/* Verde reservado ao WhatsApp, conforme o DS. */}
+            <span className="flex items-center gap-1.5 bg-success px-3 py-2 text-xs font-semibold text-success-foreground">
+              <Icon name="success" className="h-4 w-4" />
+              Chamar no WhatsApp
+            </span>
+          </div>
+
+          <div className="mt-3 min-h-0 flex-1 overflow-y-auto px-5 pb-4">
+            {oferta && (
+              <div className="mb-3 flex items-center gap-3 bg-accent px-3 py-2.5 text-accent-foreground">
+                <Icon name="tag" className="h-5 w-5 shrink-0" />
+                <span className="min-w-0 flex-1 text-sm font-bold">
+                  {oferta.item}
+                  <span className="block text-xs font-semibold">
+                    de R$ {oferta.de} por R$ {oferta.por}
+                    {oferta.cupom && ` · cupom ${oferta.cupom}`}
+                  </span>
+                </span>
+              </div>
+            )}
+
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+              Catálogo
+            </p>
+            <ul className="mt-1.5">
+              {itens.map((i) => (
+                <li
+                  key={i.nome}
+                  className="flex items-baseline justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                >
+                  <span className="min-w-0 text-sm font-semibold">{i.nome}</span>
+                  <span className="shrink-0 text-sm font-bold tabular-nums">R$ {i.preco}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
+
+      {vago && (
+        <p className="px-5 pb-4 pt-3 text-sm text-muted-foreground">
+          Fale com a Sala do Empreendedor para alugar este box.
+        </p>
+      )}
+    </section>
   );
 }
 

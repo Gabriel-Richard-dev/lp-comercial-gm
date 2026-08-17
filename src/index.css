@@ -80,66 +80,45 @@
   --map-luz-chao: #cfcabb;
   --map-luz-sol: #fff6ea;
   --map-luz-preenchimento: #bcd4ff;
+
+  /* ---- Cores da interface. Ficam no @theme porque é daqui que o Tailwind
+     gera bg-*, text-* e border-*. Declaradas em @layer theme elas viravam
+     variável sem utility: toda classe de cor do app saía transparente.
+     O modo escuro sobrescreve os mesmos nomes mais abaixo. ---- */
+  --color-background: oklch(0.985 0.004 100);
+  --color-foreground: oklch(0.235 0.03 261);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.235 0.03 261);
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: oklch(0.235 0.03 261);
+  --color-primary: oklch(0.39 0.106 261);
+  --color-primary-foreground: oklch(0.99 0.005 100);
+  --color-secondary: oklch(0.93 0.028 261);
+  --color-secondary-foreground: oklch(0.31 0.09 261);
+  --color-muted: oklch(0.95 0.008 100);
+  --color-muted-foreground: oklch(0.43 0.025 261);
+  --color-accent: oklch(0.93 0.043 60);
+  --color-accent-foreground: oklch(0.32 0.08 50);
+  --color-destructive: oklch(0.48 0.19 27);
+  /* `border` e `input` são deliberadamente escuros (3,21:1 e 3,77:1 contra o
+     fundo). Um campo cuja borda não se enxerga é um campo que não existe. */
+  --color-border: oklch(0.64 0.02 261);
+  --color-input: oklch(0.6 0.03 261);
+  --color-ring: oklch(0.5 0.12 261);
+  --color-chart-1: oklch(0.45 0.12 261);
+  --color-chart-2: oklch(0.55 0.09 178);
+  --color-chart-3: oklch(0.66 0.15 56);
+  --color-chart-4: oklch(0.55 0.19 15);
+  --color-chart-5: oklch(0.5 0.13 305);
+  /* Verde da marca. RESERVADO a "aberto agora" e "falar no WhatsApp". */
+  --color-success: oklch(0.5 0.09 178);
+  --color-success-foreground: oklch(0.99 0.005 100);
+  /* Laranja da etiqueta do logotipo. Atenção sem erro. */
+  --color-warning: oklch(0.79 0.148 60);
+  --color-warning-foreground: oklch(0.28 0.065 50);
 }
 
 @layer theme {
-  :root {
-    --color-background: oklch(0.985 0.004 100);
-    --color-foreground: oklch(0.235 0.03 261);
-    --color-card: oklch(1 0 0);
-    --color-card-foreground: oklch(0.235 0.03 261);
-    --color-popover: oklch(1 0 0);
-    --color-popover-foreground: oklch(0.235 0.03 261);
-    --color-primary: oklch(0.39 0.106 261);
-    --color-primary-foreground: oklch(0.99 0.005 100);
-    --color-secondary: oklch(0.93 0.028 261);
-    --color-secondary-foreground: oklch(0.31 0.09 261);
-    --color-muted: oklch(0.95 0.008 100);
-    --color-muted-foreground: oklch(0.43 0.025 261);
-    --color-accent: oklch(0.93 0.043 60);
-    --color-accent-foreground: oklch(0.32 0.08 50);
-    --color-destructive: oklch(0.48 0.19 27);
-    /* `border` e `input` são deliberadamente escuros (3,21:1 e 3,77:1 contra o
-       fundo). Um campo cuja borda não se enxerga é um campo que não existe. */
-    --color-border: oklch(0.64 0.02 261);
-    --color-input: oklch(0.6 0.03 261);
-    --color-ring: oklch(0.5 0.12 261);
-    --color-chart-1: oklch(0.45 0.12 261);
-    --color-chart-2: oklch(0.55 0.09 178);
-    --color-chart-3: oklch(0.66 0.15 56);
-    --color-chart-4: oklch(0.55 0.19 15);
-    --color-chart-5: oklch(0.5 0.13 305);
-    /* Verde da marca. RESERVADO a "aberto agora" e "falar no WhatsApp". */
-    --color-success: oklch(0.5 0.09 178);
-    --color-success-foreground: oklch(0.99 0.005 100);
-    /* Laranja da etiqueta do logotipo. Atenção sem erro. */
-    --color-warning: oklch(0.79 0.148 60);
-    --color-warning-foreground: oklch(0.28 0.065 50);
-
-    /* Maquete 3D do CPC Geraldo Machado: parede azul, coluna vermelha, telha
-       metálica e tela verde. Não são cor de interface e não entram na auditoria
-       de contraste — nenhuma carrega texto. Lidas pelo Three.js em
-       src/map/tokens.js; sem elas a cena inteira cai no cinza de fallback. */
-    --mapa-parede-azul: oklch(0.51 0.16 259);
-    --mapa-faixa-azul: oklch(0.71 0.13 250);
-    --mapa-coluna-vermelha: oklch(0.51 0.15 27);
-    --mapa-telha-metal: oklch(0.81 0.02 250);
-    --mapa-telha-sob: oklch(0.68 0.02 250);
-    --mapa-viga: oklch(0.58 0.02 250);
-    --mapa-ceramica: oklch(0.78 0.05 76);
-    --mapa-ceramica-topo: oklch(0.9 0.02 76);
-    --mapa-tela-verde: oklch(0.5 0.09 141);
-    --mapa-piso: oklch(0.91 0.002 100);
-    --mapa-forro: oklch(0.96 0.004 100);
-    --mapa-vidro: oklch(0.87 0.01 250);
-    --mapa-grade-a: oklch(0.79 0.005 100);
-    --mapa-grade-b: oklch(0.86 0.002 100);
-    --mapa-luz-branca: oklch(1 0 0);
-    --mapa-luz-ceu: oklch(0.92 0.03 250);
-    --mapa-luz-chao: oklch(0.83 0.02 96);
-    --mapa-luz-sol: oklch(0.97 0.02 76);
-    --mapa-luz-preenchimento: oklch(0.85 0.05 250);
-  }
 
   /* Modo escuro é suporte, não identidade: a página abre em claro e só segue o
      sistema operacional se ele pedir escuro. Mesmos matizes, claridade

@@ -30,6 +30,11 @@ export const PHOTOS = {
     alt: "Banda tocando ao vivo em espaço público de Maracanaú",
     caption: "Programação musical fixa nos espaços públicos, promovida pela Sala do Empreendedor e pela Secult.",
   },
+  totem: {
+    src: "/fotos/totem.webp",
+    alt: "Totem em pé no corredor do centro comercial, com a tela inicial do SIMOVE",
+    caption: "Simulação do totem na entrada, com a tela inicial do SIMOVE.",
+  },
   credit: "Fotos: Prefeitura de Maracanaú.",
 };
 

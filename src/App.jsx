@@ -6,7 +6,7 @@ import {
   BRAND, PHOTOS, HERO, STATS, SEGMENTS, PROBLEMS, PILLARS, MAP, PRIZE,
   STEPS, EVENTS, AUDIENCES, ROADMAP, FORM,
 } from "./data";
-import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, FloorMap, Totem, Wordmark, useReveal } from "./ui";
+import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, Wordmark, useReveal } from "./ui";
 
 /* ============================== NAV ============================== */
 function Nav() {
@@ -297,9 +297,7 @@ function MapSection() {
         </div>
 
         <div data-reveal>
-          <Totem>
-            <FloorMap />
-          </Totem>
+          <Photo photo={PHOTOS.totem} className="mx-auto w-full max-w-sm" ratio="aspect-[13/20]" />
         </div>
       </div>
     </section>

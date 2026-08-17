@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { createMapScene } from "./createScene";
 import "./map.css";
 
-export default function MapView({ mode = "2d", filter = null, onSelect }) {
+export default function MapView({ mode = "2d", filter = null, selectedId = null, onSelect }) {
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
   const apiRef = useRef(null);
@@ -31,6 +31,10 @@ export default function MapView({ mode = "2d", filter = null, onSelect }) {
   useEffect(() => {
     apiRef.current?.setFilter(filter);
   }, [filter]);
+
+  useEffect(() => {
+    apiRef.current?.select(selectedId);
+  }, [selectedId]);
 
   return (
     <div ref={wrapRef} className="map-view">
