@@ -118,45 +118,10 @@
   --color-warning-foreground: oklch(0.28 0.065 50);
 }
 
-@layer theme {
-
-  /* Modo escuro é suporte, não identidade: a página abre em claro e só segue o
-     sistema operacional se ele pedir escuro. Mesmos matizes, claridade
-     invertida, auditados nos mesmos 30 pares. */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-background: oklch(0.205 0.02 261);
-      --color-foreground: oklch(0.965 0.005 100);
-      --color-card: oklch(0.255 0.022 261);
-      --color-card-foreground: oklch(0.965 0.005 100);
-      --color-popover: oklch(0.255 0.022 261);
-      --color-popover-foreground: oklch(0.965 0.005 100);
-      --color-primary: oklch(0.76 0.1 258);
-      --color-primary-foreground: oklch(0.205 0.04 261);
-      --color-secondary: oklch(0.32 0.03 261);
-      --color-secondary-foreground: oklch(0.965 0.005 100);
-      --color-muted: oklch(0.32 0.03 261);
-      --color-muted-foreground: oklch(0.78 0.02 261);
-      --color-accent: oklch(0.34 0.045 60);
-      --color-accent-foreground: oklch(0.97 0.01 100);
-      --color-destructive: oklch(0.66 0.19 27);
-      --color-border: oklch(0.55 0.02 261);
-      --color-input: oklch(0.6 0.025 261);
-      --color-ring: oklch(0.7 0.11 259);
-      --color-chart-1: oklch(0.7 0.11 261);
-      --color-chart-2: oklch(0.75 0.1 178);
-      --color-chart-3: oklch(0.79 0.14 60);
-      --color-chart-4: oklch(0.7 0.17 15);
-      --color-chart-5: oklch(0.7 0.14 305);
-      --color-success: oklch(0.74 0.1 178);
-      --color-success-foreground: oklch(0.2 0.038 178);
-      --color-warning: oklch(0.8 0.138 60);
-      --color-warning-foreground: oklch(0.25 0.06 50);
-    }
-  }
-}
-
 html {
+  /* A página é clara sempre, mesmo com o sistema em escuro. color-scheme
+     trava também os controles nativos (campos, scrollbar) no claro. */
+  color-scheme: light;
   scroll-behavior: smooth;
 }
 

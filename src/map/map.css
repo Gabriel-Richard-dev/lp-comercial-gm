@@ -4,6 +4,11 @@
   height: 100%;
   overflow: hidden;
   background: var(--color-card);
+  /* O CSS2DRenderer ordena os rótulos por profundidade atribuindo z-index a
+     cada um — com 71 boxes eles chegam a 71 e escapavam do mapa, passando por
+     cima de qualquer coisa desenhada sobre ele. `isolate` prende essa disputa
+     aqui dentro. */
+  isolation: isolate;
 }
 
 .map-view canvas {

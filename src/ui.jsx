@@ -242,14 +242,40 @@ export function WhatsForm() {
 }
 
 /* ---------- QR gerado em CSS ---------- */
-export function FakeQR({ className = "h-14 w-14" }) {
+/**
+ * Quadriculado com cara de QR, para a apresentação.
+ *
+ * Não codifica nada e não é lido por leitor nenhum — é adereço, e por isso
+ * `aria-hidden`. Com `seed`, o desenho muda por loja em vez de repetir o mesmo
+ * padrão em todas; sem `seed`, fica o de sempre.
+ *
+ * Deliberadamente não é um QR de verdade: um código escaneável precisaria de um
+ * número, e inventar número manda quem escaneia para a linha de um estranho.
+ */
+export function FakeQR({ className = "h-14 w-14", seed = null, modules = 9 }) {
+  const meio = modules - 3;
   return (
-    <div className={`grid grid-cols-9 gap-px bg-card p-1 ${className}`} aria-hidden="true">
-      {Array.from({ length: 81 }, (_, i) => {
-        const r = Math.floor(i / 9);
-        const c = i % 9;
-        const corner = (r < 3 && c < 3) || (r < 3 && c > 5) || (r > 5 && c < 3);
-        const on = corner ? (r === 0 || r === 2 || c === 0 || c === 2 || (r === 1 && c === 1)) : (i * 7) % 3 === 0;
+    <div
+      className={`grid gap-px bg-card p-1 ${className}`}
+      style={{ gridTemplateColumns: `repeat(${modules}, minmax(0, 1fr))` }}
+      aria-hidden="true"
+    >
+      {Array.from({ length: modules * modules }, (_, i) => {
+        const r = Math.floor(i / modules);
+        const c = i % modules;
+        // Os três blocos de canto ficam cheios, como as marcas de orientação de
+        // um QR. Antes a condição usava r e c absolutos: só o canto superior
+        // esquerdo fechava, e os outros dois saíam listrados.
+        const corner = (r < 3 && c < 3) || (r < 3 && c >= meio) || (r >= meio && c < 3);
+        let on;
+        if (corner) {
+          on = true;
+        } else if (seed) {
+          const v = i * 7 + (seed.charCodeAt(i % seed.length) || 0) * 13 + seed.length * 31;
+          on = ((Math.imul(v, 2654435761) >>> 16) & 1) === 1;
+        } else {
+          on = (i * 7) % 3 === 0;
+        }
         return <div key={i} className={on ? "bg-primary" : "bg-card"} />;
       })}
     </div>
