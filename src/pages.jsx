@@ -3,7 +3,7 @@ import { BRAND, PHOTOS, BOXES, SECTORS, SEG_FILTERS, OFERTAS } from "./data";
 import { Icon, FakeQR, Logo, Wordmark } from "./ui";
 import { maskPhone, validPhone } from "./phone";
 import { saldoDe } from "./pontos";
-import { vitrine, descontoPct, catalogoDe } from "./catalogo";
+import { vitrine, descontoPct, catalogoDe, fotoDe, FOTO_SEG } from "./catalogo";
 import { MAP_BOXES } from "./map/layout";
 
 /* ---------- moldura comum das páginas internas ---------- */
@@ -474,6 +474,25 @@ const LOJAS = MAP_BOXES.filter((b) => b.status !== "Vago").map((box) => {
   return { ...box, itens, oferta, desde: menorPreco(itens) };
 });
 
+// Foto de busca. Se o host devolver erro fica só o fundo cinza: vitrine com
+// buraco é melhor que ícone de imagem quebrada em cima do produto.
+function Foto({ termo, ratio = "aspect-[4/3]", className = "" }) {
+  const [erro, setErro] = useState(false);
+  return (
+    <div className={`overflow-hidden bg-muted ${ratio} ${className}`}>
+      {!erro && (
+        <img
+          src={fotoDe(termo)}
+          alt={termo}
+          loading="lazy"
+          onError={() => setErro(true)}
+          className="h-full w-full object-cover"
+        />
+      )}
+    </div>
+  );
+}
+
 function BoxTag({ numero, setor, className = "h-9 w-9 text-xs" }) {
   const cor = SECTORS[setor];
   return (
@@ -515,136 +534,128 @@ export function CatalogoPage() {
 
   return (
     <Shell>
-      <div className="max-w-2xl">
-        <h1 className="font-display text-secao font-bold leading-[1.05]">Vitrine do Centro</h1>
-        <p className="mt-4 leading-relaxed text-muted-foreground">
-          O que os {BOXES.length} boxes do {BRAND.place} vendem hoje, com as ofertas do dia e os cupons
-          dos influenciadores da cidade. Achou? O box fica marcado no mapa da entrada.
-        </p>
+      {/* ---------- busca ---------- */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-display text-3xl font-bold leading-none">Vitrine do Centro</h1>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Buscar produto ou loja"
+          aria-label="Buscar produto ou loja"
+          className={`${campo} sm:max-w-xs`}
+        />
       </div>
 
-      {/* ---------- ofertas do dia ---------- */}
-      <section className="mt-12">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-          <h2 className="font-display text-2xl font-bold">Ofertas do dia</h2>
+      {/* ---------- categorias ---------- */}
+      <div className="-mx-5 mt-6 flex gap-4 overflow-x-auto px-5 pb-1">
+        {["Tudo", ...SEG_FILTERS, "Serviços"].map((s) => {
+          const ativo = seg === s;
+          return (
+            <button
+              key={s}
+              onClick={() => setSeg(s)}
+              aria-pressed={ativo}
+              className="w-20 shrink-0 text-center"
+            >
+              <span
+                className={`block h-20 w-20 overflow-hidden bg-muted outline-offset-2 transition ${
+                  ativo ? "outline outline-2 outline-foreground" : ""
+                }`}
+              >
+                <img
+                  src={s === "Tudo" ? PHOTOS.entrada.src : fotoDe(FOTO_SEG[s])}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
+              </span>
+              <span
+                className={`mt-2 block text-xs font-semibold leading-tight ${
+                  ativo ? "" : "text-muted-foreground"
+                }`}
+              >
+                {s}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ---------- banners de oferta ---------- */}
+      <section className="mt-10">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-display text-xl font-bold">Ofertas do dia</h2>
           <p className="text-xs text-muted-foreground">Só hoje, direto no box</p>
         </div>
 
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="-mx-5 mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2">
           {ofertas.map((o) => (
-            <article key={o.box + o.item} className="flex flex-col bg-card p-5 hairline">
-              <div className="flex items-center gap-3">
-                <BoxTag numero={o.box} setor={BOXES.find((b) => b.n === o.box)?.s} />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{o.loja}</p>
-                  <p className="text-xs text-muted-foreground">Box {o.box}</p>
-                </div>
-                <span className="ml-auto bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
-                  −{descontoPct(o)}%
-                </span>
-              </div>
-
-              <p className="mt-4 font-display text-lg font-bold leading-tight">{o.item}</p>
-              <p className="mt-2 text-sm text-muted-foreground line-through">R$ {o.de}</p>
-              <p className="font-display text-2xl font-bold tabular-nums">R$ {o.por}</p>
-
-              {o.cupom && (
-                <p className="mt-auto flex items-center gap-1.5 pt-4 text-xs font-semibold">
-                  <Icon name="ticket" className="h-4 w-4 shrink-0 text-primary" />
-                  cupom {o.cupom}
+            <a
+              key={o.box + o.item}
+              href="/totem"
+              className="relative w-[84%] shrink-0 snap-start overflow-hidden bg-card sm:w-[26rem]"
+            >
+              <Foto termo={o.item} ratio="aspect-[16/9]" />
+              <span className="absolute left-0 top-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
+                −{descontoPct(o)}%
+              </span>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent p-4 pt-12 text-white">
+                <p className="font-display text-lg font-bold leading-tight">{o.item}</p>
+                <p className="text-xs opacity-90">
+                  {o.loja} · box {o.box}
+                  {o.cupom && ` · cupom ${o.cupom}`}
                 </p>
-              )}
-            </article>
+                <p className="mt-1 font-display text-2xl font-bold tabular-nums">
+                  R$ {o.por}{" "}
+                  <span className="text-xs font-normal line-through opacity-70">R$ {o.de}</span>
+                </p>
+              </div>
+            </a>
           ))}
         </div>
       </section>
 
       {/* ---------- cupons ---------- */}
-      <section className="mt-10">
-        <h2 className="font-display text-2xl font-bold">Cupons</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Mostre o código no caixa do box. Não precisa de aplicativo.
-        </p>
-
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {CUPONS.map((c) => {
-            const ativo = cupom === c.codigo;
-            return (
-              <button
-                key={c.codigo}
-                onClick={() => setCupom(ativo ? null : c.codigo)}
-                aria-pressed={ativo}
-                className={`flex items-start gap-3 p-5 text-left transition ${
-                  ativo ? "bg-primary text-primary-foreground" : "bg-card hairline hover:bg-muted"
-                }`}
-              >
-                <Icon name="ticket" className="mt-0.5 h-5 w-5 shrink-0" />
-                <span className="min-w-0">
-                  <span className="block font-display text-lg font-bold tracking-wide">{c.codigo}</span>
-                  <span className={`block text-xs ${ativo ? "" : "text-muted-foreground"}`}>
-                    Vale em {c.lojas.join(", ")}
-                  </span>
-                </span>
-                <span className="ml-auto shrink-0 text-xs font-bold uppercase tracking-[0.12em]">
-                  {ativo ? "Ativo" : "Usar"}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
+      <section className="mt-8 flex flex-wrap items-center gap-2">
+        <h2 className="mr-1 font-display text-xl font-bold">Cupons</h2>
+        {CUPONS.map((c) => {
+          const ativo = cupom === c.codigo;
+          return (
+            <button
+              key={c.codigo}
+              onClick={() => setCupom(ativo ? null : c.codigo)}
+              aria-pressed={ativo}
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold tracking-wide transition ${
+                ativo ? "bg-primary text-primary-foreground" : "bg-card hairline hover:bg-muted"
+              }`}
+            >
+              <Icon name="ticket" className="h-4 w-4 shrink-0" />
+              {c.codigo}
+            </button>
+          );
+        })}
         {cupom && (
-          <p
-            role="status"
-            className="mt-3 flex items-center gap-2 bg-success px-4 py-3 text-sm font-semibold text-success-foreground"
-          >
-            <Icon name="check" className="h-4 w-4 shrink-0" />
-            Mostrando só o que o cupom {cupom} atende.
-            <button onClick={() => setCupom(null)} className="ml-auto underline underline-offset-2">
-              Limpar
+          <p role="status" className="text-xs text-muted-foreground">
+            só o que o cupom atende ·{" "}
+            <button onClick={() => setCupom(null)} className="underline underline-offset-2">
+              limpar
             </button>
           </p>
         )}
       </section>
 
       {/* ---------- lojas ---------- */}
-      <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold">
-          {termo ? "O que achamos" : "Lojas do Centro"}
-        </h2>
-
-        <div className="mt-5 flex flex-col gap-3">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar produto ou loja"
-            aria-label="Buscar produto ou loja"
-            className={campo}
-          />
-
-          <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
-            {["Tudo", ...SEG_FILTERS, "Serviços"].map((s) => (
-              <button
-                key={s}
-                onClick={() => setSeg(s)}
-                aria-pressed={seg === s}
-                className={`shrink-0 px-4 py-2 text-sm font-semibold transition ${
-                  seg === s ? "bg-foreground text-background" : "bg-card hairline hover:bg-muted"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+      <section className="mt-10">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="font-display text-xl font-bold">{termo ? "O que achamos" : "Lojas"}</h2>
+          <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+            {termo
+              ? `${itens.length} ${itens.length === 1 ? "item" : "itens"} em ${
+                  new Set(itens.map((i) => i.loja)).size
+                } ${new Set(itens.map((i) => i.loja)).size === 1 ? "loja" : "lojas"}`
+              : `${lojas.length} ${lojas.length === 1 ? "loja aberta" : "lojas abertas"}`}
+          </p>
         </div>
-
-        <p className="mt-5 text-xs uppercase tracking-[0.12em] text-muted-foreground">
-          {termo
-            ? `${itens.length} ${itens.length === 1 ? "item" : "itens"} em ${
-                new Set(itens.map((i) => i.loja)).size
-              } ${new Set(itens.map((i) => i.loja)).size === 1 ? "loja" : "lojas"}`
-            : `${lojas.length} ${lojas.length === 1 ? "loja aberta" : "lojas abertas"}`}
-        </p>
 
         {termo && itens.length === 0 && (
           <p className="mt-4 bg-card p-8 text-center text-sm text-muted-foreground hairline">
@@ -655,17 +666,18 @@ export function CatalogoPage() {
 
         {/* Buscou produto: a resposta é o item e o box onde ele está. */}
         {termo && itens.length > 0 && (
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {itens.map((i) => (
-              <li key={i.box + i.nome} className="flex items-center gap-3 bg-card p-4 hairline">
-                <BoxTag numero={i.box} setor={i.setor} className="h-11 w-11 text-sm" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold leading-snug">{i.nome}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {i.loja} · {i.seg}
-                  </p>
+              <li key={i.box + i.nome} className="overflow-hidden bg-card hairline">
+                <div className="relative">
+                  <Foto termo={i.nome} />
+                  <BoxTag numero={i.box} setor={i.setor} className="absolute left-0 top-0 h-8 w-8 text-xs" />
                 </div>
-                <p className="shrink-0 font-display text-base font-bold tabular-nums">R$ {i.preco}</p>
+                <div className="p-3">
+                  <p className="truncate text-sm font-semibold leading-snug">{i.nome}</p>
+                  <p className="truncate text-xs text-muted-foreground">{i.loja}</p>
+                  <p className="mt-1 font-display font-bold tabular-nums">R$ {i.preco}</p>
+                </div>
               </li>
             ))}
           </ul>
@@ -673,55 +685,52 @@ export function CatalogoPage() {
 
         {/* Sem busca: a vitrine é a rua de lojas, e cada uma abre no lugar. */}
         {!termo && (
-          <ul className="mt-4 grid gap-3 md:grid-cols-2">
+          <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {lojas.map((l) => (
               <li key={l.number}>
-                <details className="group bg-card hairline">
-                  <summary className="flex cursor-pointer list-none items-center gap-4 p-4 [&::-webkit-details-marker]:hidden">
-                    <BoxTag numero={l.number} setor={l.s} className="h-14 w-14 text-lg" />
-
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold leading-snug">{l.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {l.seg}
-                        {SECTORS[l.s] && ` · ${SECTORS[l.s].label}`}
-                      </p>
-                      <p className="mt-1 truncate text-xs text-muted-foreground">
-                        {l.itens.map((i) => i.nome).join(" · ")}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        <span className="font-semibold tabular-nums text-foreground">
-                          a partir de R$ {l.desde}
-                        </span>{" "}
-                        · {l.itens.length} itens
-                      </p>
+                <details className="group overflow-hidden bg-card hairline">
+                  <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                    <div className="relative">
+                      <Foto termo={l.itens[0].nome} ratio="aspect-[16/10]" />
+                      <BoxTag numero={l.number} setor={l.s} className="absolute left-0 top-0 h-9 w-9 text-xs" />
+                      {l.oferta && (
+                        <span className="absolute right-0 top-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
+                          oferta
+                        </span>
+                      )}
                     </div>
-
-                    {l.oferta && (
-                      <span className="shrink-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
-                        oferta
-                      </span>
-                    )}
-                    <Icon
-                      name="arrow"
-                      className="h-4 w-4 shrink-0 text-muted-foreground transition group-open:rotate-90"
-                    />
+                    <div className="flex items-center gap-3 p-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold leading-snug">{l.name}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {l.seg} · a partir de{" "}
+                          <span className="font-semibold tabular-nums text-foreground">
+                            R$ {l.desde}
+                          </span>
+                        </p>
+                      </div>
+                      <Icon
+                        name="arrow"
+                        className="h-4 w-4 shrink-0 text-muted-foreground transition group-open:rotate-90"
+                      />
+                    </div>
                   </summary>
 
-                  <ul className="border-t border-border px-4">
+                  <ul className="border-t border-border">
                     {l.itens.map((i) => (
                       <li
                         key={i.nome}
-                        className="flex items-baseline justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                        className="flex items-center gap-3 border-b border-border p-3 last:border-0"
                       >
-                        <span className="min-w-0 text-sm">{i.nome}</span>
+                        <Foto termo={i.nome} ratio="" className="h-12 w-12 shrink-0" />
+                        <span className="min-w-0 flex-1 truncate text-sm">{i.nome}</span>
                         <span className="shrink-0 text-sm font-bold tabular-nums">R$ {i.preco}</span>
                       </li>
                     ))}
                   </ul>
 
                   {l.oferta && (
-                    <p className="m-4 flex items-start gap-2 bg-accent px-3 py-2.5 text-xs font-semibold text-accent-foreground">
+                    <p className="flex items-start gap-2 bg-accent px-3 py-2.5 text-xs font-semibold text-accent-foreground">
                       <Icon name="tag" className="mt-px h-4 w-4 shrink-0" />
                       <span>
                         {l.oferta.item}: de R$ {l.oferta.de} por R$ {l.oferta.por}
@@ -747,8 +756,8 @@ export function CatalogoPage() {
       </div>
 
       <p className="caption mt-8">
-        Demonstração: enquanto os permissionários não cadastram os produtos, cada box mostra uma vitrine
-        de exemplo do seu segmento. As ofertas e os cupons são os cadastrados em data.js.
+        Demonstração: enquanto os permissionários não cadastram produto, cada box mostra uma vitrine
+        de exemplo do seu segmento e as fotos vêm de busca de imagem na web.
       </p>
     </Shell>
   );

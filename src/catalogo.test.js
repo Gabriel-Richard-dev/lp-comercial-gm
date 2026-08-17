@@ -1,11 +1,21 @@
 // node --test src/catalogo.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { catalogoDe, arroba, vitrine, descontoPct } from "./catalogo.js";
+import { existsSync } from "node:fs";
+import { catalogoDe, arroba, vitrine, descontoPct, fotoDe, termosDeFoto } from "./catalogo.js";
 import { MAP_BOXES } from "./map/layout.js";
 import { OFERTAS } from "./data.js";
 
 const ocupados = MAP_BOXES.filter((b) => b.status !== "Vago");
+
+// Acento e cedilha viram nada no slug: se alguém mexer no nome do item sem
+// rodar `npm run fotos`, a vitrine fica com buraco. Este teste avisa antes.
+test("todo item da vitrine tem foto baixada", () => {
+  const faltando = termosDeFoto().filter(
+    (t) => !existsSync(new URL(`../public${fotoDe(t)}`, import.meta.url))
+  );
+  assert.deepEqual(faltando, [], "rode: npm run fotos");
+});
 
 test("o mesmo box mostra sempre a mesma vitrine", () => {
   const box = ocupados[7];
