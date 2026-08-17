@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { maskPhone, validPhone } from "./phone";
+import { maskPhone, validPhone, validEmail } from "./phone";
 import { PHOTOS } from "./data";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -197,6 +197,7 @@ export function PrizeRoll({ digits }) {
 /* ---------- opt-in do WhatsApp ---------- */
 export function WhatsForm() {
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [err, setErr] = useState("");
   const [sent, setSent] = useState(false);
@@ -206,6 +207,7 @@ export function WhatsForm() {
     e.preventDefault();
     if (name.trim().length < 2) return setErr("Escreva seu nome.");
     if (!validPhone(phone)) return setErr("WhatsApp inválido. Use DDD e número, como (85) 9 9999-9999.");
+    if (email && !validEmail(email)) return setErr("E-mail inválido. Confira se tem @ e o domínio.");
     setErr("");
     setSent(true);
   };
@@ -215,7 +217,8 @@ export function WhatsForm() {
       <div className="flex items-center gap-3 hairline border-success bg-card p-5">
         <Icon name="check" className="h-6 w-6 shrink-0 text-success" />
         <p className="text-sm">
-          Pronto, <strong>{name.split(" ")[0]}</strong>. As ofertas do Centro vão chegar no seu WhatsApp.
+          Pronto, <strong>{name.split(" ")[0]}</strong>. As ofertas do Centro vão chegar no seu WhatsApp
+          {email && " e no seu e-mail"}.
         </p>
       </div>
     );
@@ -248,6 +251,22 @@ export function WhatsForm() {
           className="campo mt-2"
         />
       </div>
+      <div className="sm:col-span-2">
+        <label className="rotulo" htmlFor="wf-email">
+          E-mail <span className="font-normal normal-case">(opcional)</span>
+        </label>
+        <input
+          id="wf-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="voce@email.com"
+          inputMode="email"
+          autoComplete="email"
+          className="campo mt-2"
+        />
+        <p className="caption mt-1.5">Se preferir receber os avisos por e-mail também.</p>
+      </div>
       <button type="submit" className="btn btn-whatsapp sm:col-span-2">
         <Icon name="success" className="h-5 w-5" />
         Receber no WhatsApp
@@ -256,7 +275,7 @@ export function WhatsForm() {
         <p id="wf-erro" role="alert" className="text-sm text-destructive sm:col-span-2">{err}</p>
       )}
       <p className="caption sm:col-span-2">
-        Só ofertas do Centro Geraldo Machado. Para sair, basta responder SAIR. O consentimento fica registrado, como pede a LGPD.
+        Só ofertas do Centro Geraldo Machado. Para sair, basta responder SAIR ou usar o link de descadastro do e-mail. O consentimento fica registrado, como pede a LGPD.
       </p>
     </form>
   );

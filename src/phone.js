@@ -16,3 +16,9 @@ export function validPhone(v) {
   if (d.length === 11 && d[2] !== "9") return false;
   return true;
 }
+
+// Só pega erro de digitação: quem valida e-mail de verdade é o disparo.
+// ponytail: regex simples, trocar por confirmação por link se o retorno subir.
+export function validEmail(v) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+}

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { BRAND, PHOTOS, BOXES, SECTORS, SEG_FILTERS, OFERTAS } from "./data";
 import { Icon, FakeQR, Logo, Wordmark } from "./ui";
-import { maskPhone, validPhone } from "./phone";
+import { maskPhone, validPhone, validEmail } from "./phone";
 import { saldoDe } from "./pontos";
 import { vitrine, descontoPct, catalogoDe } from "./catalogo";
 import { MAP_BOXES } from "./map/layout";
@@ -65,7 +65,7 @@ const BAIRROS = [
 
 /* ============================== /cadastro ============================== */
 export function CadastroPage() {
-  const [f, setF] = useState({ nome: "", tel: "", bairro: "", interesses: [...INTERESSES], aceite: false });
+  const [f, setF] = useState({ nome: "", tel: "", email: "", bairro: "", interesses: [...INTERESSES], aceite: false });
   const [erros, setErros] = useState({});
   const [pronto, setPronto] = useState(false);
 
@@ -79,6 +79,7 @@ export function CadastroPage() {
     const novos = {};
     if (f.nome.trim().length < 2) novos.nome = "Escreva seu nome.";
     if (!validPhone(f.tel)) novos.tel = "Informe DDD e número, como (85) 9 9999-9999.";
+    if (f.email && !validEmail(f.email)) novos.email = "E-mail inválido. Confira se tem @ e o domínio.";
     if (f.interesses.length === 0) novos.interesses = "Escolha pelo menos um tipo de aviso.";
     if (!f.aceite) novos.aceite = "É preciso concordar em receber as mensagens.";
     setErros(novos);
@@ -98,8 +99,10 @@ export function CadastroPage() {
             Cadastro feito, {f.nome.trim().split(" ")[0]}.
           </h1>
           <p className="mt-4 leading-relaxed text-muted-foreground">
-            As mensagens vão para <strong className="text-foreground">{f.tel}</strong>. Você recebe no máximo uma por
-            dia e sai quando quiser respondendo <strong className="text-foreground">SAIR</strong>.
+            As mensagens vão para <strong className="text-foreground">{f.tel}</strong>
+            {f.email && <> e para <strong className="text-foreground">{f.email.trim()}</strong></>}. Você recebe no
+            máximo uma por dia e sai quando quiser respondendo <strong className="text-foreground">SAIR</strong>
+            {f.email && " ou pelo link de descadastro do e-mail"}.
           </p>
 
           <div className="rule mt-8 pt-6">
@@ -138,7 +141,7 @@ export function CadastroPage() {
             <Icon name="success" className="h-4 w-4" /> WhatsApp
           </p>
           <h1 className="mt-5 font-display text-secao font-bold leading-[1.05]">
-            Receba as ofertas do Centro no seu WhatsApp.
+            Receba as ofertas do Centro no seu WhatsApp ou por e-mail.
           </h1>
           <p className="mt-5 text-base leading-relaxed text-muted-foreground">
             Sem aplicativo para instalar e sem custo. Uma mensagem por dia, no máximo, com o que interessa
@@ -190,6 +193,28 @@ export function CadastroPage() {
             </div>
 
             <div>
+              <label htmlFor="email" className={rotulo}>
+                E-mail <span className="font-normal normal-case">(opcional)</span>
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={f.email}
+                onChange={(e) => set("email", e.target.value)}
+                placeholder="voce@email.com"
+                inputMode="email"
+                autoComplete="email"
+                aria-invalid={!!erros.email}
+                className={`mt-2 ${campo}`}
+              />
+              {erros.email ? (
+                <p role="alert" className="mt-1.5 text-sm text-destructive">{erros.email}</p>
+              ) : (
+                <p className="caption mt-1.5">Os mesmos avisos chegam por e-mail, se você quiser.</p>
+              )}
+            </div>
+
+            <div>
               <label htmlFor="bairro" className={rotulo}>Bairro <span className="font-normal normal-case">(opcional)</span></label>
               <select
                 id="bairro"
@@ -237,8 +262,9 @@ export function CadastroPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
               />
               <span>
-                Concordo em receber mensagens do SIMOVE no WhatsApp e sei que posso sair a qualquer momento
-                respondendo SAIR. Meus dados serão usados só para isso, conforme a LGPD.
+                Concordo em receber mensagens do SIMOVE no WhatsApp e, se eu informar o e-mail, também por
+                e-mail. Sei que posso sair a qualquer momento respondendo SAIR ou pelo link de descadastro.
+                Meus dados serão usados só para isso, conforme a LGPD.
               </span>
             </label>
             {erros.aceite && <p role="alert" className="text-sm text-destructive">{erros.aceite}</p>}
