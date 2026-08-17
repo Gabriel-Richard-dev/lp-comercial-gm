@@ -23,7 +23,7 @@ export const PHOTOS = {
   mercado: {
     src: "/fotos/cpc-reinauguracao.jpg",
     alt: "Movimento de clientes e permissionários no Centro Público Comercial",
-    caption: "O movimento do Centro já existe. O que falta é quem venha de fora do bairro.",
+    caption: "Movimento de fim de tarde no corredor central do Centro.",
   },
   musica: {
     src: "/fotos/musica.webp",
@@ -40,18 +40,17 @@ export const PHOTOS = {
 
 export const HERO = {
   eyebrow: "Centro Público Comercial Geraldo Machado",
-  title: ["Sessenta boxes", "num só", "lugar."],
-  sub: "O Centro tem 1.200 m² de comércio no meio de Maracanaú e nenhuma vitrine fora dele. O SIMOVE coloca as 60 lojas no celular de quem mora aqui.",
+  title: ["Sessenta boxes", "num só lugar."],
+  sub: "As 60 lojas do Centro no seu celular: oferta do dia, cupom de desconto e pontos que voltam na próxima compra. Tudo pelo WhatsApp.",
   ctas: [
-    { label: "Ver o que o SIMOVE faz", href: "#plataforma", primary: true },
-    { label: "Compra Premiada", href: "#premiada" },
+    { label: "Receber as ofertas", href: "#cta", primary: true },
+    { label: "Ver a vitrine das lojas", href: "/catalogo" },
   ],
 };
 
 export const STATS = [
   { value: 60, suffix: "", label: "boxes em funcionamento", note: "modas, calçados, artigos e alimentação" },
   { value: 1200, suffix: " m²", label: "de área comercial", note: "reaberto em outubro de 2023" },
-  { value: 251, suffix: " mil", label: "moradores em Maracanaú", note: "terceira maior cidade da Região Metropolitana" },
   { value: 4, suffix: "", label: "setores sinalizados por cor", note: "azul, amarelo, vermelho e verde" },
 ];
 
@@ -60,113 +59,86 @@ export const SEGMENTS = [
   "Eletrônicos", "Papelaria", "Cama e mesa", "Bijuteria", "Conserto de celular", "Alimentação",
 ];
 
-export const PROBLEMS = [
-  {
-    n: "01",
-    title: "Quem não passa na porta não sabe que existe",
-    body: "O Centro não aparece em busca nenhuma. Quem mora a dez minutos daqui não tem como saber que existe um box vendendo o que ela procura.",
-  },
-  {
-    n: "02",
-    title: "A visita acaba e o contato acaba junto",
-    body: "O cliente compra, sai e nunca mais recebe notícia. Não há cadastro, não há aviso de promoção, não há motivo para voltar na semana seguinte.",
-  },
-  {
-    n: "03",
-    title: "A gestão é feita no papel",
-    body: "Horário de abertura e reclamação de cliente ficam em caderno e planilha. A Secretaria não tem número para mostrar.",
-  },
-];
-
-/* Os 11 recursos, agrupados por objetivo. */
 export const PILLARS = [
   {
-    id: "atrair",
+    id: "antes",
     n: "01",
-    title: "Trazer gente nova",
-    lead: "Sem verba de mídia.",
+    title: "Antes de sair de casa",
+    lead: "Você já sabe o que tem hoje.",
     features: [
-      {
-        icon: "ticket",
-        title: "Cupom de influenciador",
-        body: "Cada influenciador de Maracanaú recebe um código próprio e acompanha quantas vendas trouxe. O ranking entre eles rende publicação espontânea.",
-      },
       {
         icon: "tag",
         title: "Promoção do dia",
-        body: "Cada box publica uma oferta que vale até o meio-dia. Aos poucos o cliente pega o hábito de conferir antes de sair de casa.",
+        body: "Cada box publica uma oferta que vale até o meio-dia.",
       },
       {
-        icon: "zap",
+        icon: "success",
         title: "Aviso no WhatsApp",
         badge: "Canal principal",
-        body: "O cliente deixa o número na landing ou no próprio box e passa a receber as ofertas. Nada para instalar, nada para pagar de anúncio.",
+        body: "Deixe seu número e receba as ofertas. Nada para instalar.",
+      },
+      {
+        icon: "ticket",
+        title: "Cupom de influenciador",
+        body: "O código de quem você já segue em Maracanaú vale desconto no box.",
       },
       {
         icon: "music",
         title: "Agenda de eventos",
-        body: "A programação musical dos espaços públicos já existe e é da Secult. Ligada ao aplicativo, ela vira fluxo com data marcada.",
+        body: "Show, feira e roda de samba no Centro, com data e hora.",
       },
     ],
   },
   {
-    id: "fidelizar",
+    id: "compra",
     n: "02",
-    title: "Fazer voltar",
-    lead: "E trazer alguém junto.",
+    title: "A cada compra",
+    lead: "O que você gasta aqui volta.",
     features: [
       {
         icon: "star",
         title: "Pontos por compra",
-        body: "O cliente paga no Pix do box e envia o comprovante. O identificador da transação serve de chave única, então o mesmo comprovante não pontua duas vezes.",
+        body: "Pague no Pix do box e envie o comprovante. Os pontos viram desconto na próxima.",
       },
       {
         icon: "share",
         title: "Indicação",
-        badge: "Crescimento",
-        body: "Cada cliente tem um link. Quando a pessoa indicada compra, os dois recebem pontos.",
+        badge: "Para os dois",
+        body: "Você tem um link. Quando a pessoa indicada compra, os dois ganham pontos.",
       },
       {
         icon: "gift",
         title: "Compra Premiada",
-        badge: "Carro-chefe",
-        body: "Compra acima do valor mínimo no mês concorre ao sorteio. O prêmio é comprado dos próprios permissionários.",
+        badge: "Todo mês",
+        body: "Compra acima do valor mínimo concorre ao sorteio do mês.",
       },
     ],
   },
   {
-    id: "vender",
+    id: "achar",
     n: "03",
-    title: "Vender além do balcão",
-    lead: "O box tem três metros de frente. A venda não precisa ter.",
+    title: "Na hora de achar o box",
+    lead: "São 60 boxes em quatro setores.",
     features: [
-      {
-        icon: "spark",
-        title: "Social media interno",
-        body: "Jovens aprendizes contratados pela prefeitura produzem o conteúdo dos 60 boxes. O programa social sustenta a vitrine.",
-      },
       {
         icon: "pin",
         title: "Mapa e totem",
-        body: "O totem da entrada mostra onde fica cada box. Digitalizado, ele passa a responder pelo produto: o cliente escolhe o que procura e o setor acende.",
+        body: "Escolha o que procura no totem da entrada e o setor acende na planta.",
       },
-    ],
-  },
-  {
-    id: "gerir",
-    n: "04",
-    title: "Dar número à Secretaria",
-    lead: "O que hoje é caderno.",
-    features: [
+      {
+        icon: "spark",
+        title: "Vitrine das lojas",
+        body: "Foto, preço e contato de cada uma das 60 lojas.",
+      },
       {
         icon: "clock",
         title: "Horários",
-        body: "Horário declarado de cada box, do jeito que o cliente vê antes de sair de casa. A Secretaria passa a saber quem abre quando.",
+        body: "O horário de cada box, atualizado por quem abre a porta.",
       },
       {
         icon: "stars",
         title: "Avaliação por loja",
-        body: "O cliente dá a nota. A média vira destaque na vitrine para quem vai bem e aviso antecipado para quem vai mal.",
+        body: "A nota de quem já comprou, visível na vitrine.",
       },
     ],
   },
@@ -219,99 +191,55 @@ export const BOXES = [
 export const MAP = {
   n: "Totem",
   title: "A placa da entrada responde perguntas.",
-  lead: "O totem traz a planta, os quatro setores e o código para baixar o aplicativo. Ligado ao SIMOVE, ele deixa de ser uma placa.",
-  body: "O cliente escolhe o que procura e os boxes que vendem aquilo acendem na planta. Quem não quis instalar nada é atendido ali mesmo, de pé, na porta.",
+  lead: "Escolha o que procura e os boxes que vendem aquilo acendem na planta. De pé, na entrada, sem cadastro e sem instalar nada.",
   bullets: [
-    ["Para quem chega sem o aplicativo", "o totem responde na entrada, sem cadastro."],
-    ["Para quem já usa", "a mesma planta vai no bolso, com o box marcado."],
-    ["Para a Secretaria", "cada toque registra o que procuraram e não acharam."],
+    ["Sem o aplicativo", "o totem responde ali mesmo."],
+    ["Com o aplicativo", "a mesma planta vai no bolso, com o box já marcado."],
   ],
-  note: "Planta baseada no totem proposto pela equipe. Os nomes de loja são exemplos.",
+  note: "Simulação do totem. Os nomes de loja são exemplos.",
 };
 
 export const PRIZE = {
   n: "Compra Premiada",
   title: "Comprou acima do mínimo no mês, está no sorteio.",
-  body: "É o motivo para gastar aqui em vez de gastar no shopping. Como o prêmio é comprado dos próprios permissionários, o dinheiro do programa fica dentro do Centro.",
+  body: "Um sorteio por mês, com prêmio comprado nos próprios boxes do Centro.",
   ticket: ["0", "4", "2", "8", "1", "7"],
   points: [
     ["Uma compra", "acima do valor mínimo garante um número."],
     ["Cada R$ 50 a mais", "vale um número extra no mesmo sorteio."],
     ["Um sorteio por mês", "com resultado atrelado à Loteria Federal."],
   ],
-  note: "Sorteio é promoção comercial e depende de autorização prévia da Secretaria de Prêmios e Apostas do Ministério da Fazenda (Lei 5.768/71), pedida por um CNPJ promotor. A associação de permissionários é a candidata natural. Levar isso pronto para a banca mostra que a operação foi pensada.",
+  note: "Promoção comercial sujeita a autorização prévia do Ministério da Fazenda. Regulamento completo no lançamento.",
 };
 
 export const STEPS = [
   {
     k: "01",
-    title: "O influenciador publica",
-    body: "Cupom com código próprio nas mãos de quem já fala com Maracanaú. Cada resgate é contado e aparece no ranking.",
+    title: "A oferta chega",
+    body: "Oferta do dia, cupom e agenda de eventos no WhatsApp que você já usa.",
   },
   {
     k: "02",
-    title: "O aviso chega no WhatsApp",
-    body: "Quem deixou o número recebe a oferta do dia e a agenda de eventos no aplicativo que já usa.",
+    title: "Você escolhe o box",
+    body: "A vitrine e o mapa mostram quem vende o que você procura, e onde fica.",
   },
   {
     k: "03",
     title: "A compra vira ponto",
-    body: "Pix no código do box, comprovante enviado, ponto na conta. Passou do valor mínimo, ganha o número da Compra Premiada.",
+    body: "Pix no código do box, comprovante enviado, ponto na conta.",
   },
   {
     k: "04",
-    title: "O cliente indica",
-    body: "O link pessoal rende pontos para os dois quando a pessoa indicada compra.",
-  },
-  {
-    k: "05",
-    title: "A Secretaria acompanha",
-    body: "Horários, avaliação por loja, cupons resgatados e movimento por hora, num painel só.",
+    title: "O ponto volta como desconto",
+    body: "Acima do valor mínimo você ainda ganha um número da Compra Premiada.",
   },
 ];
 
 export const EVENTS = {
   n: "Eventos",
   title: "A programação já existe. Falta avisar.",
-  body: "A Sala do Empreendedor e a Secult mantêm música ao vivo nos espaços públicos do município. Hoje quem descobre é quem estava passando. Com a agenda dentro do SIMOVE, o show de sábado vira promoção de sábado, e o box sabe com uma semana de antecedência que vai ter movimento.",
+  body: "Música ao vivo e feira nos espaços públicos do Centro, pela Sala do Empreendedor e pela Secult. Com a agenda dentro do SIMOVE, você fica sabendo antes — e o show de sábado vira passeio de sábado.",
 };
-
-export const AUDIENCES = [
-  {
-    who: "Cliente",
-    items: [
-      "Vitrine e mapa dos 60 boxes",
-      "Cupom de influenciador da cidade",
-      "Pontos que viram desconto na próxima compra",
-      "Link de indicação que rende para os dois",
-      "Compra Premiada todo mês",
-    ],
-  },
-  {
-    who: "Permissionário",
-    items: [
-      "Tudo pelo WhatsApp, sem instalar aplicativo",
-      "Conteúdo feito pelos jovens aprendizes",
-      "Avaliação boa vira destaque na vitrine",
-    ],
-  },
-  {
-    who: "Secretaria",
-    items: [
-      "Horário declarado e conferido",
-      "Nota do cliente por box",
-      "Jovens aprendizes com trabalho comprovado",
-      "Relatório pronto para prestação de contas",
-    ],
-  },
-];
-
-export const ROADMAP = [
-  { phase: "Hackathon", label: "MVP", items: ["Vitrine e mapa", "Pontos com Pix", "Disparo no WhatsApp"] },
-  { phase: "90 dias", label: "Piloto", items: ["10 boxes", "5 influenciadores", "Primeira Compra Premiada"] },
-  { phase: "6 meses", label: "Escala", items: ["Os 60 boxes", "Avaliação por loja", "Painel da Secretaria"] },
-  { phase: "12 meses", label: "Replicação", items: ["Outros centros públicos da região", "Agenda cultural integrada", "Compra coletiva"] },
-];
 
 /* --- conteúdo do totem (exemplos para a demo) --- */
 export const OFERTAS = [
@@ -347,6 +275,6 @@ export const OUVIDORIA_TIPOS = [
 ];
 
 export const FORM = {
-  title: "Receba as ofertas do Centro no WhatsApp",
+  title: "Receba as ofertas do Centro no WhatsApp ou por e-mail",
   sub: "Oferta do dia, cupom de influenciador e agenda de eventos. Sem aplicativo e sem custo.",
 };

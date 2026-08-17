@@ -224,6 +224,41 @@ img {
   border-top: 1px solid var(--color-border);
 }
 
+/* Fundo do hero: malha de pontos fixa + uma luz que segue o ponteiro. O JS só
+   escreve --mx e --my (0 a 1); cor e desenho ficam aqui, onde podem morar.
+   A máscara apaga os dois de cima para baixo, para o texto nunca competir com
+   a textura e a foto entrar sem emenda. */
+.hero-luz {
+  --mx: 0.5;
+  --my: 0.3;
+  position: relative;
+  isolation: isolate;
+}
+.hero-luz::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(
+      40rem 30rem at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+      color-mix(in oklab, var(--color-primary) 14%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(circle at 1px 1px, var(--color-border) 1px, transparent 0);
+  background-size: 100% 100%, 28px 28px;
+  mask-image: linear-gradient(to bottom, black 0%, black 45%, transparent 78%);
+}
+
+/* Inclinação do título: mesmo par de variáveis, sem custo de JS por quadro. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-titulo {
+    transform: translate3d(calc((var(--mx) - 0.5) * 16px), calc((var(--my) - 0.5) * 10px), 0);
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
 /* Card: bg-card + border-border + rounded-lg (components/card.md). A separação
    de superfície é por cor e borda, não por sombra. */
 .hairline {
