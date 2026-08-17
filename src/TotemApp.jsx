@@ -3,7 +3,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { BRAND, PHOTOS, SECTORS, BOXES, SEG_FILTERS, OFERTAS, AGENDA, OUVIDORIA_TIPOS } from "./data";
 import { Icon, FakeQR, Wordmark, FotoProduto } from "./ui";
-import { maskPhone, validPhone } from "./phone";
+import { maskCPF, validCPF } from "./phone";
 import { saldoDe } from "./pontos";
 import { catalogoDe } from "./catalogo";
 import MapView from "./map/MapView";
@@ -517,15 +517,15 @@ function Agenda({ onBack }) {
 }
 
 function Pontos({ onBack }) {
-  const [tel, setTel] = useState("");
+  const [cpf, setCpf] = useState("");
   const [erro, setErro] = useState("");
   const [dados, setDados] = useState(null);
 
   const consultar = (e) => {
     e.preventDefault();
-    if (!validPhone(tel)) return setErro("Digite o DDD e o número, como (85) 9 9999-9999.");
+    if (!validCPF(cpf)) return setErro("CPF inválido. Confira os 11 dígitos.");
     setErro("");
-    setDados(saldoDe(tel)); // mesma conta da página /pontos
+    setDados(saldoDe(cpf)); // mesma conta da página /pontos
   };
 
   return (
@@ -535,13 +535,13 @@ function Pontos({ onBack }) {
         {!dados ? (
           <form onSubmit={consultar}>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Digite o WhatsApp cadastrado para ver seu saldo e seus números da Compra Premiada.
+              Digite seu CPF para ver seu saldo e seus números da Compra Premiada.
             </p>
             <input
-              value={tel}
-              onChange={(e) => setTel(maskPhone(e.target.value))}
-              placeholder="(85) 9 9999-9999"
-              inputMode="tel"
+              value={cpf}
+              onChange={(e) => setCpf(maskCPF(e.target.value))}
+              placeholder="000.000.000-00"
+              inputMode="numeric"
               aria-invalid={!!erro}
               className="campo mt-4"
             />
@@ -554,8 +554,8 @@ function Pontos({ onBack }) {
               Consultar
             </button>
             <p className="caption mt-6">
-              Nesta demonstração o saldo é gerado a partir do próprio número. No sistema real vem do histórico
-              de compras confirmadas por Pix.
+              O saldo fica no CPF, o mesmo que você informa no box na hora da compra. Nesta demonstração ele é
+              gerado a partir do próprio CPF; no sistema real vem do histórico de compras confirmadas por Pix.
             </p>
           </form>
         ) : (
@@ -586,11 +586,11 @@ function Pontos({ onBack }) {
             <button
               onClick={() => {
                 setDados(null);
-                setTel("");
+                setCpf("");
               }}
               className="btn btn-outline mt-4 w-full"
             >
-              Consultar outro número
+              Consultar outro CPF
             </button>
           </div>
         )}

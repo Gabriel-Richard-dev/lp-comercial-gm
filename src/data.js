@@ -98,7 +98,7 @@ export const PILLARS = [
       {
         icon: "star",
         title: "Pontos por compra",
-        body: "Pague no Pix do box e envie o comprovante. Os pontos viram desconto na próxima.",
+        body: "Diga o CPF no box e pague no Pix. Os pontos ficam no seu CPF e viram desconto na próxima.",
       },
       {
         icon: "share",

@@ -1,7 +1,7 @@
 // node --test src/phone.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { maskPhone, validPhone, validEmail } from "./phone.js";
+import { maskPhone, validPhone, validEmail, maskCPF, validCPF } from "./phone.js";
 
 test("maskPhone formata enquanto digita", () => {
   assert.equal(maskPhone("8"), "8");
@@ -25,6 +25,24 @@ test("validEmail pega erro de digitação", () => {
   assert.ok(!validEmail("maria@gmail"), "sem domínio");
   assert.ok(!validEmail("mariagmail.com"), "sem arroba");
   assert.ok(!validEmail("maria @gmail.com"), "espaço no meio");
+});
+
+test("maskCPF formata enquanto digita", () => {
+  assert.equal(maskCPF("529"), "529");
+  assert.equal(maskCPF("5299822"), "529.982.2");
+  assert.equal(maskCPF("52998224725"), "529.982.247-25");
+  assert.equal(maskCPF("529982247259999"), "529.982.247-25"); // corta o excesso
+  assert.equal(maskCPF("529.982.247-25"), "529.982.247-25"); // idempotente
+});
+
+test("validCPF confere os dígitos verificadores", () => {
+  assert.ok(validCPF("529.982.247-25"));
+  assert.ok(validCPF("11144477735"));
+  assert.ok(!validCPF(""));
+  assert.ok(!validCPF("529982247"), "curto demais");
+  assert.ok(!validCPF("52998224724"), "último dígito trocado");
+  assert.ok(!validCPF("52998224735"), "penúltimo dígito trocado");
+  assert.ok(!validCPF("11111111111"), "todos iguais passa na conta, mas não é CPF");
 });
 
 test("validPhone rejeita o que quebraria o disparo", () => {

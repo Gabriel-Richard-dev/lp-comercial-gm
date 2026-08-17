@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { BRAND, PHOTOS, BOXES, SECTORS, SEG_FILTERS, OFERTAS } from "./data";
 import { Icon, FakeQR, Logo, Wordmark, FotoProduto } from "./ui";
-import { maskPhone, validPhone, validEmail } from "./phone";
+import { maskPhone, validPhone, validEmail, maskCPF, validCPF } from "./phone";
 import { saldoDe } from "./pontos";
 import { vitrine, descontoPct, catalogoDe, fotoDe, FOTO_SEG } from "./catalogo";
 import { MAP_BOXES } from "./map/layout";
@@ -65,7 +65,7 @@ const BAIRROS = [
 
 /* ============================== /cadastro ============================== */
 export function CadastroPage() {
-  const [f, setF] = useState({ nome: "", tel: "", email: "", bairro: "", interesses: [...INTERESSES], aceite: false });
+  const [f, setF] = useState({ nome: "", cpf: "", tel: "", email: "", bairro: "", interesses: [...INTERESSES], aceite: false });
   const [erros, setErros] = useState({});
   const [pronto, setPronto] = useState(false);
 
@@ -78,6 +78,7 @@ export function CadastroPage() {
     e.preventDefault();
     const novos = {};
     if (f.nome.trim().length < 2) novos.nome = "Escreva seu nome.";
+    if (!validCPF(f.cpf)) novos.cpf = "CPF inválido. Confira os 11 dígitos.";
     if (!validPhone(f.tel)) novos.tel = "Informe DDD e número, como (85) 9 9999-9999.";
     if (f.email && !validEmail(f.email)) novos.email = "E-mail inválido. Confira se tem @ e o domínio.";
     if (f.interesses.length === 0) novos.interesses = "Escolha pelo menos um tipo de aviso.";
@@ -175,6 +176,25 @@ export function CadastroPage() {
                 className={`mt-2 ${campo}`}
               />
               {erros.nome && <p role="alert" className="mt-1.5 text-sm text-destructive">{erros.nome}</p>}
+            </div>
+
+            <div>
+              <label htmlFor="cpf" className={rotulo}>CPF</label>
+              <input
+                id="cpf"
+                value={f.cpf}
+                onChange={(e) => set("cpf", maskCPF(e.target.value))}
+                placeholder="000.000.000-00"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-invalid={!!erros.cpf}
+                className={`mt-2 ${campo}`}
+              />
+              {erros.cpf ? (
+                <p role="alert" className="mt-1.5 text-sm text-destructive">{erros.cpf}</p>
+              ) : (
+                <p className="caption mt-1.5">É a chave dos seus pontos: é o CPF que você informa no box.</p>
+              )}
             </div>
 
             <div>
@@ -284,16 +304,16 @@ export function CadastroPage() {
 
 /* ============================== /pontos ============================== */
 export function PontosPage() {
-  const [tel, setTel] = useState("");
+  const [cpf, setCpf] = useState("");
   const [erro, setErro] = useState("");
   const [conta, setConta] = useState(null);
   const [copiado, setCopiado] = useState(false);
 
   const consultar = (e) => {
     e.preventDefault();
-    if (!validPhone(tel)) return setErro("Informe DDD e número, como (85) 9 9999-9999.");
+    if (!validCPF(cpf)) return setErro("CPF inválido. Confira os 11 dígitos.");
     setErro("");
-    setConta(saldoDe(tel));
+    setConta(saldoDe(cpf));
   };
 
   const copiar = async () => {
@@ -314,18 +334,18 @@ export function PontosPage() {
             Meus pontos
           </h1>
           <p className="mt-4 leading-relaxed text-muted-foreground">
-            Digite o WhatsApp cadastrado para ver seu saldo, seu extrato e seus números da Compra Premiada.
+            Digite seu CPF para ver seu saldo, seu extrato e seus números da Compra Premiada.
           </p>
 
           <form onSubmit={consultar} noValidate className="mt-8 bg-card p-6 hairline">
-            <label htmlFor="tel" className={rotulo}>WhatsApp</label>
+            <label htmlFor="cpf" className={rotulo}>CPF</label>
             <input
-              id="tel"
-              value={tel}
-              onChange={(e) => setTel(maskPhone(e.target.value))}
-              placeholder="(85) 9 9999-9999"
-              inputMode="tel"
-              autoComplete="tel"
+              id="cpf"
+              value={cpf}
+              onChange={(e) => setCpf(maskCPF(e.target.value))}
+              placeholder="000.000.000-00"
+              inputMode="numeric"
+              autoComplete="off"
               autoFocus
               aria-invalid={!!erro}
               className={`mt-2 ${campo}`}
@@ -343,8 +363,9 @@ export function PontosPage() {
           </form>
 
           <p className="caption mt-6">
-            Nesta demonstração o saldo é calculado a partir do próprio número digitado, então o mesmo número
-            mostra sempre o mesmo resultado. No sistema real vem das compras confirmadas por Pix.
+            Os pontos ficam no CPF, não no telefone: trocar de número não perde o saldo. Nesta demonstração o
+            saldo é calculado a partir do próprio CPF digitado, então o mesmo CPF mostra sempre o mesmo
+            resultado. No sistema real vem das compras confirmadas por Pix.
           </p>
         </div>
       </Shell>
@@ -355,10 +376,10 @@ export function PontosPage() {
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="font-display text-3xl font-bold">Olá.</h1>
         <button
-          onClick={() => { setConta(null); setTel(""); }}
+          onClick={() => { setConta(null); setCpf(""); }}
           className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
         >
-          consultar outro número
+          consultar outro CPF
         </button>
       </div>
 
@@ -516,6 +537,20 @@ function BoxTag({ numero, setor, className = "h-9 w-9 text-xs" }) {
   );
 }
 
+/* Filtro ligado, com o botão de desligar dentro dele. */
+function ChipFiltro({ label, onLimpar }) {
+  return (
+    <button
+      onClick={onLimpar}
+      className="flex items-center gap-1.5 bg-primary px-2.5 py-1.5 font-semibold text-primary-foreground transition hover:bg-secondary hover:text-secondary-foreground"
+    >
+      {label}
+      <span aria-hidden="true" className="text-sm leading-none">×</span>
+      <span className="sr-only">tirar este filtro</span>
+    </button>
+  );
+}
+
 export function CatalogoPage() {
   const [seg, setSeg] = useState("Tudo");
   const [q, setQ] = useState("");
@@ -542,14 +577,20 @@ export function CatalogoPage() {
   return (
     <Shell>
       {/* ---------- busca ---------- */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-display text-3xl font-bold leading-none">Vitrine do Centro</h1>
+      <h1 className="font-display text-3xl font-bold leading-none">Vitrine do Centro</h1>
+      <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+        As 60 lojas com preço e o número do box. Busque o produto ou escolha uma categoria.
+      </p>
+
+      {/* A busca acompanha a rolagem: a lista é longa e trocar de termo não pode
+          custar uma subida até o topo. */}
+      <div className="sticky top-0 z-20 -mx-5 mt-6 border-b border-border bg-muted px-5 py-3">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Buscar produto ou loja"
           aria-label="Buscar produto ou loja"
-          className={`${campo} sm:max-w-xs`}
+          className={`${campo} w-full`}
         />
       </div>
 
@@ -588,34 +629,53 @@ export function CatalogoPage() {
         })}
       </div>
 
+      {/* O que está filtrando agora fica num lugar só, e cada filtro sai daqui
+          mesmo — senão o cliente precisa lembrar onde clicou. */}
+      {(seg !== "Tudo" || cupom || termo) && (
+        <div role="status" className="mt-5 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Mostrando</span>
+          {seg !== "Tudo" && <ChipFiltro label={seg} onLimpar={() => setSeg("Tudo")} />}
+          {cupom && <ChipFiltro label={`cupom ${cupom}`} onLimpar={() => setCupom(null)} />}
+          {termo && <ChipFiltro label={`“${q.trim()}”`} onLimpar={() => setQ("")} />}
+        </div>
+      )}
+
       {/* ---------- banners de oferta ---------- */}
-      <section className="mt-10">
+      <section className="rule mt-10 pt-8">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-xl font-bold">Ofertas do dia</h2>
           <p className="text-xs text-muted-foreground">Só hoje, direto no box</p>
         </div>
 
+        {/* Preço e nome vivem no bloco sólido abaixo da foto: o DS proíbe
+            gradiente e proíbe texto sobre foto sem chapa. */}
         <div className="-mx-5 mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2">
           {ofertas.map((o) => (
             <a
               key={o.box + o.item}
               href="/totem"
-              className="relative w-[84%] shrink-0 snap-start overflow-hidden bg-card sm:w-[26rem]"
+              className="group w-[84%] shrink-0 snap-start overflow-hidden bg-card hairline clicavel sm:w-[26rem]"
             >
-              <FotoProduto termo={o.item} ratio="aspect-[16/9]" />
-              <span className="absolute left-0 top-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
-                −{descontoPct(o)}%
-              </span>
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent p-4 pt-12 text-white">
-                <p className="font-display text-lg font-bold leading-tight">{o.item}</p>
-                <p className="text-xs opacity-90">
-                  {o.loja} · box {o.box}
-                  {o.cupom && ` · cupom ${o.cupom}`}
-                </p>
-                <p className="mt-1 font-display text-2xl font-bold tabular-nums">
-                  R$ {o.por}{" "}
-                  <span className="text-xs font-normal line-through opacity-70">R$ {o.de}</span>
-                </p>
+              <div className="relative">
+                <FotoProduto termo={o.item} ratio="aspect-[16/9]" />
+                <span className="absolute left-0 top-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
+                  −{descontoPct(o)}%
+                </span>
+              </div>
+              <div className="chapa flex items-end justify-between gap-3 p-4">
+                <span className="min-w-0">
+                  <span className="block font-display text-lg font-bold leading-tight">{o.item}</span>
+                  <span className="mt-0.5 block truncate text-xs">
+                    {o.loja} · box {o.box}
+                    {o.cupom && ` · cupom ${o.cupom}`}
+                  </span>
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className="block text-xs line-through">R$ {o.de}</span>
+                  <span className="block font-display text-2xl font-bold leading-none tabular-nums">
+                    R$ {o.por}
+                  </span>
+                </span>
               </div>
             </a>
           ))}
@@ -623,7 +683,7 @@ export function CatalogoPage() {
       </section>
 
       {/* ---------- cupons ---------- */}
-      <section className="mt-8 flex flex-wrap items-center gap-2">
+      <section className="rule mt-10 flex flex-wrap items-center gap-2 pt-8">
         <h2 className="mr-1 font-display text-xl font-bold">Cupons</h2>
         {CUPONS.map((c) => {
           const ativo = cupom === c.codigo;
@@ -641,18 +701,10 @@ export function CatalogoPage() {
             </button>
           );
         })}
-        {cupom && (
-          <p role="status" className="text-xs text-muted-foreground">
-            só o que o cupom atende ·{" "}
-            <button onClick={() => setCupom(null)} className="underline underline-offset-2">
-              limpar
-            </button>
-          </p>
-        )}
       </section>
 
       {/* ---------- lojas ---------- */}
-      <section className="mt-10">
+      <section className="rule mt-10 pt-8">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-xl font-bold">{termo ? "O que achamos" : "Lojas"}</h2>
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
@@ -675,7 +727,10 @@ export function CatalogoPage() {
         {termo && itens.length > 0 && (
           <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {itens.map((i) => (
-              <li key={i.box + i.nome} className="overflow-hidden bg-card hairline">
+              <li
+                key={i.box + i.nome}
+                className="overflow-hidden bg-card hairline clicavel"
+              >
                 <div className="relative">
                   <FotoProduto termo={i.nome} />
                   <BoxTag numero={i.box} setor={i.setor} className="absolute left-0 top-0 h-8 w-8 text-xs" />
@@ -695,7 +750,7 @@ export function CatalogoPage() {
           <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {lojas.map((l) => (
               <li key={l.number}>
-                <details className="group overflow-hidden bg-card hairline">
+                <details className="group overflow-hidden bg-card hairline clicavel">
                   <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                     <div className="relative">
                       <FotoProduto termo={l.itens[0].nome} ratio="aspect-[16/10]" />
@@ -716,10 +771,12 @@ export function CatalogoPage() {
                           </span>
                         </p>
                       </div>
-                      <Icon
-                        name="arrow"
-                        className="h-4 w-4 shrink-0 text-muted-foreground transition group-open:rotate-90"
-                      />
+                      {/* Quantos produtos tem dentro: o cliente decide abrir
+                          sabendo o que ganha, em vez de só uma seta. */}
+                      <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                        {l.itens.length} {l.itens.length === 1 ? "produto" : "produtos"}
+                        <Icon name="arrow" className="h-4 w-4 transition group-open:rotate-90" />
+                      </span>
                     </div>
                   </summary>
 

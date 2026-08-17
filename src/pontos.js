@@ -1,5 +1,7 @@
-// Saldo de demonstração: derivado do próprio telefone, para o mesmo número
-// mostrar sempre o mesmo resultado durante a apresentação.
+// Saldo de demonstração: a conta de pontos é da pessoa, e a pessoa é o CPF —
+// é o que o box digita na hora da compra e o que não muda quando ela troca de
+// número. Derivado do próprio CPF para o mesmo documento mostrar sempre o
+// mesmo resultado durante a apresentação.
 // Trocar por consulta ao histórico de Pix confirmado quando houver backend.
 
 const PREMIO = 150; // pontos por prêmio pequeno (desconto na próxima compra)
@@ -22,8 +24,8 @@ const LOJAS = [
   ["23", "Bella Cosméticos", "Compra"],
 ];
 
-export function saldoDe(tel) {
-  const d = String(tel).replace(/\D/g, "");
+export function saldoDe(cpf) {
+  const d = String(cpf).replace(/\D/g, "");
   const h = hash(d);
 
   const saldo = 80 + (h % 420);
@@ -50,7 +52,7 @@ export function saldoDe(tel) {
     progresso: Math.round(((saldo % PREMIO) / PREMIO) * 100),
     numeros,
     extrato,
-    codigo: d.slice(-6),
+    codigo: String(h % 1000000).padStart(6, "0"), // do hash, não do CPF: o link de indicação é público
     indicados: (h >> 7) % 5,
   };
 }

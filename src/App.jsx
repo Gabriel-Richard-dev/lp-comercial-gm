@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, lazy, Suspense } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -275,44 +275,118 @@ function Pillars() {
 }
 
 /* ============================== TOTEM ============================== */
+
+// O mapa do totem carrega o three.js inteiro: fica em import dinâmico e só é
+// montado quando a seção chega perto da tela, para quem passa direto pelo herói
+// e sai no formulário não baixar nada disso (mesma regra do main.jsx).
+const MapView = lazy(() => import("./map/MapView"));
+
+// Box qualquer com loja, para a planta já abrir com um marcador aceso em vez de
+// 70 caixas iguais. Quem clicar em outro assume daí.
+const BOX_DEMO = 12;
+
+function PlantaViva() {
+  const ref = useRef(null);
+  const [ligado, setLigado] = useState(false);
+  const [mode, setMode] = useState("2d");
+  const [sel, setSel] = useState({ id: BOX_DEMO });
+
+  useGSAP(
+    () => {
+      ScrollTrigger.create({
+        trigger: ref.current,
+        start: "top 85%",
+        once: true,
+        onEnter: () => setLigado(true),
+      });
+
+      gsap.from(ref.current, {
+        clipPath: "inset(0% 0% 100% 0%)",
+        y: 40,
+        duration: 1.1,
+        ease: "power3.out",
+        scrollTrigger: { trigger: ref.current, start: "top 85%" },
+      });
+
+      // O tchan: a planta entra deitada, em 2D, e levanta em 3D quando a seção
+      // toma a tela — o telhado aparece e a câmera voa até o box marcado (o voo
+      // é o lerp que já existe no createScene). Subindo de volta, ela deita.
+      if (MENOS_MOVIMENTO) return;
+      ScrollTrigger.create({
+        trigger: ref.current,
+        start: "top 55%",
+        end: "bottom top",
+        onEnter: () => setMode("3d"),
+        onLeaveBack: () => setMode("2d"),
+      });
+    },
+    { scope: ref }
+  );
+
+  return (
+    <div ref={ref} className="mt-16">
+      <div className="hairline h-80 bg-card sm:h-[28rem]">
+        {ligado && (
+          <Suspense fallback={null}>
+            <MapView mode={mode} selectedId={sel?.id ?? null} onSelect={setSel} />
+          </Suspense>
+        )}
+      </div>
+      <p className="caption mt-4 flex flex-wrap items-center gap-x-3 gap-y-1" aria-live="polite">
+        <span>Arraste para girar, role para levantar a planta, clique num box.</span>
+        {sel?.name && (
+          <strong className="text-foreground">
+            Box {sel.number} · {sel.name}
+            {sel.seg && <span className="font-normal text-muted-foreground"> · {sel.seg}</span>}
+          </strong>
+        )}
+      </p>
+    </div>
+  );
+}
+
 function MapSection() {
   return (
-    <section id="totem" className="mx-auto grid max-w-6xl items-start gap-14 px-5 py-24 lg:grid-cols-[1.1fr_1fr]">
-      <div className="max-w-xl">
-        <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-          {MAP.n}
-        </p>
-        <h2 data-reveal className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]">
-          {MAP.title}
-        </h2>
-        <p data-reveal className="mt-5 text-base leading-relaxed text-muted-foreground">{MAP.lead}</p>
+    <section id="totem" className="mx-auto max-w-6xl px-5 py-24">
+      <div className="grid items-start gap-14 lg:grid-cols-[1.1fr_1fr]">
+        <div className="max-w-xl">
+          <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            {MAP.n}
+          </p>
+          <h2 data-reveal className="mt-5 font-display text-secao font-bold leading-[1.08] tracking-[-0.025em]">
+            {MAP.title}
+          </h2>
+          <p data-reveal className="mt-5 text-base leading-relaxed text-muted-foreground">{MAP.lead}</p>
 
-        <div data-reveal className="mt-10">
-          {MAP.bullets.map(([b, rest]) => (
-            <div key={b} className="rule py-4">
-              <p className="text-sm leading-relaxed">
-                <strong>{b}</strong>, <span className="text-muted-foreground">{rest}</span>
-              </p>
-            </div>
-          ))}
+          <div data-reveal className="mt-10">
+            {MAP.bullets.map(([b, rest]) => (
+              <div key={b} className="rule py-4">
+                <p className="text-sm leading-relaxed">
+                  <strong>{b}</strong>, <span className="text-muted-foreground">{rest}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a data-reveal href="/totem" className="btn btn-primary">
+              Ver como funciona o totem
+              <Icon name="arrow" className="h-4 w-4" />
+            </a>
+            <a data-reveal href="/catalogo" className="btn btn-outline">
+              Ver a vitrine das lojas
+            </a>
+          </div>
+
+          <p data-reveal className="caption mt-6">{MAP.note}</p>
         </div>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a data-reveal href="/totem" className="btn btn-primary">
-            Ver como funciona o totem
-            <Icon name="arrow" className="h-4 w-4" />
-          </a>
-          <a data-reveal href="/catalogo" className="btn btn-outline">
-            Ver a vitrine das lojas
-          </a>
+        <div data-reveal>
+          <Photo photo={PHOTOS.totem} className="mx-auto w-full max-w-sm" ratio="aspect-[13/20]" />
         </div>
-
-        <p data-reveal className="caption mt-6">{MAP.note}</p>
       </div>
 
-      <div data-reveal>
-        <Photo photo={PHOTOS.totem} className="mx-auto w-full max-w-sm" ratio="aspect-[13/20]" />
-      </div>
+      <PlantaViva />
     </section>
   );
 }

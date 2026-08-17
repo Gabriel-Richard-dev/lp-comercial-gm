@@ -335,11 +335,42 @@ img {
   color: var(--color-primary);
 }
 
+/* Canto arredondado em tudo que tem chapa, borda ou foto própria. Fica aqui, e
+   não em dezenas de `rounded-lg` no JSX, porque raio é token e o DS não quer
+   valor de raio escrito fora deste arquivo.
+
+   `:where()` tem especificidade zero de propósito: qualquer `rounded-*` do
+   componente, e as regras de .btn/.campo/.hairline abaixo, continuam vencendo.
+   Ficam de fora os blocos que ocupam a tela inteira (barra fixa, fundo do
+   hero, véu do modal): arredondar canto colado na moldura da janela só
+   descobriria o fundo. */
+@layer base {
+  :where([class*="bg-"], [class*="border"], img):not(
+      [class*="inset-0"],
+      [class*="fixed"],
+      .hero-img,
+      .bolha
+    ) {
+    border-radius: var(--radius-lg);
+  }
+}
+
 /* Card: bg-card + border-border + rounded-lg (components/card.md). A separação
    de superfície é por cor e borda, não por sombra. */
 .hairline {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+}
+
+/* Cartão que abre ou leva a outro lugar: a borda escurece sob o ponteiro e fica
+   escura enquanto está aberto. A regra mora aqui, e não numa utility do
+   Tailwind, porque `.hairline` está fora de layer e venceria a utility. */
+.clicavel {
+  transition: border-color 140ms;
+}
+.clicavel:hover,
+details.clicavel[open] {
+  border-color: var(--color-foreground);
 }
 
 /* Botão: 56 px de altura, rótulo em text-sm (16 px), raio md (components/button.md). */
