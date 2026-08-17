@@ -84,6 +84,33 @@ export function arroba(nome) {
  * Box vago não tem vitrine: devolve a estrutura vazia para a tela mostrar o
  * aviso de disponível em vez de inventar loja onde não há.
  */
+/**
+ * A mesma vitrine do totem, virada do avesso: em vez de loja a loja, todos os
+ * itens de todos os boxes numa lista só, que é como o cliente procura produto.
+ *
+ * Box vago não entra, porque catalogoDe não devolve item para ele.
+ */
+export function vitrine(boxes) {
+  return boxes.flatMap((box) =>
+    catalogoDe(box).itens.map((item) => ({
+      ...item,
+      box: box.number,
+      loja: box.name,
+      seg: box.seg,
+      setor: box.s,
+    }))
+  );
+}
+
+/**
+ * Desconto da oferta em %, a partir dos preços de data.js, que vêm escritos
+ * como na etiqueta ("1.299,90"): o ponto é milhar e a vírgula é decimal.
+ */
+export function descontoPct({ de, por }) {
+  const n = (v) => Number(String(v).replace(/\./g, "").replace(",", "."));
+  return Math.round((1 - n(por) / n(de)) * 100);
+}
+
 export function catalogoDe(box) {
   if (!box || box.status === "Vago" || !box.seg) {
     return { itens: [], oferta: null, redes: null };

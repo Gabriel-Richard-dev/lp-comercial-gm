@@ -284,14 +284,15 @@ function MapSection() {
             ))}
           </div>
 
-          <a
-            data-reveal
-            href="/totem"
-            className="btn btn-primary mt-8"
-          >
-            Abrir a simulação do totem
-            <Icon name="arrow" className="h-4 w-4" />
-          </a>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a data-reveal href="/totem" className="btn btn-primary">
+              Abrir a simulação do totem
+              <Icon name="arrow" className="h-4 w-4" />
+            </a>
+            <a data-reveal href="/catalogo" className="btn btn-outline">
+              Ver a vitrine das lojas
+            </a>
+          </div>
 
           <p data-reveal className="caption mt-6">{MAP.note}</p>
         </div>
@@ -562,6 +563,10 @@ function Cta() {
             ·{" "}
             <a href="/pontos" className="font-semibold text-primary underline underline-offset-2">
               Consultar meus pontos
+            </a>{" "}
+            ·{" "}
+            <a href="/catalogo" className="font-semibold text-primary underline underline-offset-2">
+              Ver a vitrine
             </a>
           </p>
         </div>

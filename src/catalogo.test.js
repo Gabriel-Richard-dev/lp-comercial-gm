@@ -1,8 +1,9 @@
 // node --test src/catalogo.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { catalogoDe, arroba } from "./catalogo.js";
+import { catalogoDe, arroba, vitrine, descontoPct } from "./catalogo.js";
 import { MAP_BOXES } from "./map/layout.js";
+import { OFERTAS } from "./data.js";
 
 const ocupados = MAP_BOXES.filter((b) => b.status !== "Vago");
 
@@ -44,6 +45,31 @@ test("a oferta do dia aparece na loja a que pertence", () => {
 
   const semOferta = ocupados.find((b) => !catalogoDe(b).oferta);
   assert.ok(semOferta, "alguma loja tem que ficar sem oferta");
+});
+
+test("a vitrine geral traz toda loja ocupada, e nenhuma vaga", () => {
+  const itens = vitrine(MAP_BOXES);
+  const lojas = new Set(itens.map((i) => i.loja));
+  assert.equal(lojas.size, ocupados.length);
+
+  const vago = MAP_BOXES.find((b) => b.status === "Vago");
+  assert.ok(!itens.some((i) => i.box === vago.number), "box vago entrou na vitrine");
+});
+
+test("todo item da vitrine sabe dizer de que loja e box veio", () => {
+  for (const i of vitrine(MAP_BOXES)) {
+    assert.ok(i.nome && i.preco && i.loja && i.box && i.seg, `item incompleto: ${JSON.stringify(i)}`);
+  }
+});
+
+test("o desconto sai em % inteiro, com preço de etiqueta", () => {
+  assert.equal(descontoPct({ de: "39,90", por: "24,90" }), 38);
+  assert.equal(descontoPct({ de: "120,00", por: "89,00" }), 26);
+  assert.equal(descontoPct({ de: "1.200,00", por: "600,00" }), 50); // ponto é milhar
+  for (const o of OFERTAS) {
+    const p = descontoPct(o);
+    assert.ok(p > 0 && p < 100, `desconto fora da faixa em ${o.loja}: ${p}%`);
+  }
 });
 
 test("o @ do perfil perde acento, espaço e pontuação", () => {
