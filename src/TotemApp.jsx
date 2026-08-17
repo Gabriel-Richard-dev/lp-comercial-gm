@@ -772,10 +772,10 @@ export default function TotemApp() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-secondary p-0 sm:p-6">
       <div className="mb-4 hidden items-center gap-3 text-xs text-muted-foreground sm:flex">
         <a href="/" className="underline underline-offset-2 hover:text-foreground">
-          ← voltar para a apresentação
+          ← voltar para a página do Centro
         </a>
         <span>·</span>
-        <span>Simulação do totem. Volta à tela de espera após 45 s parado.</span>
+        <span>O totem da entrada, do jeito que ele fica na tela. Volta ao início após 45 s parado.</span>
       </div>
 
       {/* `relative`: é esta moldura que o popup do WhatsApp cobre. Sem ela o
@@ -801,7 +801,7 @@ export default function TotemApp() {
 
       <p className="mt-3 px-4 text-center text-xs text-muted-foreground sm:hidden">
         <a href="/" className="underline underline-offset-2">
-          voltar para a apresentação
+          voltar para a página do Centro
         </a>
       </p>
     </div>

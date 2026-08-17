@@ -190,13 +190,13 @@ export const BOXES = [
 
 export const MAP = {
   n: "Totem",
-  title: "A placa da entrada responde perguntas.",
+  title: "O totem da entrada acha a loja para você.",
   lead: "Escolha o que procura e os boxes que vendem aquilo acendem na planta. De pé, na entrada, sem cadastro e sem instalar nada.",
   bullets: [
     ["Sem o aplicativo", "o totem responde ali mesmo."],
     ["Com o aplicativo", "a mesma planta vai no bolso, com o box já marcado."],
   ],
-  note: "Simulação do totem. Os nomes de loja são exemplos.",
+  note: "Demonstração do totem. Os nomes de loja são exemplos.",
 };
 
 export const PRIZE = {
@@ -237,8 +237,8 @@ export const STEPS = [
 
 export const EVENTS = {
   n: "Eventos",
-  title: "A programação já existe. Falta avisar.",
-  body: "Música ao vivo e feira nos espaços públicos do Centro, pela Sala do Empreendedor e pela Secult. Com a agenda dentro do SIMOVE, você fica sabendo antes — e o show de sábado vira passeio de sábado.",
+  title: "Tem show e feira no Centro, com data marcada.",
+  body: "Música ao vivo, feira e roda de samba nos espaços públicos do Centro. A agenda chega junto com as ofertas, então você fica sabendo antes — e o show de sábado já entra no seu sábado.",
 };
 
 /* --- conteúdo do totem (exemplos para a demo) --- */

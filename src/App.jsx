@@ -299,7 +299,7 @@ function MapSection() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <a data-reveal href="/totem" className="btn btn-primary">
-            Abrir a simulação do totem
+            Ver como funciona o totem
             <Icon name="arrow" className="h-4 w-4" />
           </a>
           <a data-reveal href="/catalogo" className="btn btn-outline">
