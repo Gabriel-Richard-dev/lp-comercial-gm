@@ -1,20 +1,24 @@
-import { useState } from "react";
-import { BRAND, PHOTOS, BOXES, SECTORS } from "./data";
+import { useMemo, useState } from "react";
+import { BRAND, PHOTOS, BOXES, SECTORS, SEG_FILTERS, OFERTAS } from "./data";
 import { Icon, FakeQR, Wordmark } from "./ui";
 import { maskPhone, validPhone } from "./phone";
 import { saldoDe } from "./pontos";
+import { vitrine, descontoPct } from "./catalogo";
+import { MAP_BOXES } from "./map/layout";
 
 /* ---------- moldura comum das páginas internas ---------- */
 function Shell({ children, foto }) {
   return (
     <div className="min-h-screen bg-muted">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3.5">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3.5">
           <a href="/" className="flex items-baseline gap-2">
             <Wordmark className="text-lg" />
             <span className="hidden text-xs text-muted-foreground sm:inline">{BRAND.tagline}</span>
           </a>
-          <div className="flex items-center gap-4 text-xs">
+          {/* Quatro links não cabem em linha no celular: quebram e não espremem. */}
+          <div className="flex flex-wrap justify-end gap-x-4 gap-y-1 whitespace-nowrap text-xs">
+            <a href="/catalogo" className="text-muted-foreground transition hover:text-foreground">Vitrine</a>
             <a href="/cadastro" className="text-muted-foreground transition hover:text-foreground">Cadastro</a>
             <a href="/pontos" className="text-muted-foreground transition hover:text-foreground">Meus pontos</a>
             <a href="/totem" className="text-muted-foreground transition hover:text-foreground">Totem</a>
@@ -438,6 +442,243 @@ export function PontosPage() {
       <p className="caption mt-8">
         Demonstração: saldo, extrato e números são gerados a partir do número informado e não representam
         compras reais.
+      </p>
+    </Shell>
+  );
+}
+
+/* ============================== /catalogo ============================== */
+
+// Cupom de influenciador vale nas lojas que aderiram à campanha: a lista sai
+// das próprias ofertas, para não existir cadastro de cupom mentindo sobre onde
+// ele é aceito.
+const CUPONS = Object.values(
+  OFERTAS.filter((o) => o.cupom).reduce((acc, o) => {
+    (acc[o.cupom] ??= { codigo: o.cupom, lojas: [] }).lojas.push(o.loja);
+    return acc;
+  }, {})
+);
+
+function BoxTag({ numero, setor, className = "h-9 w-9 text-xs" }) {
+  const cor = SECTORS[setor];
+  return (
+    <span
+      className={`grid shrink-0 place-items-center font-display font-bold ${className}`}
+      style={
+        cor
+          ? { backgroundColor: cor.hex, color: "var(--color-setor-texto)" }
+          : { backgroundColor: "var(--color-muted)" }
+      }
+    >
+      {numero}
+    </span>
+  );
+}
+
+export function CatalogoPage() {
+  const [seg, setSeg] = useState("Tudo");
+  const [q, setQ] = useState("");
+  const [cupom, setCupom] = useState(null);
+  // A vitrine inteira passa de 250 itens: mostra um tanto e cresce sob demanda,
+  // senão o primeiro scroll no celular monta as 60 lojas de uma vez.
+  const [limite, setLimite] = useState(24);
+
+  const todos = useMemo(() => vitrine(MAP_BOXES), []);
+
+  const lojasDoCupom = cupom && new Set(CUPONS.find((c) => c.codigo === cupom).lojas);
+  const termo = q.trim().toLowerCase();
+
+  const itens = todos.filter(
+    (i) =>
+      (seg === "Tudo" || i.seg === seg) &&
+      (!termo || i.nome.toLowerCase().includes(termo) || i.loja.toLowerCase().includes(termo)) &&
+      (!lojasDoCupom || lojasDoCupom.has(i.loja))
+  );
+
+  const ofertas = lojasDoCupom ? OFERTAS.filter((o) => o.cupom === cupom) : OFERTAS;
+
+  return (
+    <Shell>
+      <div className="max-w-2xl">
+        <h1 className="font-display text-secao font-bold leading-[1.05]">Vitrine do Centro</h1>
+        <p className="mt-4 leading-relaxed text-muted-foreground">
+          O que os {BOXES.length} boxes do {BRAND.place} vendem hoje, com as ofertas do dia e os cupons
+          dos influenciadores da cidade. Achou? O box fica marcado no mapa da entrada.
+        </p>
+      </div>
+
+      {/* ---------- ofertas do dia ---------- */}
+      <section className="mt-12">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+          <h2 className="font-display text-2xl font-bold">Ofertas do dia</h2>
+          <p className="text-xs text-muted-foreground">Só hoje, direto no box</p>
+        </div>
+
+        <div className="-mx-5 mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-3">
+          {ofertas.map((o) => (
+            <article
+              key={o.box + o.item}
+              className="flex w-72 shrink-0 snap-start flex-col bg-card p-5 hairline"
+            >
+              <div className="flex items-center gap-3">
+                <BoxTag numero={o.box} setor={BOXES.find((b) => b.n === o.box)?.s} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{o.loja}</p>
+                  <p className="text-xs text-muted-foreground">Box {o.box}</p>
+                </div>
+                <span className="ml-auto bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
+                  −{descontoPct(o)}%
+                </span>
+              </div>
+
+              <p className="mt-4 font-display text-lg font-bold leading-tight">{o.item}</p>
+              <p className="mt-2 text-sm text-muted-foreground line-through">R$ {o.de}</p>
+              <p className="font-display text-2xl font-bold tabular-nums">R$ {o.por}</p>
+
+              {o.cupom && (
+                <p className="mt-auto flex items-center gap-1.5 pt-4 text-xs font-semibold">
+                  <Icon name="ticket" className="h-4 w-4 shrink-0 text-primary" />
+                  cupom {o.cupom}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ---------- cupons ---------- */}
+      <section className="mt-10">
+        <h2 className="font-display text-2xl font-bold">Cupons</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Mostre o código no caixa do box. Não precisa de aplicativo.
+        </p>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          {CUPONS.map((c) => {
+            const ativo = cupom === c.codigo;
+            return (
+              <button
+                key={c.codigo}
+                onClick={() => {
+                  setCupom(ativo ? null : c.codigo);
+                  setLimite(24);
+                }}
+                aria-pressed={ativo}
+                className={`flex items-start gap-3 p-5 text-left transition ${
+                  ativo ? "bg-primary text-primary-foreground" : "bg-card hairline hover:bg-muted"
+                }`}
+              >
+                <Icon name="ticket" className="mt-0.5 h-5 w-5 shrink-0" />
+                <span className="min-w-0">
+                  <span className="block font-display text-lg font-bold tracking-wide">{c.codigo}</span>
+                  <span className={`block text-xs ${ativo ? "" : "text-muted-foreground"}`}>
+                    Vale em {c.lojas.join(", ")}
+                  </span>
+                </span>
+                <span className="ml-auto shrink-0 text-xs font-bold uppercase tracking-[0.12em]">
+                  {ativo ? "Ativo" : "Usar"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {cupom && (
+          <p
+            role="status"
+            className="mt-3 flex items-center gap-2 bg-success px-4 py-3 text-sm font-semibold text-success-foreground"
+          >
+            <Icon name="check" className="h-4 w-4 shrink-0" />
+            Mostrando só o que o cupom {cupom} atende.
+            <button onClick={() => setCupom(null)} className="ml-auto underline underline-offset-2">
+              Limpar
+            </button>
+          </p>
+        )}
+      </section>
+
+      {/* ---------- vitrine ---------- */}
+      <section className="mt-12">
+        <h2 className="font-display text-2xl font-bold">O que tem no Centro</h2>
+
+        <div className="mt-5 flex flex-col gap-3">
+          <input
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setLimite(24);
+            }}
+            placeholder="Buscar produto ou loja"
+            aria-label="Buscar produto ou loja"
+            className={campo}
+          />
+
+          <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+            {["Tudo", ...SEG_FILTERS, "Serviços"].map((s) => (
+              <button
+                key={s}
+                onClick={() => {
+                  setSeg(s);
+                  setLimite(24);
+                }}
+                aria-pressed={seg === s}
+                className={`shrink-0 px-4 py-2 text-sm font-semibold transition ${
+                  seg === s ? "bg-foreground text-background" : "bg-card hairline hover:bg-muted"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p className="mt-5 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+          {itens.length} {itens.length === 1 ? "item" : "itens"}
+        </p>
+
+        {itens.length === 0 ? (
+          <p className="mt-4 bg-card p-8 text-center text-sm text-muted-foreground hairline">
+            Ninguém no Centro cadastrou isso ainda. Tente outro termo, ou fale com a Sala do
+            Empreendedor: pode ser um box a abrir.
+          </p>
+        ) : (
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {itens.slice(0, limite).map((i) => (
+              <li key={i.box + i.nome} className="flex items-center gap-3 bg-card p-4 hairline">
+                <BoxTag numero={i.box} setor={i.setor} className="h-11 w-11 text-sm" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold leading-snug">{i.nome}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {i.loja} · {i.seg}
+                  </p>
+                </div>
+                <p className="shrink-0 font-display text-base font-bold tabular-nums">R$ {i.preco}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {itens.length > limite && (
+          <button onClick={() => setLimite((l) => l + 36)} className="btn btn-outline mt-6">
+            Mostrar mais
+            <Icon name="arrow" className="h-4 w-4" />
+          </button>
+        )}
+      </section>
+
+      <div className="rule mt-12 flex flex-wrap gap-3 pt-8">
+        <a href="/totem" className="btn btn-primary">
+          Achar no mapa da entrada
+          <Icon name="arrow" className="h-4 w-4" />
+        </a>
+        <a href="/cadastro" className="btn btn-outline">
+          Receber as ofertas no WhatsApp
+        </a>
+      </div>
+
+      <p className="caption mt-8">
+        Demonstração: enquanto os permissionários não cadastram os produtos, cada box mostra uma vitrine
+        de exemplo do seu segmento. As ofertas e os cupons são os cadastrados em data.js.
       </p>
     </Shell>
   );
