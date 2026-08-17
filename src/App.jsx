@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useRef, useState, lazy, Suspense } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -105,31 +105,6 @@ function Hero() {
     { scope: ref }
   );
 
-  // A maquete do herói é enfeite, e o three.js é o maior pacote do projeto:
-  // entra só em tela larga com mouse, para quem não pediu menos movimento, e
-  // depois que a primeira tela já pintou — nunca na frente do título.
-  //
-  // Depois disso ela segue a visibilidade do herói. Desmontar ao sair de vista
-  // devolve a GPU: senão sobram dois laços de render vivos na mesma página,
-  // este e o da planta interativa lá embaixo, que nunca aparecem juntos.
-  const [maquete, setMaquete] = useState(false);
-  useEffect(() => {
-    if (MENOS_MOVIMENTO) return;
-    if (!window.matchMedia("(min-width: 768px) and (pointer: fine)").matches) return;
-
-    const alvo = ref.current;
-    let io;
-    const espera = setTimeout(() => {
-      io = new IntersectionObserver(([e]) => setMaquete(e.isIntersecting), { threshold: 0.01 });
-      io.observe(alvo);
-    }, 1200);
-
-    return () => {
-      clearTimeout(espera);
-      io?.disconnect();
-    };
-  }, []);
-
   // Dois números por movimento do ponteiro; o desenho todo fica no CSS, que é
   // onde a cor pode morar. Toque não entra: no celular o dedo que rola a página
   // dispararia pointermove e sacudiria o herói inteiro.
@@ -175,18 +150,7 @@ function Hero() {
       <div className="hero-conteudo relative mx-auto w-full max-w-4xl px-5 py-24 text-center sm:py-28">
         <p className="hero-eyebrow text-xs font-semibold uppercase tracking-[0.22em]">{HERO.eyebrow}</p>
 
-        {/* A altura fica reservada no CSS mesmo antes de a maquete chegar: sem
-            isso ela empurraria o título para baixo ao terminar de carregar. */}
-        <div className="pointer-events-none mx-auto mt-4 hidden h-52 w-full max-w-2xl md:block lg:h-60">
-          {maquete && (
-            <Suspense fallback={null}>
-              <MapView vitrine />
-            </Suspense>
-          )}
-        </div>
-
-        {/* No celular não há maquete acima, então o título mantém o respiro. */}
-        <h1 className="hero-titulo mt-7 font-display text-display font-bold leading-[0.98] tracking-[-0.035em] md:mt-0">
+        <h1 className="hero-titulo mt-7 font-display text-display font-bold leading-[0.98] tracking-[-0.035em]">
           {HERO.title.map((w, i) => (
             <span key={i} className="block overflow-hidden py-[0.04em]">
               <span className="word inline-block">{w}</span>
