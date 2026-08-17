@@ -11,6 +11,15 @@
   isolation: isolate;
 }
 
+/* No herói o fundo é a página: cor de superfície aqui viraria um bloco branco
+   por cima do azul, que é exatamente o que a maquete flutuante vem desfazer. */
+.map-view.map-vitrine {
+  background: none;
+}
+.map-view.map-vitrine canvas {
+  touch-action: auto; /* enfeite não captura o dedo que rola a página */
+}
+
 .map-view canvas {
   display: block;
   width: 100%;

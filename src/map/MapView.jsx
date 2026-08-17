@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { createMapScene } from "./createScene";
 import "./map.css";
 
-export default function MapView({ mode = "2d", filter = null, selectedId = null, onSelect }) {
+export default function MapView({ mode = "2d", filter = null, selectedId = null, onSelect, vitrine = false }) {
   const wrapRef = useRef(null);
   const canvasRef = useRef(null);
   const apiRef = useRef(null);
@@ -16,13 +16,14 @@ export default function MapView({ mode = "2d", filter = null, selectedId = null,
 
     const api = createMapScene(canvas, wrap, {
       onSelect: (box) => onSelectRef.current?.(box),
+      vitrine,
     });
     apiRef.current = api;
     return () => {
       api.dispose();
       apiRef.current = null;
     };
-  }, []);
+  }, [vitrine]);
 
   useEffect(() => {
     apiRef.current?.setMode(mode);
@@ -37,7 +38,7 @@ export default function MapView({ mode = "2d", filter = null, selectedId = null,
   }, [selectedId]);
 
   return (
-    <div ref={wrapRef} className="map-view">
+    <div ref={wrapRef} className={`map-view${vitrine ? " map-vitrine" : ""}`} aria-hidden={vitrine || undefined}>
       <canvas ref={canvasRef} />
     </div>
   );
