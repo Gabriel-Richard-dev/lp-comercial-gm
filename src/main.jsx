@@ -10,7 +10,7 @@ const loaders = {
   '/totem': () => import('./TotemApp.jsx'),
   '/cadastro': () => import('./pages.jsx').then((m) => ({ default: m.CadastroPage })),
   '/pontos': () => import('./pages.jsx').then((m) => ({ default: m.PontosPage })),
-  '/catalogo': () => import('./pages.jsx').then((m) => ({ default: m.CatalogoPage })),
+  '/catalogo': () => import('./CatalogoPage.jsx').then((m) => ({ default: m.CatalogoPage })),
 }
 
 const Page = lazy(loaders[path] ?? (() => import('./App.jsx')))

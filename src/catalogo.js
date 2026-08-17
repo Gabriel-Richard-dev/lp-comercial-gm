@@ -108,6 +108,57 @@ export function vitrine(boxes) {
 }
 
 /**
+ * Cupom de influenciador vale nas lojas que aderiram à campanha: a lista sai das
+ * próprias ofertas, para não existir cadastro de cupom mentindo sobre onde ele é
+ * aceito.
+ */
+export function cupons(ofertas) {
+  return Object.values(
+    ofertas
+      .filter((o) => o.cupom)
+      .reduce((acc, o) => {
+        (acc[o.cupom] ??= { codigo: o.cupom, lojas: [] }).lojas.push(o.loja);
+        return acc;
+      }, {})
+  );
+}
+
+/**
+ * Texto pronto para comparar: sem acento e sem caixa. Quem digita no celular
+ * escreve "sandalia" e "calca", e a vitrine tem que achar assim mesmo.
+ */
+export function normalizar(texto) {
+  return slug(texto, " ");
+}
+
+/**
+ * Um filtro só, usado pelas duas listas da vitrine.
+ *
+ * `lojasDoCupom` é `null` quando nenhum cupom está ligado — e não uma lista
+ * vazia, que significaria "nenhuma loja aceita" e esvaziaria a página.
+ */
+export function combina(alvo, { seg, termo, lojasDoCupom }) {
+  if (seg && seg !== "Tudo" && alvo.seg !== seg) return false;
+  if (lojasDoCupom && !lojasDoCupom.has(alvo.loja)) return false;
+  if (termo && !alvo.busca.includes(termo)) return false;
+  return true;
+}
+
+/** Item da vitrine com o texto que a busca compara já pronto. */
+export function indexarItens(itens) {
+  return itens.map((i) => ({ ...i, busca: normalizar(`${i.nome} ${i.loja}`) }));
+}
+
+/** Loja com o mesmo texto de busca: nome, segmento e o que ela vende. */
+export function indexarLojas(lojas) {
+  return lojas.map((l) => ({
+    ...l,
+    loja: l.name,
+    busca: normalizar(`${l.name} ${l.seg} ${l.itens.map((i) => i.nome).join(" ")}`),
+  }));
+}
+
+/**
  * Desconto da oferta em %, a partir dos preços de data.js, que vêm escritos
  * como na etiqueta ("1.299,90"): o ponto é milhar e a vírgula é decimal.
  */

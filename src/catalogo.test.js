@@ -2,7 +2,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { catalogoDe, arroba, vitrine, descontoPct, fotoDe, termosDeFoto } from "./catalogo.js";
+import {
+  catalogoDe, arroba, vitrine, descontoPct, fotoDe, termosDeFoto,
+  normalizar, combina, indexarItens, indexarLojas, cupons,
+} from "./catalogo.js";
 import { MAP_BOXES } from "./map/layout.js";
 import { OFERTAS } from "./data.js";
 
@@ -80,6 +83,52 @@ test("o desconto sai em % inteiro, com preço de etiqueta", () => {
     const p = descontoPct(o);
     assert.ok(p > 0 && p < 100, `desconto fora da faixa em ${o.loja}: ${p}%`);
   }
+});
+
+test("a busca acha quem digita sem acento e em qualquer caixa", () => {
+  const itens = indexarItens(vitrine(MAP_BOXES));
+  const achou = (termo) =>
+    itens.filter((i) => combina(i, { seg: "Tudo", termo: normalizar(termo), lojasDoCupom: null }));
+
+  assert.ok(achou("sandalia").length > 0, "sem acento não achou");
+  assert.equal(achou("sandalia").length, achou("Sandália").length);
+  assert.equal(achou("calca").length, achou("calça").length);
+  assert.equal(achou("CHINELO").length, achou("chinelo").length);
+  assert.equal(achou("nao existe isso no centro").length, 0);
+});
+
+test("a busca de loja acha pelo nome, pelo segmento e pelo que ela vende", () => {
+  const lojas = indexarLojas(
+    MAP_BOXES.filter((b) => b.status !== "Vago").map((b) => ({ ...b, ...catalogoDe(b) }))
+  );
+  const acha = (termo) => lojas.filter((l) => combina(l, { termo: normalizar(termo) }));
+
+  const alvo = lojas[0];
+  assert.ok(acha(alvo.name).some((l) => l.number === alvo.number), "não achou pelo nome");
+  assert.ok(acha(alvo.seg).length > 0, "não achou pelo segmento");
+  assert.ok(acha(alvo.itens[0].nome).some((l) => l.number === alvo.number), "não achou pelo produto");
+});
+
+test("cupom nenhum não esvazia a lista, e cupom ligado corta pelas lojas dele", () => {
+  const itens = indexarItens(vitrine(MAP_BOXES));
+  const todos = itens.filter((i) => combina(i, { lojasDoCupom: null }));
+  assert.equal(todos.length, itens.length);
+
+  const [cupom] = cupons(OFERTAS);
+  const doCupom = itens.filter((i) => combina(i, { lojasDoCupom: new Set(cupom.lojas) }));
+  assert.ok(doCupom.length > 0 && doCupom.length < itens.length);
+  assert.ok(doCupom.every((i) => cupom.lojas.includes(i.loja)));
+});
+
+test("segmento e termo se somam em vez de brigar", () => {
+  const itens = indexarItens(vitrine(MAP_BOXES));
+  const seg = itens[0].seg;
+  const doSeg = itens.filter((i) => combina(i, { seg }));
+  const doSegComTermo = itens.filter((i) => combina(i, { seg, termo: normalizar(itens[0].nome) }));
+
+  assert.ok(doSeg.length > 0);
+  assert.ok(doSegComTermo.length <= doSeg.length);
+  assert.ok(doSegComTermo.every((i) => i.seg === seg));
 });
 
 test("o @ do perfil perde acento, espaço e pontuação", () => {

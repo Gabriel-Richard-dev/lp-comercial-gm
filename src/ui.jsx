@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { maskPhone, validPhone, validEmail } from "./phone";
-import { PHOTOS } from "./data";
+import { BRAND, PHOTOS } from "./data";
 import { fotoDe } from "./catalogo";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -450,4 +450,46 @@ export function Phone({ className = "" }) {
   );
 }
 
+/* ---------- moldura comum das páginas internas ---------- */
+export function Shell({ children, foto }) {
+  return (
+    <div className="min-h-screen bg-muted">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3.5">
+          <a href="/" className="flex items-center gap-2.5">
+            <Logo className="h-9 w-9" />
+            <span className="flex items-baseline gap-2">
+              <Wordmark className="text-lg" />
+              <span className="hidden text-xs text-muted-foreground sm:inline">{BRAND.tagline}</span>
+            </span>
+          </a>
+          {/* Quatro links não cabem em linha no celular: quebram e não espremem. */}
+          <div className="flex flex-wrap justify-end gap-x-4 gap-y-1 whitespace-nowrap text-xs">
+            <a href="/catalogo" className="text-muted-foreground transition hover:text-foreground">Vitrine</a>
+            <a href="/cadastro" className="text-muted-foreground transition hover:text-foreground">Cadastro</a>
+            <a href="/pontos" className="text-muted-foreground transition hover:text-foreground">Meus pontos</a>
+            <a href="/totem" className="text-muted-foreground transition hover:text-foreground">Totem</a>
+          </div>
+        </div>
+      </header>
+
+      {foto && (
+        <div className="h-40 w-full overflow-hidden sm:h-52">
+          <img src={PHOTOS.entrada.src} alt={PHOTOS.entrada.alt} className="h-full w-full object-cover" />
+        </div>
+      )}
+
+      <main className="mx-auto max-w-5xl px-5 py-12">{children}</main>
+
+      <footer className="mx-auto max-w-5xl px-5 pb-12">
+        <p className="rule pt-5 text-xs leading-relaxed text-muted-foreground">
+          {BRAND.place}, {BRAND.city}. {PHOTOS.credit} Projeto de hackathon, sem vínculo oficial com a
+          Prefeitura.
+        </p>
+      </footer>
+    </div>
+  );
+}
+
 export { PHOTOS };
+
