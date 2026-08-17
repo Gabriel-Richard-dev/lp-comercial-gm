@@ -76,7 +76,7 @@ function Home({ go }) {
           <button
             key={m.id}
             onClick={() => go(m.id)}
-            className="menu-item flex flex-col items-start gap-2 border border-border p-4 text-left transition hover:border-primary hover:bg-muted"
+            className="flex flex-col items-start gap-2 border border-border p-4 text-left transition hover:border-primary hover:bg-muted"
           >
             <Icon name={m.icon} className="h-6 w-6 text-primary" />
             <span className="font-display text-sm font-bold leading-tight">{m.label}</span>
@@ -191,6 +191,7 @@ function PainelLoja({ box, onClose }) {
   const { itens, oferta, redes } = catalogoDe(box);
   const setor = SECTORS[box.s];
   const vago = box.status === "Vago";
+  const [qr, setQr] = useState(false);
 
   return (
     // A altura é limitada e o miolo rola: a ficha cresce até quase metade da
@@ -246,10 +247,13 @@ function PainelLoja({ box, onClose }) {
               {redes.facebook}
             </span>
             {/* Verde reservado ao WhatsApp, conforme o DS. */}
-            <span className="flex items-center gap-1.5 bg-success px-3 py-2 text-xs font-semibold text-success-foreground">
+            <button
+              onClick={() => setQr(true)}
+              className="flex items-center gap-1.5 bg-success px-3 py-2 text-xs font-semibold text-success-foreground transition hover:bg-success/90"
+            >
               <Icon name="success" className="h-4 w-4" />
               Chamar no WhatsApp
-            </span>
+            </button>
           </div>
 
           <div className="mt-3 min-h-0 flex-1 overflow-y-auto px-5 pb-4">
@@ -289,7 +293,76 @@ function PainelLoja({ box, onClose }) {
           Fale com a Sala do Empreendedor para alugar este box.
         </p>
       )}
+
+      {qr && <ModalWhats box={box} redes={redes} onClose={() => setQr(false)} />}
     </section>
+  );
+}
+
+/**
+ * QR para chamar a loja no WhatsApp.
+ *
+ * O código é adereço: não há WhatsApp cadastrado para nenhum dos 60 boxes, e um
+ * QR escaneável só existiria com um número real — inventar um manda quem
+ * escaneia para a linha de uma pessoa que não tem nada a ver com o Centro. O
+ * aviso embaixo diz isso na cara, em vez de deixar alguém apontando a câmera
+ * para um quadriculado que nunca vai abrir conversa nenhuma.
+ *
+ * Quando o cadastro do permissionário tiver telefone, o que muda aqui é trocar
+ * o adereço por um QR de `https://wa.me/<numero>` e apagar o aviso.
+ */
+function ModalWhats({ box, redes, onClose }) {
+  const fecharRef = useRef(null);
+
+  useEffect(() => {
+    fecharRef.current?.focus();
+    const aoTeclar = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", aoTeclar);
+    return () => document.removeEventListener("keydown", aoTeclar);
+  }, [onClose]);
+
+  return (
+    <div
+      className="absolute inset-0 z-20 flex items-center justify-center bg-foreground/60 p-6"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-whats"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm bg-card p-6 text-center shadow-2xl"
+      >
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+          Box {box.number}
+        </p>
+        <h4 id="titulo-whats" className="mt-1 font-display text-xl font-bold leading-tight">
+          {box.name}
+        </h4>
+
+        <div className="mt-5 flex justify-center">
+          <FakeQR seed={box.number + box.name} modules={21} className="h-52 w-52 border-4 border-primary" />
+        </div>
+
+        <p className="mt-4 flex items-center justify-center gap-2 text-sm font-bold">
+          <Icon name="success" className="h-5 w-5 text-success" />
+          Aponte a câmera do celular
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">{redes.instagram}</p>
+
+        <p className="mt-4 bg-accent px-3 py-2 text-xs font-semibold text-accent-foreground">
+          Código de demonstração. Esta loja ainda não cadastrou o WhatsApp.
+        </p>
+
+        <button
+          ref={fecharRef}
+          onClick={onClose}
+          className="mt-5 w-full bg-primary px-4 py-3.5 font-display text-base font-bold text-primary-foreground transition hover:bg-primary/90"
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -700,9 +773,12 @@ export default function TotemApp() {
         <span>Simulação do totem. Volta à tela de espera após 45 s parado.</span>
       </div>
 
+      {/* `relative`: é esta moldura que o popup do WhatsApp cobre. Sem ela o
+          overlay escapa para a janela inteira e escurece a página em volta do
+          totem, que na simulação é o cenário, não a tela do aparelho. */}
       <div
         onPointerDown={toque}
-        className="flex h-screen w-full flex-col overflow-hidden bg-card sm:h-[calc(100vh-6rem)] sm:max-h-[880px] sm:w-auto sm:rounded-[1.75rem] sm:border-[10px] sm:border-primary sm:shadow-2xl sm:shadow-foreground/25"
+        className="relative flex h-screen w-full flex-col overflow-hidden bg-card sm:h-[calc(100vh-6rem)] sm:max-h-[880px] sm:w-auto sm:rounded-[1.75rem] sm:border-[10px] sm:border-primary sm:shadow-2xl sm:shadow-foreground/25"
         style={{ aspectRatio: "9 / 16" }}
       >
         {screen !== "idle" && (
