@@ -57,34 +57,13 @@
   --color-setor-verde: oklch(0.57 0.11 150);
   --color-setor-texto: oklch(1 0 0);
 
-  /* ---- Cores da maquete 3D do galpão. São o prédio, não a interface: parede
-         azul, coluna vermelha, telha metálica e tela verde do CPC Geraldo
-         Machado. Ficam aqui para que o Three.js as leia por token, não por
-         hexadecimal solto no meio da cena. ---- */
-  --map-parede-azul: #1565c0;
-  --map-faixa-azul: #42a5f5;
-  --map-coluna-vermelha: #b0413e;
-  --map-telha-metal: #bfc6cd;
-  --map-telha-sob: #9aa2ab;
-  --map-viga: #7d8791;
-  --map-ceramica: #cbb89a;
-  --map-ceramica-topo: #e7e0d3;
-  --map-tela-verde: #4f7c46;
-  --map-piso: #e4e4e2;
-  --map-forro: #f4f4f0;
-  --map-vidro: #d6dbe0;
-  --map-grade-a: #c2c2be;
-  --map-grade-b: #d6d6d2;
-  --map-luz-branca: #ffffff;
-  --map-luz-ceu: #dceaff;
-  --map-luz-chao: #cfcabb;
-  --map-luz-sol: #fff6ea;
-  --map-luz-preenchimento: #bcd4ff;
+  /* ---- Paleta da interface, em claro. Precisa estar aqui, e não num `:root`
+         solto: é `@theme` que faz o Tailwind gerar `bg-primary`,
+         `text-muted-foreground`, `border-border` e companhia. Declarada fora
+         daqui, a variável existe mas a classe não, e o componente sai sem cor.
 
-  /* ---- Cores da interface. Ficam no @theme porque é daqui que o Tailwind
-     gera bg-*, text-* e border-*. Declaradas em @layer theme elas viravam
-     variável sem utility: toda classe de cor do app saía transparente.
-     O modo escuro sobrescreve os mesmos nomes mais abaixo. ---- */
+         O escuro sobrescreve estes mesmos nomes mais abaixo, então os
+         utilitários seguem o tema sem precisar de variante. ---- */
   --color-background: oklch(0.985 0.004 100);
   --color-foreground: oklch(0.235 0.03 261);
   --color-card: oklch(1 0 0);
@@ -105,11 +84,6 @@
   --color-border: oklch(0.64 0.02 261);
   --color-input: oklch(0.6 0.03 261);
   --color-ring: oklch(0.5 0.12 261);
-  --color-chart-1: oklch(0.45 0.12 261);
-  --color-chart-2: oklch(0.55 0.09 178);
-  --color-chart-3: oklch(0.66 0.15 56);
-  --color-chart-4: oklch(0.55 0.19 15);
-  --color-chart-5: oklch(0.5 0.13 305);
   /* Verde da marca. RESERVADO a "aberto agora" e "falar no WhatsApp". */
   --color-success: oklch(0.5 0.09 178);
   --color-success-foreground: oklch(0.99 0.005 100);
@@ -118,27 +92,91 @@
   --color-warning-foreground: oklch(0.28 0.065 50);
 }
 
-html {
-  /* A página é clara sempre, mesmo com o sistema em escuro. color-scheme
-     trava também os controles nativos (campos, scrollbar) no claro. */
-  color-scheme: light;
-  scroll-behavior: smooth;
+@layer theme {
+  :root {
+    /* Claro é o padrão em qualquer sistema. Declarar o esquema aqui também
+       mantém claras as peças pintadas pelo navegador: barra de rolagem,
+       seletor de data e caixa de seleção. */
+    color-scheme: light;
+
+    /* ---- Série de dado do mapa: uma cor por categoria de box. Fica em `:root`
+       e não em `@theme` porque nenhum utilitário a consome — quem lê é o
+       Three.js, em tempo de execução. Ver a nota do bloco da maquete. ---- */
+    --color-chart-1: oklch(0.45 0.12 261);
+    --color-chart-2: oklch(0.55 0.09 178);
+    --color-chart-3: oklch(0.66 0.15 56);
+    --color-chart-4: oklch(0.55 0.19 15);
+    --color-chart-5: oklch(0.5 0.13 305);
+
+    /* ---- Cores da maquete do galpão. São o prédio, não a interface: parede
+       azul, coluna vermelha, telha metálica e tela verde do CPC Geraldo
+       Machado. Iguais nos dois temas, porque o prédio não muda de cor.
+
+       Ficam em `:root` e não em `@theme` de propósito: nenhuma classe do
+       Tailwind as consome, e o Tailwind descarta variável de `@theme` que
+       nenhum utilitário usa. Quem lê é o Three.js, em tempo de execução, via
+       getComputedStyle — leitura que o compilador não enxerga. Em `@theme`
+       elas somem do CSS e a cena inteira cai no cinza de fallback. ---- */
+    --mapa-parede-azul: #1565c0;
+    --mapa-faixa-azul: #42a5f5;
+    --mapa-coluna-vermelha: #b0413e;
+    --mapa-telha-metal: #bfc6cd;
+    --mapa-telha-sob: #9aa2ab;
+    --mapa-viga: #7d8791;
+    --mapa-ceramica: #cbb89a;
+    --mapa-ceramica-topo: #e7e0d3;
+    --mapa-tela-verde: #4f7c46;
+    --mapa-piso: #e4e4e2;
+    --mapa-forro: #f4f4f0;
+    --mapa-vidro: #d6dbe0;
+    --mapa-grade-a: #c2c2be;
+    --mapa-grade-b: #d6d6d2;
+    --mapa-luz-branca: #ffffff;
+    --mapa-luz-ceu: #dceaff;
+    --mapa-luz-chao: #cfcabb;
+    --mapa-luz-sol: #fff6ea;
+    --mapa-luz-preenchimento: #bcd4ff;
+  }
+
+  /* Modo escuro é suporte, não identidade: a página abre em claro mesmo quando
+     o sistema operacional está no escuro, e só troca por escolha explícita
+     (`<html data-tema="escuro">`). Mesmos matizes, claridade invertida,
+     auditados nos mesmos 30 pares. */
+  [data-tema="escuro"] {
+    color-scheme: dark;
+
+    --color-background: oklch(0.205 0.02 261);
+    --color-foreground: oklch(0.965 0.005 100);
+    --color-card: oklch(0.255 0.022 261);
+    --color-card-foreground: oklch(0.965 0.005 100);
+    --color-popover: oklch(0.255 0.022 261);
+    --color-popover-foreground: oklch(0.965 0.005 100);
+    --color-primary: oklch(0.76 0.1 258);
+    --color-primary-foreground: oklch(0.205 0.04 261);
+    --color-secondary: oklch(0.32 0.03 261);
+    --color-secondary-foreground: oklch(0.965 0.005 100);
+    --color-muted: oklch(0.32 0.03 261);
+    --color-muted-foreground: oklch(0.78 0.02 261);
+    --color-accent: oklch(0.34 0.045 60);
+    --color-accent-foreground: oklch(0.97 0.01 100);
+    --color-destructive: oklch(0.66 0.19 27);
+    --color-border: oklch(0.55 0.02 261);
+    --color-input: oklch(0.6 0.025 261);
+    --color-ring: oklch(0.7 0.11 259);
+    --color-chart-1: oklch(0.7 0.11 261);
+    --color-chart-2: oklch(0.75 0.1 178);
+    --color-chart-3: oklch(0.79 0.14 60);
+    --color-chart-4: oklch(0.7 0.17 15);
+    --color-chart-5: oklch(0.7 0.14 305);
+    --color-success: oklch(0.74 0.1 178);
+    --color-success-foreground: oklch(0.2 0.038 178);
+    --color-warning: oklch(0.8 0.138 60);
+    --color-warning-foreground: oklch(0.25 0.06 50);
+  }
 }
 
-/* Sistema em "menos movimento": sem marquee, sem transição, sem rolagem
-   animada. As animações do gsap são cortadas em ui.jsx. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -276,20 +314,6 @@ img {
 }
 .marquee-track {
   animation: slide 34s linear infinite;
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.85);
-    opacity: 0.85;
-  }
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-}
-.ping {
-  animation: pulse-ring 2.4s ease-out infinite;
 }
 
 /* Movimento: 120 ms para estado, 200 ms para tela (foundations.md). */

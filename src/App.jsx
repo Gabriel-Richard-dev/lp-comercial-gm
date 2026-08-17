@@ -6,7 +6,7 @@ import {
   BRAND, PHOTOS, HERO, STATS, SEGMENTS, PROBLEMS, PILLARS, MAP, PRIZE,
   STEPS, EVENTS, AUDIENCES, ROADMAP, FORM,
 } from "./data";
-import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, Wordmark, useReveal, MENOS_MOVIMENTO } from "./ui";
+import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, Logo, Wordmark, useReveal, MENOS_MOVIMENTO } from "./ui";
 
 /* ============================== NAV ============================== */
 function Nav() {
@@ -23,9 +23,12 @@ function Nav() {
   return (
     <nav ref={ref} className="fixed inset-x-0 top-0 z-50 border-b border-transparent transition-colors">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
-        <a href="#topo" className="flex items-baseline gap-2">
-          <Wordmark className="text-lg" />
-          <span className="hidden text-xs text-muted-foreground sm:inline">{BRAND.tagline}</span>
+        <a href="#topo" className="flex items-center gap-2.5">
+          <Logo className="h-9 w-9" />
+          <span className="flex items-baseline gap-2">
+            <Wordmark className="text-lg" />
+            <span className="hidden text-xs text-muted-foreground sm:inline">{BRAND.tagline}</span>
+          </span>
         </a>
         <div className="hidden items-center gap-6 text-xs text-muted-foreground lg:flex">
           {[
@@ -267,7 +270,7 @@ function Pillars() {
 function MapSection() {
   return (
     <section id="totem" className="bg-muted py-24">
-      <div className="mx-auto grid max-w-6xl items-start gap-14 px-5 lg:grid-cols-[1fr_auto]">
+      <div className="mx-auto max-w-6xl px-5">
         <div className="max-w-xl">
           <p data-reveal className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             {MAP.n}

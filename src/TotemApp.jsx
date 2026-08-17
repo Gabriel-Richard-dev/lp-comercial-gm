@@ -76,7 +76,7 @@ function Home({ go }) {
           <button
             key={m.id}
             onClick={() => go(m.id)}
-            className="menu-item flex flex-col items-start gap-2 border border-border p-4 text-left transition hover:border-primary hover:bg-muted"
+            className="flex flex-col items-start gap-2 border border-border p-4 text-left transition hover:border-primary hover:bg-muted"
           >
             <Icon name={m.icon} className="h-6 w-6 text-primary" />
             <span className="font-display text-sm font-bold leading-tight">{m.label}</span>

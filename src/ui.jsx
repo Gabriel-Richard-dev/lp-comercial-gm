@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { maskPhone, validPhone } from "./phone";
-import { SECTORS, BOXES, SEG_FILTERS, PHOTOS } from "./data";
+import { PHOTOS } from "./data";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -41,6 +41,20 @@ const PATHS = {
   facebook:
     "M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H16.7V3.6c-.3-.04-1.3-.13-2.45-.13-2.42 0-4.08 1.48-4.08 4.2v2.34H7.5V13h2.67v8h3.33Z",
 };
+
+/* ---------- símbolo da marca (app icon) ---------- */
+export function Logo({ className = "h-9 w-9" }) {
+  return (
+    <img
+      src="/marca/icon.svg"
+      alt=""
+      aria-hidden="true"
+      width={36}
+      height={36}
+      className={`shrink-0 ${className}`}
+    />
+  );
+}
 
 /* ---------- logotipo: "SIM" em primary, "OVE" em success (IDENTITY.md §1) ----------
    A divisão de cor no meio da palavra é o traço mais reconhecível da marca. É a única
@@ -285,152 +299,6 @@ export function FakeQR({ className = "h-14 w-14", seed = null, modules = 9 }) {
         }
         return <div key={i} className={on ? "bg-primary" : "bg-card"} />;
       })}
-    </div>
-  );
-}
-
-/* ---------- planta: quatro blocos de 15 boxes em volta da praça ---------- */
-// azul topo · amarelo direita · vermelho base · verde esquerda
-function cellPos(i) {
-  if (i < 15) return { gridRow: 1 + Math.floor(i / 5), gridColumn: 4 + (i % 5) };
-  if (i < 30) return { gridRow: 4 + Math.floor((i - 15) / 3), gridColumn: 9 + ((i - 15) % 3) };
-  if (i < 45) return { gridRow: 9 + Math.floor((i - 30) / 5), gridColumn: 4 + ((i - 30) % 5) };
-  return { gridRow: 4 + Math.floor((i - 45) / 3), gridColumn: 1 + ((i - 45) % 3) };
-}
-
-export function FloorMap() {
-  const ref = useRef(null);
-  const [active, setActive] = useState(null);
-  const [hover, setHover] = useState(null);
-
-  useGSAP(
-    () => {
-      gsap.from(".box-cell", {
-        opacity: 0,
-        scale: 0.4,
-        duration: 0.45,
-        ease: "back.out(1.8)",
-        stagger: { each: 0.008, from: "center", grid: [11, 11] },
-        scrollTrigger: { trigger: ref.current, start: "top 82%" },
-      });
-    },
-    { scope: ref }
-  );
-
-  useGSAP(
-    () => {
-      gsap.utils.toArray(".box-cell", ref.current).forEach((el) => {
-        const on = !active || el.dataset.seg === active;
-        gsap.to(el, { opacity: on ? 1 : 0.15, duration: 0.35, ease: "power2.out" });
-      });
-    },
-    { scope: ref, dependencies: [active] }
-  );
-
-  const shown = hover ?? null;
-  const hits = active ? BOXES.filter((b) => b.seg === active).length : 0;
-
-  return (
-    <div ref={ref}>
-      <div className="mb-4 flex flex-wrap gap-1.5">
-        {SEG_FILTERS.map((s) => (
-          <button
-            key={s}
-            onClick={() => setActive(active === s ? null : s)}
-            aria-pressed={active === s}
-            className={`px-2.5 py-1 text-xs font-semibold transition ${
-              active === s ? "bg-primary text-primary-foreground" : "hairline text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid aspect-square grid-cols-11 grid-rows-11 gap-[3px]">
-        {BOXES.map((b, i) => (
-          <button
-            key={b.n}
-            style={{ ...cellPos(i), backgroundColor: SECTORS[b.s].hex }}
-            data-seg={b.seg}
-            onMouseEnter={() => setHover(b)}
-            onMouseLeave={() => setHover(null)}
-            onFocus={() => setHover(b)}
-            onBlur={() => setHover(null)}
-            className="box-cell grid place-items-center text-xs font-bold text-setor-texto outline-none sm:text-xs"
-            aria-label={`Box ${b.n}, ${b.name}, ${b.seg}, ${SECTORS[b.s].label}`}
-          >
-            {b.n}
-          </button>
-        ))}
-
-        <div
-          style={{ gridColumn: "4 / 9", gridRow: "4 / 9" }}
-          className="relative grid place-items-center bg-secondary"
-        >
-          <p className="text-xs font-bold uppercase leading-tight tracking-[0.2em] text-muted-foreground sm:text-xs">
-            Circulação
-          </p>
-          <span className="absolute bottom-1.5 left-1/2 flex -translate-x-1/2 items-center gap-1 text-xs font-semibold text-primary sm:text-xs">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="ping absolute inline-flex h-full w-full rounded-full bg-primary" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-            </span>
-            você está aqui
-          </span>
-        </div>
-      </div>
-
-      <div className="rule mt-3 flex min-h-9 flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-3">
-        <div className="flex flex-wrap gap-2.5">
-          {Object.values(SECTORS).map((s) => (
-            <span key={s.label} className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span className="h-2 w-2" style={{ backgroundColor: s.hex }} />
-              {s.label.replace("Setor ", "")}
-            </span>
-          ))}
-        </div>
-        <p className="text-xs font-semibold" aria-live="polite">
-          {shown ? (
-            <>
-              {shown.n} · {shown.name} <span className="font-normal text-muted-foreground">· {shown.seg}</span>
-            </>
-          ) : active ? (
-            `${hits} boxes vendem ${active}`
-          ) : (
-            <span className="font-normal text-muted-foreground">Escolha um segmento</span>
-          )}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ---------- o totem ---------- */
-export function Totem({ children }) {
-  return (
-    <div className="mx-auto w-full max-w-sm bg-primary p-3">
-      <div className="bg-card">
-        <div className="border-b border-border px-5 py-5 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-            Centro Público Comercial
-          </p>
-          <p className="font-display text-lg font-bold uppercase tracking-tight text-primary">Geraldo Machado</p>
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground">Maracanaú</p>
-        </div>
-
-        <div className="px-4 py-5">{children}</div>
-
-        <div className="flex items-center gap-3 bg-primary px-4 py-3">
-          <FakeQR className="h-12 w-12" />
-          <div>
-            <p className="font-display text-xs font-bold text-primary-foreground">Baixe o SIMOVE</p>
-            <p className="text-xs leading-snug text-primary-foreground">
-              Ofertas, eventos, pontos e a Compra Premiada.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
