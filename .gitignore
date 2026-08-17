@@ -25,3 +25,7 @@ dist-ssr
 
 # worktrees e config local do Claude
 .claude/
+
+# env local do Vite (a URL do backend é por ambiente)
+.env
+.env.production

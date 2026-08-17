@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BOXES, SECTORS } from "./data";
 import { Icon, FakeQR, Shell } from "./ui";
 import { maskPhone, validPhone, validEmail, maskCPF, validCPF } from "./phone";
+import { enviarCadastro, temBackend } from "./inscricao";
 import { saldoDe } from "./pontos";
 
 const campo = "campo";
@@ -25,13 +26,15 @@ export function CadastroPage() {
   const [f, setF] = useState({ nome: "", cpf: "", tel: "", email: "", bairro: "", interesses: [...INTERESSES], aceite: false });
   const [erros, setErros] = useState({});
   const [pronto, setPronto] = useState(false);
+  const [enviando, setEnviando] = useState(false);
+  const [erroEnvio, setErroEnvio] = useState("");
 
   const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
 
   const toggleInteresse = (i) =>
     set("interesses", f.interesses.includes(i) ? f.interesses.filter((x) => x !== i) : [...f.interesses, i]);
 
-  const enviar = (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
     const novos = {};
     if (f.nome.trim().length < 2) novos.nome = "Escreva seu nome.";
@@ -42,7 +45,16 @@ export function CadastroPage() {
     if (!f.aceite) novos.aceite = "É preciso concordar em receber as mensagens.";
     setErros(novos);
     if (Object.keys(novos).length) return;
-    // sem backend: trocar por POST no webhook do WhatsApp Business.
+
+    // sem VITE_CONVEX_SITE_URL a página segue como demonstração, sem chamar ninguém.
+    if (!temBackend()) return setPronto(true);
+
+    setEnviando(true);
+    setErroEnvio("");
+    const r = await enviarCadastro({ nome: f.nome, tel: f.tel, email: f.email });
+    setEnviando(false);
+    // erro não leva à tela de sucesso: quem não foi cadastrado não pode sair achando que foi.
+    if (!r.ok) return setErroEnvio(r.erro);
     setPronto(true);
   };
 
@@ -85,7 +97,9 @@ export function CadastroPage() {
           </div>
 
           <p className="caption mt-8">
-            Nesta demonstração nada é enviado de verdade e nenhum dado sai do seu navegador.
+            {temBackend()
+              ? "A mensagem de boas-vindas chega no seu WhatsApp em instantes."
+              : "Nesta demonstração nada é enviado de verdade e nenhum dado sai do seu navegador."}
           </p>
         </div>
       </Shell>
@@ -246,11 +260,19 @@ export function CadastroPage() {
             </label>
             {erros.aceite && <p role="alert" className="text-sm text-destructive">{erros.aceite}</p>}
 
+            {erroEnvio && (
+              <p role="alert" className="bg-destructive/10 p-3 text-sm text-destructive">
+                {erroEnvio}
+              </p>
+            )}
+
             <button
               type="submit"
-              className="btn btn-primary w-full"
+              disabled={enviando}
+              aria-busy={enviando}
+              className="btn btn-primary w-full disabled:opacity-60"
             >
-              Quero receber <Icon name="arrow" className="h-4 w-4" />
+              {enviando ? "Enviando…" : <>Quero receber <Icon name="arrow" className="h-4 w-4" /></>}
             </button>
           </div>
         </form>
