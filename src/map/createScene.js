@@ -35,10 +35,25 @@ const PALETTE = new Proxy(
   { get: (alvo, chave) => (chave in alvo ? cssColorInt(alvo[chave]) : undefined) }
 );
 
-export function createMapScene(canvas, container, { onSelect } = {}) {
+/* Enquadramento e ritmo da maquete flutuante do herói. A câmera dá a volta e a
+   cena sobe e desce inteira — inclusive as luzes, para a sombra não balançar
+   junto. Números de calibragem: raio e altura enquadram os 40 m de frente do
+   galpão, giro e flutuação são o quanto isso se move por segundo. */
+const VITRINE = { raio: 27, altura: 14, alvoY: 1.5, giro: 0.055, flutuaAlt: 0.9, flutuaVel: 0.55 };
+
+/**
+ * @param {object} [opcoes]
+ * @param {boolean} [opcoes.vitrine] Modo enfeite: fundo transparente, sem
+ *   controle, sem rótulo e sem clique — a maquete só gira e flutua. É o que a
+ *   landing usa no herói; o totem não passa esta opção.
+ */
+export function createMapScene(canvas, container, { onSelect, vitrine = false } = {}) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(PALETTE.fundo);
-  scene.fog = new THREE.Fog(PALETTE.fundo, 55, 130);
+  // No herói o fundo é o azul da página: cor de cena e névoa fechariam por cima.
+  if (!vitrine) {
+    scene.background = new THREE.Color(PALETTE.fundo);
+    scene.fog = new THREE.Fog(PALETTE.fundo, 55, 130);
+  }
 
   // A planta tem 40 m de frente por 13 de fundo numa tela em pé: enquadrar as
   // duas alas inteiras jogaria a câmera a 56 m e os boxes viram pontos. A vista
@@ -54,10 +69,14 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   orthoCamera.position.set(0, 80, centerZ);
   orthoCamera.lookAt(0, 0, centerZ);
 
-  let activeCamera = orthoCamera;
-  let mode = "2d";
+  // A vitrine já nasce na vista 3D, enquadrando o galpão inteiro de cima.
+  if (vitrine) perspCamera.position.set(0, VITRINE.altura, centerZ + VITRINE.raio);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  let activeCamera = vitrine ? perspCamera : orthoCamera;
+  let mode = vitrine ? "3d" : "2d";
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: vitrine });
+  if (vitrine) renderer.setClearAlpha(0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -68,7 +87,9 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   labelRenderer.domElement.style.position = "absolute";
   labelRenderer.domElement.style.inset = "0";
   labelRenderer.domElement.style.pointerEvents = "none";
-  container.appendChild(labelRenderer.domElement);
+  // Sem rótulo no herói: 71 plaquinhas de número em cima da foto não se leem, e
+  // sem inserir esta camada os CSS2DObject da cena nunca chegam ao DOM.
+  if (!vitrine) container.appendChild(labelRenderer.domElement);
 
   const controls3d = new OrbitControls(perspCamera, renderer.domElement);
   controls3d.enableDamping = true;
@@ -95,10 +116,18 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
 
   let activeControls = controls2d;
 
+  // Enfeite não se arrasta: no herói ninguém gira, dá zoom nem clica.
+  if (vitrine) {
+    controls2d.enabled = false;
+    controls3d.enabled = false;
+  }
+
   const gRoof = new THREE.Group();
   const gColumns = new THREE.Group();
   const gWalls = new THREE.Group();
   scene.add(gRoof, gColumns, gWalls);
+  // Maquete aberta: o telhado é uma laje pálida que esconde justamente os 60
+  // boxes coloridos, que são o assunto do título ao lado.
   gRoof.visible = false;
 
   const stalls = [];
@@ -221,6 +250,10 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
+
+    // A grade é auxiliar de leitura do mapa. Na vitrine ela é um quadrado de
+    // 50 m que sobra muito além do galpão e vira arame na frente da maquete.
+    if (vitrine) return;
 
     const span = Math.max(totalWidth, totalDepth) + pad * 2;
     const grid = new THREE.GridHelper(span, Math.ceil(span / 2), PALETTE.gradeA, PALETTE.gradeB);
@@ -569,10 +602,14 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     perspCamera.updateProjectionMatrix();
     if (mode === "2d") fitOrtho();
     renderer.setSize(w, h, false);
-    labelRenderer.setSize(w, h);
+    if (!vitrine) labelRenderer.setSize(w, h);
   }
 
   function setMode(next) {
+    // A vitrine manda na própria vista. Sem esta linha o `mode` padrão do
+    // MapView ("2d") chegava depois da montagem e derrubava a maquete de volta
+    // para a planta vista de cima.
+    if (vitrine) return;
     if (next === mode) return;
     mode = next;
     if (next === "2d") {
@@ -644,10 +681,12 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     }
   }
 
-  canvas.addEventListener("pointerdown", onPointerDown);
-  canvas.addEventListener("pointerup", onPointerUp);
-  canvas.addEventListener("pointermove", onPointerMove);
-  canvas.addEventListener("pointerleave", onPointerLeave);
+  if (!vitrine) {
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerleave", onPointerLeave);
+  }
 
   const ro = new ResizeObserver(resize);
 
@@ -686,9 +725,24 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
       if (controls3d.target.distanceTo(focoAlvo) < 0.05) focando = false;
     }
 
-    activeControls.update();
+    if (vitrine) {
+      // A câmera dá a volta e a cena inteira sobe e desce. Flutuar movendo a
+      // cena, e não só a câmera, leva as luzes junto: a maquete pesa no ar sem
+      // a sombra oscilar embaixo dela.
+      const a = tempo * VITRINE.giro;
+      perspCamera.position.set(
+        Math.sin(a) * VITRINE.raio,
+        VITRINE.altura,
+        centerZ + Math.cos(a) * VITRINE.raio
+      );
+      perspCamera.lookAt(0, VITRINE.alvoY, centerZ);
+      scene.position.y = Math.sin(tempo * VITRINE.flutuaVel) * VITRINE.flutuaAlt;
+    } else {
+      activeControls.update();
+    }
+
     renderer.render(scene, activeCamera);
-    labelRenderer.render(scene, activeCamera);
+    if (!vitrine) labelRenderer.render(scene, activeCamera);
   }
 
   setupLights();
@@ -702,10 +756,12 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   function dispose() {
     running = false;
     ro.disconnect();
-    canvas.removeEventListener("pointerdown", onPointerDown);
-    canvas.removeEventListener("pointerup", onPointerUp);
-    canvas.removeEventListener("pointermove", onPointerMove);
-    canvas.removeEventListener("pointerleave", onPointerLeave);
+    if (!vitrine) {
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
+    }
     canvas.style.cursor = "";
     controls2d.dispose();
     controls3d.dispose();
