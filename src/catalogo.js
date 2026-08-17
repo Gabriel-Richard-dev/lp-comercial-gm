@@ -68,14 +68,19 @@ function preco(faixa, h) {
   return valor.toFixed(2).replace(".", ",");
 }
 
-/** @ do perfil, a partir do nome da loja: "Salgados da Vovó" → "@salgadosdavovo" */
-export function arroba(nome) {
-  const limpo = nome
+/** "Sandália rasteira" → "sandalia-rasteira". Sem acento, sem espaço. */
+export function slug(texto, sep = "-") {
+  return texto
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "") // tira o acento que o NFD separou da letra
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
-  return "@" + limpo.slice(0, 22);
+    .replace(/[^a-z0-9]+/g, sep)
+    .replace(/^-|-$/g, "");
+}
+
+/** @ do perfil, a partir do nome da loja: "Salgados da Vovó" → "@salgadosdavovo" */
+export function arroba(nome) {
+  return "@" + slug(nome, "").slice(0, 22);
 }
 
 /**
@@ -109,6 +114,40 @@ export function vitrine(boxes) {
 export function descontoPct({ de, por }) {
   const n = (v) => Number(String(v).replace(/\./g, "").replace(",", "."));
   return Math.round((1 - n(por) / n(de)) * 100);
+}
+
+/** Termo de busca de cada categoria: "Modas" sozinho devolve capa de revista. */
+export const FOTO_SEG = {
+  Modas: "arara de roupas femininas loja",
+  Calçados: "tênis e sandálias em loja",
+  Acessórios: "bolsas e bijuterias vitrine",
+  Beleza: "cosméticos e perfumes",
+  Eletrônicos: "fones e acessórios de celular",
+  Alimentação: "salgados e lanches",
+  Serviços: "chaveiro e consertos",
+};
+
+/**
+ * Foto do produto. Os arquivos são baixados uma vez por `npm run fotos` e ficam
+ * em public/, então a vitrine não depende de host de terceiro na hora da
+ * demonstração — e o totem funciona sem internet.
+ *
+ * Trocar pela foto do permissionário quando houver upload: basta sobrescrever o
+ * arquivo com o mesmo nome.
+ */
+export function fotoDe(termo) {
+  return `/fotos/produtos/${slug(termo)}.jpg`;
+}
+
+/** Tudo que precisa de foto: item de vitrine, item de oferta e categoria. */
+export function termosDeFoto() {
+  return [
+    ...new Set([
+      ...Object.values(ITENS).flatMap((lista) => lista.map(([nome]) => nome)),
+      ...OFERTAS.map((o) => o.item),
+      ...Object.values(FOTO_SEG),
+    ]),
+  ];
 }
 
 export function catalogoDe(box) {
