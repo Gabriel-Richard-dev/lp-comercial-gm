@@ -1,7 +1,7 @@
 // node --test src/phone.test.js
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { maskPhone, validPhone } from "./phone.js";
+import { maskPhone, validPhone, validEmail } from "./phone.js";
 
 test("maskPhone formata enquanto digita", () => {
   assert.equal(maskPhone("8"), "8");
@@ -16,6 +16,15 @@ test("maskPhone formata enquanto digita", () => {
 test("validPhone aceita fixo e celular com DDD", () => {
   assert.ok(validPhone("(85) 9 9123-4567"));
   assert.ok(validPhone("8532451234"));
+});
+
+test("validEmail pega erro de digitação", () => {
+  assert.ok(validEmail("maria@gmail.com"));
+  assert.ok(validEmail("  maria.silva@aluno.ifce.edu.br  "), "espaço nas pontas");
+  assert.ok(!validEmail(""), "vazio não passa: o campo opcional é checado antes");
+  assert.ok(!validEmail("maria@gmail"), "sem domínio");
+  assert.ok(!validEmail("mariagmail.com"), "sem arroba");
+  assert.ok(!validEmail("maria @gmail.com"), "espaço no meio");
 });
 
 test("validPhone rejeita o que quebraria o disparo", () => {
