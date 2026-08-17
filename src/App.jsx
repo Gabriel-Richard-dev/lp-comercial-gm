@@ -8,24 +8,36 @@ import {
 } from "./data";
 import { Icon, Counter, Photo, Phone, PrizeRoll, WhatsForm, Logo, Wordmark, useReveal, MENOS_MOVIMENTO } from "./ui";
 
+/* Bolinhas do herói: [esquerda %, topo %, diâmetro px, camada]. A camada é a
+   profundidade — 1 é longe e anda pouco, 3 é perto e anda muito. Espalhadas
+   pelas bordas para não disputar espaço com o texto do meio. */
+const BOLHAS = [
+  [6, 18, 10, 1], [14, 62, 18, 2], [9, 86, 7, 1], [3, 44, 6, 2],
+  [22, 30, 6, 3], [28, 74, 12, 1], [36, 12, 9, 2], [44, 88, 6, 3],
+  [52, 20, 14, 1], [61, 70, 8, 2], [68, 14, 6, 1], [74, 52, 20, 2],
+  [80, 84, 9, 3], [88, 28, 12, 1], [93, 64, 7, 2], [97, 40, 5, 3],
+];
+
 /* ============================== NAV ============================== */
 function Nav() {
   const ref = useRef(null);
   useGSAP(
     () => {
       gsap.from(ref.current, { y: -70, opacity: 0, duration: 0.9, ease: "power3.out", delay: 0.15 });
-      // A cor da barra vem de .nav-solida, no CSS — nenhum literal aqui.
-      // `end` é obrigatório: sem ele o gatilho tem comprimento zero e a barra
-      // só ficava sólida no instante exato dos 70 px, voltando a transparente.
-      ScrollTrigger.create({
-        start: 70,
-        end: "max",
-        onToggle: (s) => {
-          // Sobre a foto do herói a barra é clara; depois dos 70 px vira chapa.
-          ref.current?.classList.toggle("nav-solida", s.isActive);
-          ref.current?.classList.toggle("nav-hero", !s.isActive);
-        },
-      });
+
+      // O estado da barra é função da posição do scroll, não de um intervalo:
+      // ler direto não tem borda para errar. Com ScrollTrigger de 70 até "max"
+      // a barra desativava ao encostar no fim da página — o estado "sobre foto"
+      // voltava, e o texto claro sumia no fundo claro do CTA.
+      // A cor vem de .nav-solida e .nav-hero, no CSS — nenhum literal aqui.
+      const marcar = () => {
+        const passou = window.scrollY > 70;
+        ref.current?.classList.toggle("nav-solida", passou);
+        ref.current?.classList.toggle("nav-hero", !passou);
+      };
+      marcar();
+      window.addEventListener("scroll", marcar, { passive: true });
+      return () => window.removeEventListener("scroll", marcar);
     },
     { scope: ref }
   );
@@ -64,11 +76,10 @@ function Hero() {
 
   useGSAP(
     () => {
-      // Entrada: a foto abre fechando o zoom, a chapa aparece por cima e o
-      // texto entra em cima dela, linha por linha.
+      // Entrada: a foto abre fechando o zoom e o texto entra por cima dela,
+      // linha por linha.
       const tl = gsap.timeline({ defaults: { ease: "power4.out" }, delay: 0.15 });
       tl.from(".hero-img", { scale: 1.32, duration: 2, ease: "power2.out" })
-        .from(".hero-veu", { opacity: 0, duration: 1.4 }, 0)
         .from(".hero-eyebrow", { y: 16, opacity: 0, duration: 0.8 }, 0.45)
         .from(".word", { yPercent: 110, duration: 1.1, stagger: 0.09 }, "-=0.45")
         .from(".hero-sub", { y: 18, opacity: 0, duration: 0.8 }, "-=0.7")
@@ -94,10 +105,11 @@ function Hero() {
     { scope: ref }
   );
 
-  // A luz e a inclinação do título são dois números por movimento do ponteiro:
-  // o desenho todo fica no CSS (.hero-luz), que é onde a cor pode morar.
+  // Dois números por movimento do ponteiro; o desenho todo fica no CSS, que é
+  // onde a cor pode morar. Toque não entra: no celular o dedo que rola a página
+  // dispararia pointermove e sacudiria o herói inteiro.
   const seguirPonteiro = (e) => {
-    if (MENOS_MOVIMENTO) return;
+    if (MENOS_MOVIMENTO || e.pointerType !== "mouse") return;
     const el = e.currentTarget;
     const r = el.getBoundingClientRect();
     el.style.setProperty("--mx", (e.clientX - r.left) / r.width);
@@ -119,12 +131,23 @@ function Hero() {
           height="714"
           fetchPriority="high"
           decoding="async"
-          className="hero-img h-full w-full scale-105 object-cover"
+          className="hero-img h-full w-full scale-110 object-cover"
         />
-        <div className="hero-veu absolute inset-0" />
       </div>
 
-      <div className="hero-conteudo relative mx-auto w-full max-w-4xl px-5 py-28 text-center">
+      {/* Bolinhas na frente do azul, em três profundidades: quanto mais perto,
+          maior o deslocamento. Só reagem ao mouse, nunca sozinhas. */}
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+        {BOLHAS.map(([x, y, d, camada], i) => (
+          <span
+            key={i}
+            className={`bolha bolha-${camada}`}
+            style={{ left: `${x}%`, top: `${y}%`, width: `${d}px`, height: `${d}px` }}
+          />
+        ))}
+      </div>
+
+      <div className="hero-conteudo relative mx-auto w-full max-w-4xl px-5 py-24 text-center sm:py-28">
         <p className="hero-eyebrow text-xs font-semibold uppercase tracking-[0.22em]">{HERO.eyebrow}</p>
 
         <h1 className="hero-titulo mt-7 font-display text-display font-bold leading-[0.98] tracking-[-0.035em]">
@@ -152,12 +175,13 @@ function Hero() {
         </p>
       </div>
 
-      <div className="hero-rodape absolute inset-x-0 bottom-5 flex items-end justify-between gap-4 px-5 text-xs">
+      {/* Só a dica de rolagem: o crédito da foto já está no rodapé da página, e
+          lado a lado os dois não cabiam na largura de um celular. */}
+      <div className="hero-rodape absolute inset-x-0 bottom-5 flex justify-center text-xs">
         <span className="hero-seta flex items-center gap-2">
           <Icon name="arrow" className="h-4 w-4 rotate-90" />
           role para ver
         </span>
-        <span className="text-right">{PHOTOS.credit}</span>
       </div>
     </header>
   );
@@ -458,7 +482,8 @@ export default function App() {
         <Hero />
         <Marquee />
         <Stats />
-        <Photo photo={PHOTOS.mercado} className="mx-auto max-w-6xl px-5 pb-4" ratio="aspect-[21/9]" />
+        {/* 21/9 vira uma fresta num celular: no estreito a foto fica em 3/2. */}
+        <Photo photo={PHOTOS.mercado} className="mx-auto max-w-6xl px-5 pb-4" ratio="aspect-[3/2] sm:aspect-[21/9]" />
         <Pillars />
         <MapSection />
         <Prize />

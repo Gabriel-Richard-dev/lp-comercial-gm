@@ -234,26 +234,69 @@ img {
   isolation: isolate;
 }
 
-/* Chapa sobre a foto. O DS proíbe texto sobre foto sem chapa e proíbe
-   gradiente, então é uma cor chapada só — nada de degradê.
+/* A foto não tem chapa por cima: ela é que vira azul. O fundo é o primário
+   chapado e a imagem entra em `luminosity`, contribuindo só claro e escuro —
+   o resultado é a foto monocromática no azul da marca, que é o que a regra do
+   DS quer (texto nunca cai sobre cor imprevisível de foto).
 
-   86% é o ponto de calibragem: abaixo disso a foto aparece mais, mas o texto
-   de 14 px (sobretítulo, endereço, crédito) perde contraste, porque o que
-   passa da foto é imprevisível. Trocar a foto pede reconferir este número. */
-.hero-veu {
-  background: color-mix(in oklab, var(--color-primary) 86%, transparent);
+   Os dois números de calibragem são a opacidade e o brilho: quanto maior a
+   opacidade, mais a foto aparece e mais o texto de 14 px se aproxima do limite
+   de contraste. Trocar a foto pede reconferir os dois.
+
+   Fica tudo no mesmo elemento de propósito: enquanto o azul era uma camada
+   separada, qualquer deslocamento descolava um do outro. */
+.hero-fundo {
+  background: var(--color-primary);
+  isolation: isolate;
+}
+.hero-img {
+  mix-blend-mode: luminosity;
+  opacity: 0.55;
+  filter: brightness(0.82) contrast(1.08);
 }
 
-/* Profundidade: fundo e título andam em sentidos opostos ao ponteiro. Sai de
-   graça — o navegador interpola a transformação, o JS não roda por quadro. */
-@media (prefers-reduced-motion: no-preference) {
-  .hero-fundo {
-    transform: translate3d(calc((var(--mx) - 0.5) * -22px), calc((var(--my) - 0.5) * -14px), 0);
-    transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
+/* Bolinhas na frente da chapa. Tamanho e posição vêm do componente (geometria);
+   cor e profundidade ficam aqui. */
+.bolha {
+  position: absolute;
+  border-radius: 9999px;
+  background: var(--color-primary-foreground);
+}
+.bolha-1 {
+  opacity: 0.16;
+}
+.bolha-2 {
+  opacity: 0.26;
+}
+.bolha-3 {
+  opacity: 0.4;
+}
+
+/* Profundidade: cada camada anda um tanto com o ponteiro, e o fundo anda ao
+   contrário do título. Sai de graça — o navegador interpola a transformação,
+   o JS não roda por quadro.
+
+   `pointer: fine` deixa tudo isso de fora do celular: sem mouse, --mx e --my
+   nunca mudam e essas regras só custariam camada de composição à toa. */
+@media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+  /* O fundo não entra aqui de propósito: ele carrega o azul, e deslocá-lo
+     descobriria a borda da tela. Quem se move com o mouse é o título e as
+     bolinhas, que não têm borda para descobrir. */
   .hero-titulo {
     transform: translate3d(calc((var(--mx) - 0.5) * 16px), calc((var(--my) - 0.5) * 10px), 0);
     transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .bolha {
+    transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .bolha-1 {
+    transform: translate3d(calc((var(--mx) - 0.5) * 18px), calc((var(--my) - 0.5) * 12px), 0);
+  }
+  .bolha-2 {
+    transform: translate3d(calc((var(--mx) - 0.5) * 40px), calc((var(--my) - 0.5) * 26px), 0);
+  }
+  .bolha-3 {
+    transform: translate3d(calc((var(--mx) - 0.5) * 72px), calc((var(--my) - 0.5) * 48px), 0);
   }
 }
 
