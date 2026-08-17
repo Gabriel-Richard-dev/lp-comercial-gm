@@ -74,7 +74,7 @@ export const PROBLEMS = [
   {
     n: "03",
     title: "A gestão é feita no papel",
-    body: "Frequência dos permissionários, horário de abertura e reclamação de cliente ficam em caderno e planilha. A Secretaria não tem número para mostrar.",
+    body: "Horário de abertura e reclamação de cliente ficam em caderno e planilha. A Secretaria não tem número para mostrar.",
   },
 ];
 
@@ -127,11 +127,6 @@ export const PILLARS = [
         body: "Cada cliente tem um link. Quando a pessoa indicada compra, os dois recebem pontos.",
       },
       {
-        icon: "coffee",
-        title: "Troca nos boxes de alimentação",
-        body: "Os pontos viram café, lanche ou desconto nos próprios boxes que vendem comida. O prêmio não sai do Centro: vira faturamento de um permissionário.",
-      },
-      {
         icon: "gift",
         title: "Compra Premiada",
         badge: "Carro-chefe",
@@ -145,11 +140,6 @@ export const PILLARS = [
     title: "Vender além do balcão",
     lead: "O box tem três metros de frente. A venda não precisa ter.",
     features: [
-      {
-        icon: "bag",
-        title: "Comissionados",
-        body: "Sacoleiros levam o catálogo para a rua e designers da região atendem os boxes por demanda. Os dois ganham comissão do que fecharem.",
-      },
       {
         icon: "spark",
         title: "Social media interno",
@@ -170,8 +160,8 @@ export const PILLARS = [
     features: [
       {
         icon: "clock",
-        title: "Frequência e horários",
-        body: "Check-in diário do permissionário e horário declarado de cada box. Quem abriu, a que horas, e quem parou de aparecer.",
+        title: "Horários",
+        body: "Horário declarado de cada box, do jeito que o cliente vê antes de sair de casa. A Secretaria passa a saber quem abre quando.",
       },
       {
         icon: "stars",
@@ -276,7 +266,7 @@ export const STEPS = [
   {
     k: "05",
     title: "A Secretaria acompanha",
-    body: "Frequência, horários, avaliação por loja, cupons resgatados e movimento por hora, num painel só.",
+    body: "Horários, avaliação por loja, cupons resgatados e movimento por hora, num painel só.",
   },
 ];
 
@@ -292,7 +282,7 @@ export const AUDIENCES = [
     items: [
       "Vitrine e mapa dos 60 boxes",
       "Cupom de influenciador da cidade",
-      "Pontos trocados por café na praça",
+      "Pontos que viram desconto na próxima compra",
       "Link de indicação que rende para os dois",
       "Compra Premiada todo mês",
     ],
@@ -302,15 +292,12 @@ export const AUDIENCES = [
     items: [
       "Tudo pelo WhatsApp, sem instalar aplicativo",
       "Conteúdo feito pelos jovens aprendizes",
-      "Sacoleiro vendendo o produto na rua",
-      "Designer da região por demanda",
       "Avaliação boa vira destaque na vitrine",
     ],
   },
   {
     who: "Secretaria",
     items: [
-      "Frequência real de cada permissionário",
       "Horário declarado e conferido",
       "Nota do cliente por box",
       "Jovens aprendizes com trabalho comprovado",
@@ -322,7 +309,7 @@ export const AUDIENCES = [
 export const ROADMAP = [
   { phase: "Hackathon", label: "MVP", items: ["Vitrine e mapa", "Pontos com Pix", "Disparo no WhatsApp"] },
   { phase: "90 dias", label: "Piloto", items: ["10 boxes", "5 influenciadores", "Primeira Compra Premiada"] },
-  { phase: "6 meses", label: "Escala", items: ["Os 60 boxes", "Sacoleiros e designers", "Painel da Secretaria"] },
+  { phase: "6 meses", label: "Escala", items: ["Os 60 boxes", "Avaliação por loja", "Painel da Secretaria"] },
   { phase: "12 meses", label: "Replicação", items: ["Outros centros públicos da região", "Agenda cultural integrada", "Compra coletiva"] },
 ];
 

@@ -20,7 +20,7 @@ test("os campos derivados fecham com o saldo", () => {
   for (const tel of ["85991234567", "85998887766", "8532451234", "11912345678"]) {
     const c = saldoDe(tel);
     assert.ok(c.saldo >= 80 && c.saldo < 500, `saldo fora da faixa: ${c.saldo}`);
-    assert.equal(c.cafes, Math.floor(c.saldo / 150));
+    assert.equal(c.premios, Math.floor(c.saldo / 150));
     assert.ok(c.faltam > 0 && c.faltam <= 150);
     assert.ok(c.progresso >= 0 && c.progresso <= 100);
     assert.ok(c.numeros.length >= 1 && c.numeros.length <= 4);

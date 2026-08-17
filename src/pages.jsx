@@ -341,7 +341,7 @@ export function PontosPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground">Saldo de pontos</p>
           <p className="font-display text-6xl font-bold leading-none">{conta.saldo}</p>
           <p className="mt-3 text-sm text-primary-foreground">
-            dá para {conta.cafes} {conta.cafes === 1 ? "café" : "cafés"} nos boxes de alimentação
+            dá para {conta.premios} {conta.premios === 1 ? "troca" : "trocas"} por desconto nos boxes
           </p>
           <div className="mt-6 border-t border-primary-foreground pt-4">
             <div className="flex items-center justify-between text-xs">

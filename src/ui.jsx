@@ -338,7 +338,7 @@ const SCREENS = [
         <div className="bg-primary p-3.5 text-primary-foreground">
           <p className="text-xs opacity-70">Saldo</p>
           <p className="font-display text-3xl font-bold">340</p>
-          <p className="text-xs opacity-70">dois cafés nos boxes de alimentação</p>
+          <p className="text-xs opacity-70">duas trocas por desconto nos boxes</p>
         </div>
         <div className="hairline p-3">
           <p className="text-xs font-semibold">Indique e ganhe</p>

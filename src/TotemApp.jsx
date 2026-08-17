@@ -559,7 +559,7 @@ function Pontos({ onBack }) {
               <p className="text-xs uppercase tracking-wider text-primary-foreground">Saldo de pontos</p>
               <p className="font-display text-5xl font-bold leading-none">{dados.saldo}</p>
               <p className="mt-2 text-sm text-primary-foreground">
-                dá para {dados.cafes} {dados.cafes === 1 ? "café" : "cafés"} nos boxes de alimentação
+                dá para {dados.premios} {dados.premios === 1 ? "troca" : "trocas"} por desconto nos boxes
               </p>
             </div>
 

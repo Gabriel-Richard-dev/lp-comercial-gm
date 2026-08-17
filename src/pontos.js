@@ -2,7 +2,7 @@
 // mostrar sempre o mesmo resultado durante a apresentação.
 // Trocar por consulta ao histórico de Pix confirmado quando houver backend.
 
-const PREMIO = 150; // pontos por café/prêmio pequeno
+const PREMIO = 150; // pontos por prêmio pequeno (desconto na próxima compra)
 
 function hash(s) {
   let h = 2166136261;
@@ -18,7 +18,7 @@ const LOJAS = [
   ["41", "Chinelaria", "Compra"],
   ["03", "Elegance Fashion", "Compra"],
   ["17", "Som & Fone", "Compra"],
-  ["31", "Cantinho do Açaí", "Troca por café"],
+  ["41", "Chinelaria", "Troca por desconto"],
   ["23", "Bella Cosméticos", "Compra"],
 ];
 
@@ -37,7 +37,7 @@ export function saldoDe(tel) {
     const troca = tipo !== "Compra" && i === 2;
     extrato.push({
       box,
-      titulo: troca ? `Troca por café · ${loja}` : `Compra no ${loja}`,
+      titulo: troca ? `Troca por desconto · ${loja}` : `Compra no ${loja}`,
       data: `${String(1 + ((h >> (i * 5)) % 28)).padStart(2, "0")}/08/2026`,
       pts: troca ? -PREMIO : 10 + ((h >> (i * 2)) % 60),
     });
@@ -45,7 +45,7 @@ export function saldoDe(tel) {
 
   return {
     saldo,
-    cafes: Math.floor(saldo / PREMIO),
+    premios: Math.floor(saldo / PREMIO),
     faltam: PREMIO - (saldo % PREMIO),
     progresso: Math.round(((saldo % PREMIO) / PREMIO) * 100),
     numeros,
