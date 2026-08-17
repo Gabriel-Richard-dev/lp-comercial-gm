@@ -20,14 +20,18 @@ function Nav() {
       ScrollTrigger.create({
         start: 70,
         end: "max",
-        onToggle: (s) => ref.current?.classList.toggle("nav-solida", s.isActive),
+        onToggle: (s) => {
+          // Sobre a foto do herói a barra é clara; depois dos 70 px vira chapa.
+          ref.current?.classList.toggle("nav-solida", s.isActive);
+          ref.current?.classList.toggle("nav-hero", !s.isActive);
+        },
       });
     },
     { scope: ref }
   );
 
   return (
-    <nav ref={ref} className="fixed inset-x-0 top-0 z-50 border-b border-transparent transition-colors">
+    <nav ref={ref} className="nav-hero fixed inset-x-0 top-0 z-50 border-b border-transparent transition-colors">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
         <a href="#topo" className="flex items-center gap-2.5">
           <Logo className="h-9 w-9" />
@@ -60,22 +64,32 @@ function Hero() {
 
   useGSAP(
     () => {
-      const tl = gsap.timeline({ defaults: { ease: "power4.out" }, delay: 0.2 });
-      tl.from(".hero-eyebrow", { y: 14, opacity: 0, duration: 0.7 })
-        .from(".word", { yPercent: 110, duration: 1, stagger: 0.08 }, "-=0.35")
-        .from(".hero-sub", { y: 18, opacity: 0, duration: 0.8 }, "-=0.6")
+      // Entrada: a foto abre fechando o zoom, a chapa aparece por cima e o
+      // texto entra em cima dela, linha por linha.
+      const tl = gsap.timeline({ defaults: { ease: "power4.out" }, delay: 0.15 });
+      tl.from(".hero-img", { scale: 1.32, duration: 2, ease: "power2.out" })
+        .from(".hero-veu", { opacity: 0, duration: 1.4 }, 0)
+        .from(".hero-eyebrow", { y: 16, opacity: 0, duration: 0.8 }, 0.45)
+        .from(".word", { yPercent: 110, duration: 1.1, stagger: 0.09 }, "-=0.45")
+        .from(".hero-sub", { y: 18, opacity: 0, duration: 0.8 }, "-=0.7")
         .from(".hero-cta", { y: 14, opacity: 0, duration: 0.6, stagger: 0.08 }, "-=0.55")
-        .from(".hero-meta", { opacity: 0, duration: 0.8 }, "-=0.5");
+        .from(".hero-rodape", { opacity: 0, duration: 0.9 }, "-=0.5");
 
-      // a foto sobe devagar enquanto a página rola (scrub não passa pela linha
-      // do tempo global, então o modo "menos movimento" precisa cortar aqui)
-      if (!MENOS_MOVIMENTO) {
-        gsap.to(".hero-photo img", {
-          yPercent: -8,
-          ease: "none",
-          scrollTrigger: { trigger: ".hero-photo", start: "top bottom", end: "bottom top", scrub: 0.6 },
-        });
-      }
+      // Scrub não passa pela linha do tempo global, então o modo "menos
+      // movimento" precisa cortar daqui para baixo na mão.
+      if (MENOS_MOVIMENTO) return;
+
+      gsap.to(".hero-seta", { y: 8, duration: 1.1, repeat: -1, yoyo: true, ease: "sine.inOut" });
+
+      // Saída: o texto sai antes da foto, que continua subindo devagar.
+      const st = { trigger: ref.current, start: "top top", end: "bottom top", scrub: 0.6 };
+      gsap.to(".hero-img", { yPercent: 12, ease: "none", scrollTrigger: st });
+      gsap.to(".hero-conteudo", {
+        yPercent: -14,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: { ...st, end: "bottom 45%" },
+      });
     },
     { scope: ref }
   );
@@ -91,54 +105,59 @@ function Hero() {
   };
 
   return (
-    <header ref={ref} id="topo" className="hero-luz pt-32 sm:pt-36" onPointerMove={seguirPonteiro}>
-      <div className="mx-auto max-w-4xl px-5 text-center">
-        <p className="hero-eyebrow text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-          {HERO.eyebrow}
-        </p>
+    <header
+      ref={ref}
+      id="topo"
+      className="hero-foto relative flex min-h-dvh flex-col justify-center overflow-hidden text-primary-foreground"
+      onPointerMove={seguirPonteiro}
+    >
+      <div className="hero-fundo absolute inset-0">
+        <img
+          src={PHOTOS.entrada.src}
+          alt={PHOTOS.entrada.alt}
+          width="1280"
+          height="714"
+          fetchPriority="high"
+          decoding="async"
+          className="hero-img h-full w-full scale-105 object-cover"
+        />
+        <div className="hero-veu absolute inset-0" />
+      </div>
+
+      <div className="hero-conteudo relative mx-auto w-full max-w-4xl px-5 py-28 text-center">
+        <p className="hero-eyebrow text-xs font-semibold uppercase tracking-[0.22em]">{HERO.eyebrow}</p>
 
         <h1 className="hero-titulo mt-7 font-display text-display font-bold leading-[0.98] tracking-[-0.035em]">
           {HERO.title.map((w, i) => (
             <span key={i} className="block overflow-hidden py-[0.04em]">
-              <span className={`word inline-block ${i === 1 ? "text-primary" : ""}`}>{w}</span>
+              <span className="word inline-block">{w}</span>
             </span>
           ))}
         </h1>
 
-        <p className="hero-sub mx-auto mt-8 max-w-xl text-base leading-relaxed text-muted-foreground">
-          {HERO.sub}
-        </p>
+        <p className="hero-sub mx-auto mt-8 max-w-xl text-base leading-relaxed">{HERO.sub}</p>
 
         <div className="mt-9 flex flex-wrap justify-center gap-2.5">
           {HERO.ctas.map((c) => (
-            <a key={c.href} href={c.href} className={`hero-cta btn ${c.primary ? "btn-primary" : "btn-outline"}`}>
+            <a key={c.href} href={c.href} className={`hero-cta btn ${c.primary ? "btn-claro" : "btn-contorno-claro"}`}>
               {c.label}
               <Icon name="arrow" className="h-4 w-4" />
             </a>
           ))}
         </div>
 
-        <p className="hero-meta mt-7 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+        <p className="mt-7 flex items-center justify-center gap-2 text-xs">
           <Icon name="pin" className="h-3.5 w-3.5 shrink-0" />
           {BRAND.address}, {BRAND.city}.
         </p>
       </div>
 
-      <div className="hero-photo mt-16 overflow-hidden">
-        <div className="aspect-[16/9] max-h-[70vh] w-full overflow-hidden bg-muted sm:aspect-[21/9]">
-          <img
-            src={PHOTOS.entrada.src}
-            alt={PHOTOS.entrada.alt}
-            width="1280"
-            height="714"
-            fetchPriority="high"
-            decoding="async"
-            className="h-full w-full scale-110 object-cover"
-          />
-        </div>
-        <div className="mx-auto max-w-6xl px-5">
-          <p className="caption mt-3">{PHOTOS.entrada.caption} {PHOTOS.credit}</p>
-        </div>
+      <div className="hero-rodape absolute inset-x-0 bottom-5 flex items-end justify-between gap-4 px-5 text-xs">
+        <span className="hero-seta flex items-center gap-2">
+          <Icon name="arrow" className="h-4 w-4 rotate-90" />
+          role para ver
+        </span>
+        <span className="text-right">{PHOTOS.credit}</span>
       </div>
     </header>
   );
@@ -158,7 +177,7 @@ function Marquee() {
     </div>
   );
   return (
-    <div className="mt-20 flex overflow-hidden border-y border-border py-3.5">
+    <div className="flex overflow-hidden border-b border-border py-3.5">
       {strip(false)}
       {strip(true)}
     </div>
