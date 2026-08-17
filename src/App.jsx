@@ -546,10 +546,11 @@ function Roadmap() {
 }
 
 /* ============================== CTA ============================== */
+// No celular a seção ocupa a tela inteira: quem chega no CTA vê só o formulário.
 function Cta() {
   return (
-    <section id="cta" className="bg-muted py-24">
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 lg:grid-cols-[1fr_1fr]">
+    <section id="cta" className="grid min-h-dvh content-center bg-muted py-16 lg:block lg:min-h-0 lg:py-24">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 lg:grid-cols-[1fr_1fr] lg:gap-14">
         <div>
           <p data-reveal className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-success">
             <Icon name="success" className="h-4 w-4" /> WhatsApp
