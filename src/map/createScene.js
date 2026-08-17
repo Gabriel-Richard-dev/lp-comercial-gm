@@ -5,8 +5,7 @@ import { CATEGORIES, LAYOUT, MAP_BOXES } from "./layout";
 import { cssColorInt } from "./tokens";
 
 // Toda cor da cena vem de um token CSS (ver o bloco --mapa-* em src/index.css).
-// O getter adia a leitura para depois que a folha de estilo carregou.
-const cor = (token) => ({ get: () => cssColorInt(token) });
+// O Proxy adia a leitura para depois que a folha de estilo carregou.
 const PALETTE = new Proxy(
   {
     blueWall: "--mapa-parede-azul",
@@ -93,8 +92,9 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   const gRoof = new THREE.Group();
   const gColumns = new THREE.Group();
   const gWalls = new THREE.Group();
+  let grid = null;
   scene.add(gRoof, gColumns, gWalls);
-  gRoof.visible = false;
+  gRoof.visible = false; // começa em 2D, sem teto
 
   const stalls = [];
   const labels = [];
@@ -149,9 +149,13 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     floor.receiveShadow = true;
     scene.add(floor);
 
+    // A grade dá noção de escala na vista 3D. Na planta ela cobre a tela inteira
+    // com linha, vira papel milimetrado e disputa a atenção com os boxes, então
+    // aparece só no 3D (ver setMode).
     const span = Math.max(totalWidth, totalDepth) + pad * 2;
-    const grid = new THREE.GridHelper(span, Math.ceil(span / 2), PALETTE.gradeA, PALETTE.gradeB);
+    grid = new THREE.GridHelper(span, Math.ceil(span / 2), PALETTE.gradeA, PALETTE.gradeB);
     grid.position.y = 0.01;
+    grid.visible = false;
     scene.add(grid);
   }
 
@@ -343,6 +347,17 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     awning.rotation.x = -0.22;
     group.add(awning);
 
+    // A cor da categoria, deitada no tampo, para a planta ser lida de cima.
+    // Material sem sombreamento: numa vista ortogonal a cor precisa ser a mesma
+    // no box da ponta e no do meio, senão a luz do sol vira falsa categoria.
+    const plaqueta = new THREE.Mesh(
+      new THREE.PlaneGeometry(w - 0.1, d - 0.1),
+      new THREE.MeshBasicMaterial({ color: cat.color })
+    );
+    plaqueta.rotation.x = -Math.PI / 2;
+    plaqueta.position.y = counterH + 0.1;
+    group.add(plaqueta);
+
     group.position.set(box.position.x, 0, box.position.z);
     group.traverse((child) => {
       if (child.isMesh) {
@@ -354,7 +369,7 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     group.userData.box = box;
 
     const labelDiv = document.createElement("div");
-    labelDiv.className = "map-label";
+    labelDiv.className = "map-label plano";
     labelDiv.textContent = box.number;
     const label = new CSS2DObject(labelDiv);
     label.position.set(0, h + 0.3, 0);
@@ -362,7 +377,7 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     labels.push(label);
 
     scene.add(group);
-    stalls.push({ group, box, label });
+    stalls.push({ group, box, label, labelDiv, plaqueta });
   }
 
   function applyFilter() {
@@ -404,7 +419,9 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     const w = container.clientWidth || 1;
     const h = container.clientHeight || 1;
     const aspect = w / h;
-    const pad = 6;
+    // Folga curta: o galpão é largo e raso, então cada unidade de folga custa
+    // muito da largura, que é o eixo em que a planta é apertada.
+    const pad = 2;
     const needH = LAYOUT.totalDepth + pad;
     const needW = LAYOUT.totalWidth + pad;
     const viewSize = Math.max(needH, needW / aspect);
@@ -427,6 +444,19 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     labelRenderer.setSize(w, h);
   }
 
+  // O que muda entre a planta e a maquete: no 2D a cor da categoria sobe para o
+  // tampo e o número perde a tarjeta, que nesse tamanho cobria o box inteiro; no
+  // 3D volta o teto e a grade, que ali dão escala em vez de ruído.
+  function aplicarModo() {
+    const plano = mode === "2d";
+    gRoof.visible = !plano;
+    if (grid) grid.visible = !plano;
+    for (const { plaqueta, labelDiv } of stalls) {
+      plaqueta.visible = plano;
+      labelDiv.classList.toggle("plano", plano);
+    }
+  }
+
   function setMode(next) {
     if (next === mode) return;
     mode = next;
@@ -435,15 +465,14 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
       activeControls = controls2d;
       controls3d.enabled = false;
       controls2d.enabled = true;
-      gRoof.visible = false;
       fitOrtho();
     } else {
       activeCamera = perspCamera;
       activeControls = controls3d;
       controls2d.enabled = false;
       controls3d.enabled = true;
-      gRoof.visible = true;
     }
+    aplicarModo();
   }
 
   function setFilter(seg) {
@@ -495,6 +524,7 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   createFloor();
   createStructure();
   MAP_BOXES.forEach(createStall);
+  aplicarModo();
   resize();
   ro.observe(container);
   animate();

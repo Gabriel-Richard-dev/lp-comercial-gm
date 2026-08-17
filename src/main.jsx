@@ -1,20 +1,21 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
-import TotemApp from './TotemApp.jsx'
-import { CadastroPage, PontosPage } from './pages.jsx'
 
-// quatro páginas, sem router
-const ROTAS = {
-  '/totem': TotemApp,
-  '/cadastro': CadastroPage,
-  '/pontos': PontosPage,
+const path = window.location.pathname.replace(/\/+$/, '') || '/'
+
+const loaders = {
+  '/totem': () => import('./TotemApp.jsx'),
+  '/cadastro': () => import('./pages.jsx').then((m) => ({ default: m.CadastroPage })),
+  '/pontos': () => import('./pages.jsx').then((m) => ({ default: m.PontosPage })),
 }
-const Page = ROTAS[window.location.pathname.replace(/\/+$/, '')] ?? App
+
+const Page = lazy(loaders[path] ?? (() => import('./App.jsx')))
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Page />
+    <Suspense fallback={<div className="min-h-screen bg-background" aria-busy="true" />}>
+      <Page />
+    </Suspense>
   </StrictMode>,
 )

@@ -28,6 +28,17 @@
   white-space: nowrap;
 }
 
+/* Na planta o número fica direto sobre a plaqueta da categoria: a tarjeta, no
+   tamanho em que 70 boxes cabem na tela, cobria o box inteiro e apagava a cor.
+   A sombra é o que garante o número legível sobre qualquer uma das cinco cores. */
+.map-label.plano {
+  background: none;
+  padding: 0;
+  font-size: 8px;
+  color: var(--color-setor-texto);
+  text-shadow: 0 1px 2px var(--color-foreground);
+}
+
 .map-label.entrance {
   background: var(--color-success);
   color: var(--color-success-foreground);

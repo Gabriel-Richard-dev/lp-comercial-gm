@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BRAND, PHOTOS, BOXES, SECTORS } from "./data";
-import { Icon, FakeQR, Wordmark } from "./ui";
+import { Icon, FakeQR, Logo, Wordmark } from "./ui";
 import { maskPhone, validPhone } from "./phone";
 import { saldoDe } from "./pontos";
 
@@ -10,9 +10,12 @@ function Shell({ children, foto }) {
     <div className="min-h-screen bg-muted">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3.5">
-          <a href="/" className="flex items-baseline gap-2">
-            <Wordmark className="text-lg" />
-            <span className="hidden text-xs text-muted-foreground sm:inline">{BRAND.tagline}</span>
+          <a href="/" className="flex items-center gap-2.5">
+            <Logo className="h-9 w-9" />
+            <span className="flex items-baseline gap-2">
+              <Wordmark className="text-lg" />
+              <span className="hidden text-xs text-muted-foreground sm:inline">{BRAND.tagline}</span>
+            </span>
           </a>
           <div className="flex items-center gap-4 text-xs">
             <a href="/cadastro" className="text-muted-foreground transition hover:text-foreground">Cadastro</a>
@@ -210,7 +213,7 @@ export function CadastroPage() {
                       type="checkbox"
                       checked={f.interesses.includes(i)}
                       onChange={() => toggleInteresse(i)}
-                      className="h-4 w-4 primary-primary"
+                      className="h-4 w-4 accent-primary"
                     />
                     {i}
                   </label>
@@ -227,7 +230,7 @@ export function CadastroPage() {
                 checked={f.aceite}
                 onChange={(e) => set("aceite", e.target.checked)}
                 aria-invalid={!!erros.aceite}
-                className="mt-0.5 h-4 w-4 shrink-0 primary-primary"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
               />
               <span>
                 Concordo em receber mensagens do SIMOVE no WhatsApp e sei que posso sair a qualquer momento
