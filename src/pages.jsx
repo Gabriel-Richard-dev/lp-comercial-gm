@@ -3,7 +3,7 @@ import { BRAND, PHOTOS, BOXES, SECTORS, SEG_FILTERS, OFERTAS } from "./data";
 import { Icon, FakeQR, Wordmark } from "./ui";
 import { maskPhone, validPhone } from "./phone";
 import { saldoDe } from "./pontos";
-import { vitrine, descontoPct } from "./catalogo";
+import { vitrine, descontoPct, catalogoDe } from "./catalogo";
 import { MAP_BOXES } from "./map/layout";
 
 /* ---------- moldura comum das páginas internas ---------- */
@@ -459,6 +459,18 @@ const CUPONS = Object.values(
   }, {})
 );
 
+// O cliente escolhe a loja, não o carrinho: o Centro é físico, e quem procura
+// "sandália" quer saber em que box ela está. Por isso a lista é de loja, e a
+// busca por produto é que abre a lista de item.
+const menorPreco = (itens) =>
+  itens.reduce((a, b) => (Number(a.preco.replace(",", ".")) <= Number(b.preco.replace(",", ".")) ? a : b))
+    .preco;
+
+const LOJAS = MAP_BOXES.filter((b) => b.status !== "Vago").map((box) => {
+  const { itens, oferta } = catalogoDe(box);
+  return { ...box, itens, oferta, desde: menorPreco(itens) };
+});
+
 function BoxTag({ numero, setor, className = "h-9 w-9 text-xs" }) {
   const cor = SECTORS[setor];
   return (
@@ -479,9 +491,6 @@ export function CatalogoPage() {
   const [seg, setSeg] = useState("Tudo");
   const [q, setQ] = useState("");
   const [cupom, setCupom] = useState(null);
-  // A vitrine inteira passa de 250 itens: mostra um tanto e cresce sob demanda,
-  // senão o primeiro scroll no celular monta as 60 lojas de uma vez.
-  const [limite, setLimite] = useState(24);
 
   const todos = useMemo(() => vitrine(MAP_BOXES), []);
 
@@ -493,6 +502,10 @@ export function CatalogoPage() {
       (seg === "Tudo" || i.seg === seg) &&
       (!termo || i.nome.toLowerCase().includes(termo) || i.loja.toLowerCase().includes(termo)) &&
       (!lojasDoCupom || lojasDoCupom.has(i.loja))
+  );
+
+  const lojas = LOJAS.filter(
+    (l) => (seg === "Tudo" || l.seg === seg) && (!lojasDoCupom || lojasDoCupom.has(l.name))
   );
 
   const ofertas = lojasDoCupom ? OFERTAS.filter((o) => o.cupom === cupom) : OFERTAS;
@@ -514,12 +527,9 @@ export function CatalogoPage() {
           <p className="text-xs text-muted-foreground">Só hoje, direto no box</p>
         </div>
 
-        <div className="-mx-5 mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-3">
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {ofertas.map((o) => (
-            <article
-              key={o.box + o.item}
-              className="flex w-72 shrink-0 snap-start flex-col bg-card p-5 hairline"
-            >
+            <article key={o.box + o.item} className="flex flex-col bg-card p-5 hairline">
               <div className="flex items-center gap-3">
                 <BoxTag numero={o.box} setor={BOXES.find((b) => b.n === o.box)?.s} />
                 <div className="min-w-0">
@@ -559,10 +569,7 @@ export function CatalogoPage() {
             return (
               <button
                 key={c.codigo}
-                onClick={() => {
-                  setCupom(ativo ? null : c.codigo);
-                  setLimite(24);
-                }}
+                onClick={() => setCupom(ativo ? null : c.codigo)}
                 aria-pressed={ativo}
                 className={`flex items-start gap-3 p-5 text-left transition ${
                   ativo ? "bg-primary text-primary-foreground" : "bg-card hairline hover:bg-muted"
@@ -597,17 +604,16 @@ export function CatalogoPage() {
         )}
       </section>
 
-      {/* ---------- vitrine ---------- */}
+      {/* ---------- lojas ---------- */}
       <section className="mt-12">
-        <h2 className="font-display text-2xl font-bold">O que tem no Centro</h2>
+        <h2 className="font-display text-2xl font-bold">
+          {termo ? "O que achamos" : "Lojas do Centro"}
+        </h2>
 
         <div className="mt-5 flex flex-col gap-3">
           <input
             value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              setLimite(24);
-            }}
+            onChange={(e) => setQ(e.target.value)}
             placeholder="Buscar produto ou loja"
             aria-label="Buscar produto ou loja"
             className={campo}
@@ -617,10 +623,7 @@ export function CatalogoPage() {
             {["Tudo", ...SEG_FILTERS, "Serviços"].map((s) => (
               <button
                 key={s}
-                onClick={() => {
-                  setSeg(s);
-                  setLimite(24);
-                }}
+                onClick={() => setSeg(s)}
                 aria-pressed={seg === s}
                 className={`shrink-0 px-4 py-2 text-sm font-semibold transition ${
                   seg === s ? "bg-foreground text-background" : "bg-card hairline hover:bg-muted"
@@ -633,17 +636,24 @@ export function CatalogoPage() {
         </div>
 
         <p className="mt-5 text-xs uppercase tracking-[0.12em] text-muted-foreground">
-          {itens.length} {itens.length === 1 ? "item" : "itens"}
+          {termo
+            ? `${itens.length} ${itens.length === 1 ? "item" : "itens"} em ${
+                new Set(itens.map((i) => i.loja)).size
+              } ${new Set(itens.map((i) => i.loja)).size === 1 ? "loja" : "lojas"}`
+            : `${lojas.length} ${lojas.length === 1 ? "loja aberta" : "lojas abertas"}`}
         </p>
 
-        {itens.length === 0 ? (
+        {termo && itens.length === 0 && (
           <p className="mt-4 bg-card p-8 text-center text-sm text-muted-foreground hairline">
             Ninguém no Centro cadastrou isso ainda. Tente outro termo, ou fale com a Sala do
             Empreendedor: pode ser um box a abrir.
           </p>
-        ) : (
+        )}
+
+        {/* Buscou produto: a resposta é o item e o box onde ele está. */}
+        {termo && itens.length > 0 && (
           <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {itens.slice(0, limite).map((i) => (
+            {itens.map((i) => (
               <li key={i.box + i.nome} className="flex items-center gap-3 bg-card p-4 hairline">
                 <BoxTag numero={i.box} setor={i.setor} className="h-11 w-11 text-sm" />
                 <div className="min-w-0 flex-1">
@@ -658,11 +668,68 @@ export function CatalogoPage() {
           </ul>
         )}
 
-        {itens.length > limite && (
-          <button onClick={() => setLimite((l) => l + 36)} className="btn btn-outline mt-6">
-            Mostrar mais
-            <Icon name="arrow" className="h-4 w-4" />
-          </button>
+        {/* Sem busca: a vitrine é a rua de lojas, e cada uma abre no lugar. */}
+        {!termo && (
+          <ul className="mt-4 grid gap-3 md:grid-cols-2">
+            {lojas.map((l) => (
+              <li key={l.number}>
+                <details className="group bg-card hairline">
+                  <summary className="flex cursor-pointer list-none items-center gap-4 p-4 [&::-webkit-details-marker]:hidden">
+                    <BoxTag numero={l.number} setor={l.s} className="h-14 w-14 text-lg" />
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold leading-snug">{l.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {l.seg}
+                        {SECTORS[l.s] && ` · ${SECTORS[l.s].label}`}
+                      </p>
+                      <p className="mt-1 truncate text-xs text-muted-foreground">
+                        {l.itens.map((i) => i.nome).join(" · ")}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        <span className="font-semibold tabular-nums text-foreground">
+                          a partir de R$ {l.desde}
+                        </span>{" "}
+                        · {l.itens.length} itens
+                      </p>
+                    </div>
+
+                    {l.oferta && (
+                      <span className="shrink-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
+                        oferta
+                      </span>
+                    )}
+                    <Icon
+                      name="arrow"
+                      className="h-4 w-4 shrink-0 text-muted-foreground transition group-open:rotate-90"
+                    />
+                  </summary>
+
+                  <ul className="border-t border-border px-4">
+                    {l.itens.map((i) => (
+                      <li
+                        key={i.nome}
+                        className="flex items-baseline justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                      >
+                        <span className="min-w-0 text-sm">{i.nome}</span>
+                        <span className="shrink-0 text-sm font-bold tabular-nums">R$ {i.preco}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {l.oferta && (
+                    <p className="m-4 flex items-start gap-2 bg-accent px-3 py-2.5 text-xs font-semibold text-accent-foreground">
+                      <Icon name="tag" className="mt-px h-4 w-4 shrink-0" />
+                      <span>
+                        {l.oferta.item}: de R$ {l.oferta.de} por R$ {l.oferta.por}
+                        {l.oferta.cupom && ` · cupom ${l.oferta.cupom}`}
+                      </span>
+                    </p>
+                  )}
+                </details>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
 
