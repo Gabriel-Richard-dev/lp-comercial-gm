@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { BRAND, PHOTOS, SECTORS, BOXES, SEG_FILTERS, OFERTAS, AGENDA, OUVIDORIA_TIPOS } from "./data";
-import { Icon, FakeQR, Wordmark } from "./ui";
+import { Icon, FakeQR, Wordmark, FotoProduto } from "./ui";
 import { maskPhone, validPhone } from "./phone";
 import { saldoDe } from "./pontos";
 import { catalogoDe } from "./catalogo";
@@ -258,10 +258,13 @@ function PainelLoja({ box, onClose }) {
 
           <div className="mt-3 min-h-0 flex-1 overflow-y-auto px-5 pb-4">
             {oferta && (
-              <div className="mb-3 flex items-center gap-3 bg-accent px-3 py-2.5 text-accent-foreground">
-                <Icon name="tag" className="h-5 w-5 shrink-0" />
+              <div className="mb-3 flex items-center gap-3 bg-accent p-2.5 text-accent-foreground">
+                <FotoProduto termo={oferta.item} ratio="" className="h-20 w-20 shrink-0" />
                 <span className="min-w-0 flex-1 text-sm font-bold">
-                  {oferta.item}
+                  <span className="flex items-center gap-1.5">
+                    <Icon name="tag" className="h-4 w-4 shrink-0" />
+                    {oferta.item}
+                  </span>
                   <span className="block text-xs font-semibold">
                     de R$ {oferta.de} por R$ {oferta.por}
                     {oferta.cupom && ` · cupom ${oferta.cupom}`}
@@ -273,13 +276,15 @@ function PainelLoja({ box, onClose }) {
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Catálogo
             </p>
+            {/* Foto de 80 px: quem lê está de pé, a meio metro do vidro. */}
             <ul className="mt-1.5">
               {itens.map((i) => (
                 <li
                   key={i.nome}
-                  className="flex items-baseline justify-between gap-3 border-b border-border py-2.5 last:border-0"
+                  className="flex items-center gap-3 border-b border-border py-2.5 last:border-0"
                 >
-                  <span className="min-w-0 text-sm font-semibold">{i.nome}</span>
+                  <FotoProduto termo={i.nome} ratio="" className="h-20 w-20 shrink-0" />
+                  <span className="min-w-0 flex-1 text-sm font-semibold">{i.nome}</span>
                   <span className="shrink-0 text-sm font-bold tabular-nums">R$ {i.preco}</span>
                 </li>
               ))}

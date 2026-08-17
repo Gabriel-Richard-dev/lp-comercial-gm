@@ -251,8 +251,8 @@ img {
 }
 .hero-img {
   mix-blend-mode: luminosity;
-  opacity: 0.55;
-  filter: brightness(0.82) contrast(1.08);
+  opacity: 0.35;
+  filter: brightness(0.45) contrast(1.08);
 }
 
 /* Bolinhas na frente da chapa. Tamanho e posição vêm do componente (geometria);
@@ -305,8 +305,9 @@ img {
 .nav-hero {
   color: var(--color-primary-foreground);
 }
-.nav-hero a:not(.btn),
-.nav-hero span {
+/* Todo descendente, não só `a` e `span`: os links do menu ficam dentro de um
+   `div` com cor cinza própria, e parar no `a` fazia o cinza do `div` vencer. */
+.nav-hero :not(.btn) {
   color: inherit;
 }
 .nav-hero .btn-primary {

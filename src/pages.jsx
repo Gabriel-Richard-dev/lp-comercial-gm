@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { BRAND, PHOTOS, BOXES, SECTORS, SEG_FILTERS, OFERTAS } from "./data";
-import { Icon, FakeQR, Logo, Wordmark } from "./ui";
+import { Icon, FakeQR, Logo, Wordmark, FotoProduto } from "./ui";
 import { maskPhone, validPhone, validEmail } from "./phone";
 import { saldoDe } from "./pontos";
 import { vitrine, descontoPct, catalogoDe, fotoDe, FOTO_SEG } from "./catalogo";
@@ -500,25 +500,6 @@ const LOJAS = MAP_BOXES.filter((b) => b.status !== "Vago").map((box) => {
   return { ...box, itens, oferta, desde: menorPreco(itens) };
 });
 
-// Foto de busca. Se o host devolver erro fica só o fundo cinza: vitrine com
-// buraco é melhor que ícone de imagem quebrada em cima do produto.
-function Foto({ termo, ratio = "aspect-[4/3]", className = "" }) {
-  const [erro, setErro] = useState(false);
-  return (
-    <div className={`overflow-hidden bg-muted ${ratio} ${className}`}>
-      {!erro && (
-        <img
-          src={fotoDe(termo)}
-          alt={termo}
-          loading="lazy"
-          onError={() => setErro(true)}
-          className="h-full w-full object-cover"
-        />
-      )}
-    </div>
-  );
-}
-
 function BoxTag({ numero, setor, className = "h-9 w-9 text-xs" }) {
   const cor = SECTORS[setor];
   return (
@@ -621,7 +602,7 @@ export function CatalogoPage() {
               href="/totem"
               className="relative w-[84%] shrink-0 snap-start overflow-hidden bg-card sm:w-[26rem]"
             >
-              <Foto termo={o.item} ratio="aspect-[16/9]" />
+              <FotoProduto termo={o.item} ratio="aspect-[16/9]" />
               <span className="absolute left-0 top-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
                 −{descontoPct(o)}%
               </span>
@@ -696,7 +677,7 @@ export function CatalogoPage() {
             {itens.map((i) => (
               <li key={i.box + i.nome} className="overflow-hidden bg-card hairline">
                 <div className="relative">
-                  <Foto termo={i.nome} />
+                  <FotoProduto termo={i.nome} />
                   <BoxTag numero={i.box} setor={i.setor} className="absolute left-0 top-0 h-8 w-8 text-xs" />
                 </div>
                 <div className="p-3">
@@ -717,7 +698,7 @@ export function CatalogoPage() {
                 <details className="group overflow-hidden bg-card hairline">
                   <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                     <div className="relative">
-                      <Foto termo={l.itens[0].nome} ratio="aspect-[16/10]" />
+                      <FotoProduto termo={l.itens[0].nome} ratio="aspect-[16/10]" />
                       <BoxTag numero={l.number} setor={l.s} className="absolute left-0 top-0 h-9 w-9 text-xs" />
                       {l.oferta && (
                         <span className="absolute right-0 top-0 bg-accent px-2 py-1 text-xs font-bold text-accent-foreground">
@@ -748,7 +729,7 @@ export function CatalogoPage() {
                         key={i.nome}
                         className="flex items-center gap-3 border-b border-border p-3 last:border-0"
                       >
-                        <Foto termo={i.nome} ratio="" className="h-12 w-12 shrink-0" />
+                        <FotoProduto termo={i.nome} ratio="" className="h-12 w-12 shrink-0" />
                         <span className="min-w-0 flex-1 truncate text-sm">{i.nome}</span>
                         <span className="shrink-0 text-sm font-bold tabular-nums">R$ {i.preco}</span>
                       </li>

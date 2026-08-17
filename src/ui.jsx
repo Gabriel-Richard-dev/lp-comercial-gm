@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { maskPhone, validPhone, validEmail } from "./phone";
 import { PHOTOS } from "./data";
+import { fotoDe } from "./catalogo";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -149,6 +150,28 @@ export function Photo({ photo, className = "", ratio = "aspect-[3/2]", priority 
       </div>
       {photo.caption && <figcaption className="caption mt-3 max-w-md">{photo.caption}</figcaption>}
     </figure>
+  );
+}
+
+/* ---------- foto de produto ----------
+   Se o host devolver erro fica só o fundo cinza: vitrine com buraco é melhor
+   que ícone de imagem quebrada em cima do produto. Mora aqui, e não na página,
+   porque o totem mostra os mesmos produtos e não pode importar pages.jsx — ele
+   arrastaria a landing inteira para dentro do pacote do totem. */
+export function FotoProduto({ termo, ratio = "aspect-[4/3]", className = "" }) {
+  const [erro, setErro] = useState(false);
+  return (
+    <div className={`overflow-hidden bg-muted ${ratio} ${className}`}>
+      {!erro && (
+        <img
+          src={fotoDe(termo)}
+          alt={termo}
+          loading="lazy"
+          onError={() => setErro(true)}
+          className="h-full w-full object-cover"
+        />
+      )}
+    </div>
   );
 }
 
