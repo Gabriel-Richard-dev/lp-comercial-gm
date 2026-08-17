@@ -115,6 +115,30 @@
     /* Laranja da etiqueta do logotipo. Atenção sem erro. */
     --color-warning: oklch(0.79 0.148 60);
     --color-warning-foreground: oklch(0.28 0.065 50);
+
+    /* Maquete 3D do CPC Geraldo Machado: parede azul, coluna vermelha, telha
+       metálica e tela verde. Não são cor de interface e não entram na auditoria
+       de contraste — nenhuma carrega texto. Lidas pelo Three.js em
+       src/map/tokens.js; sem elas a cena inteira cai no cinza de fallback. */
+    --mapa-parede-azul: oklch(0.51 0.16 259);
+    --mapa-faixa-azul: oklch(0.71 0.13 250);
+    --mapa-coluna-vermelha: oklch(0.51 0.15 27);
+    --mapa-telha-metal: oklch(0.81 0.02 250);
+    --mapa-telha-sob: oklch(0.68 0.02 250);
+    --mapa-viga: oklch(0.58 0.02 250);
+    --mapa-ceramica: oklch(0.78 0.05 76);
+    --mapa-ceramica-topo: oklch(0.9 0.02 76);
+    --mapa-tela-verde: oklch(0.5 0.09 141);
+    --mapa-piso: oklch(0.91 0.002 100);
+    --mapa-forro: oklch(0.96 0.004 100);
+    --mapa-vidro: oklch(0.87 0.01 250);
+    --mapa-grade-a: oklch(0.79 0.005 100);
+    --mapa-grade-b: oklch(0.86 0.002 100);
+    --mapa-luz-branca: oklch(1 0 0);
+    --mapa-luz-ceu: oklch(0.92 0.03 250);
+    --mapa-luz-chao: oklch(0.83 0.02 96);
+    --mapa-luz-sol: oklch(0.97 0.02 76);
+    --mapa-luz-preenchimento: oklch(0.85 0.05 250);
   }
 
   /* Modo escuro é suporte, não identidade: a página abre em claro e só segue o

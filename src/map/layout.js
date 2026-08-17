@@ -1,5 +1,5 @@
-import { BOXES as SHOPS } from "../data";
-import { cssColorHex, cssColorInt } from "./tokens";
+import { BOXES as SHOPS } from "../data.js";
+import { cssColorHex, cssColorInt } from "./tokens.js";
 
 /**
  * Categorias do mapa. A cor sai dos tokens `chart-1..5`, que o design system
@@ -43,6 +43,14 @@ const CATEGORY_KEYS = Object.keys(CATEGORIES);
  * 2 alas, 5 fileiras × 7 colunas = 70 boxes.
  * Os 60 nomes do SiMove ocupam 01–60; o restante fica vago.
  */
+/**
+ * Espessura do anel que marca o box selecionado. O anel é desenhado no vão
+ * entre um box e o vizinho, então tem que caber em GAP/2 — se passar disso ele
+ * encosta no box de trás e a seleção volta a ficar ambígua, que é o problema
+ * que o anel existe para resolver. Coberto por src/map/layout.test.js.
+ */
+export const MARCADOR = { espessura: 0.16 };
+
 export function generateBoxes() {
   const boxes = [];
   let id = 1;
@@ -113,6 +121,7 @@ export function generateBoxes() {
       boxW: BOX_W,
       boxD: BOX_D,
       boxH: BOX_H,
+      gap: GAP,
       aisleW: AISLE_W,
       wingWidth,
       wingDepth,

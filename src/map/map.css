@@ -26,6 +26,23 @@
   border-radius: var(--radius-sm);
   pointer-events: none;
   white-space: nowrap;
+  transition: transform 140ms, background-color 140ms, color 140ms, opacity 200ms;
+}
+
+/* O box escolhido troca de cor e cresce. É o mesmo laranja do anel no chão, de
+   propósito: o rótulo e o marcador precisam ler como uma coisa só. */
+.map-label.is-selected {
+  background: var(--color-warning);
+  color: var(--color-warning-foreground);
+  font-size: 11px;
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.28);
+}
+
+/* Filtrado para fora: apaga junto com o box, mas continua no lugar para a
+   planta não virar um vão vazio. */
+.map-label.is-dim {
+  opacity: 0.22;
 }
 
 .map-label.entrance {

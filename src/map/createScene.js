@@ -1,12 +1,11 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
-import { CATEGORIES, LAYOUT, MAP_BOXES } from "./layout";
+import { CATEGORIES, LAYOUT, MAP_BOXES, MARCADOR } from "./layout";
 import { cssColorInt } from "./tokens";
 
 // Toda cor da cena vem de um token CSS (ver o bloco --mapa-* em src/index.css).
 // O getter adia a leitura para depois que a folha de estilo carregou.
-const cor = (token) => ({ get: () => cssColorInt(token) });
 const PALETTE = new Proxy(
   {
     blueWall: "--mapa-parede-azul",
@@ -29,7 +28,9 @@ const PALETTE = new Proxy(
     sol: "--mapa-luz-sol",
     preenchimento: "--mapa-luz-preenchimento",
     fundo: "--color-card",
-    destaque: "--color-primary",
+    // Laranja da etiqueta do logotipo. É a cor de "este aqui": não colide com o
+    // azul da estrutura nem com o verde da tela, e nenhum setor a usa cheia.
+    selecao: "--color-warning",
   },
   { get: (alvo, chave) => (chave in alvo ? cssColorInt(alvo[chave]) : undefined) }
 );
@@ -39,8 +40,12 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   scene.background = new THREE.Color(PALETTE.fundo);
   scene.fog = new THREE.Fog(PALETTE.fundo, 55, 130);
 
+  // A planta tem 40 m de frente por 13 de fundo numa tela em pé: enquadrar as
+  // duas alas inteiras jogaria a câmera a 56 m e os boxes viram pontos. A vista
+  // inicial é a de quem acabou de entrar — meia praça, no tamanho em que dá para
+  // ler o número. O resto se alcança girando, com zoom, ou clicando na lista.
   const perspCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 400);
-  perspCamera.position.set(0, 20, 30);
+  perspCamera.position.set(-24, 16, 21);
 
   const orthoCamera = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 400);
   orthoCamera.up.set(0, 0, -1);
@@ -102,18 +107,86 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
-  const highlightMat = new THREE.MeshStandardMaterial({
-    color: PALETTE.branco,
-    emissive: PALETTE.destaque,
-    emissiveIntensity: 0.45,
-    metalness: 0.1,
-    roughness: 0.4,
-  });
 
-  let selectedGroup = null;
-  let selectedOriginals = [];
+  /**
+   * Marcadores de seleção e de passagem do cursor.
+   *
+   * A versão anterior trocava o material do box inteiro por um branco emissivo:
+   * o box selecionado perdia a cor do setor, a porta e a tela, e virava um
+   * bloco branco indistinguível — justamente o oposto de "dá pra ver onde
+   * cliquei". Aqui o box continua intacto e o destaque vem de fora: um anel
+   * desenhado no chão, um brilho por baixo e um pino acima. `MeshBasicMaterial`
+   * porque marcador não deve receber sombra nem escurecer no fundo do galpão.
+   */
+  const { boxW, boxD, boxH } = LAYOUT;
+
+  // Anel retangular assentado no vão entre os boxes. Círculo não serve nesta
+  // planta: com 2,6 × 2,4 e vão de 0,35, o círculo que envolvesse o box
+  // invadiria os vizinhos, e o que coubesse no vão ficaria escondido embaixo da
+  // bancada. O retângulo acompanha a forma do box e cabe no vão.
+  function anelGeo(esp) {
+    const x = boxW / 2 + esp;
+    const z = boxD / 2 + esp;
+    const forma = new THREE.Shape();
+    forma.moveTo(-x, -z);
+    forma.lineTo(x, -z);
+    forma.lineTo(x, z);
+    forma.lineTo(-x, z);
+    const furo = new THREE.Path();
+    furo.moveTo(-boxW / 2, -boxD / 2);
+    furo.lineTo(boxW / 2, -boxD / 2);
+    furo.lineTo(boxW / 2, boxD / 2);
+    furo.lineTo(-boxW / 2, boxD / 2);
+    forma.holes.push(furo);
+    return new THREE.ShapeGeometry(forma);
+  }
+
+  function marcador(geo, opacity) {
+    const m = new THREE.Mesh(
+      geo,
+      new THREE.MeshBasicMaterial({
+        color: PALETTE.selecao,
+        transparent: true,
+        opacity,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      })
+    );
+    m.renderOrder = 2;
+    m.visible = false;
+    scene.add(m);
+    return m;
+  }
+
+  const selRing = marcador(anelGeo(MARCADOR.espessura), 0.95);
+  const hoverRing = marcador(anelGeo(MARCADOR.espessura * 0.6), 0.5);
+  selRing.rotation.x = -Math.PI / 2;
+  hoverRing.rotation.x = -Math.PI / 2;
+
+  // Coluna translúcida sobre o box. É ela que carrega a vista 2D: de cima o
+  // anel é um fio, mas a coluna pinta o box inteiro de laranja.
+  const ALTURA_COLUNA = boxH + 0.6;
+  const selShaft = marcador(new THREE.BoxGeometry(boxW, ALTURA_COLUNA, boxD), 0.22);
+
+  // Pino: cone de ponta para baixo, apontando o box. Só na 3D — visto de cima
+  // na 2D ele vira um ponto em cima do anel e não acrescenta nada.
+  const pin = new THREE.Mesh(
+    new THREE.ConeGeometry(0.22, 0.5, 20),
+    new THREE.MeshBasicMaterial({ color: PALETTE.selecao, transparent: true, opacity: 0.9 })
+  );
+  pin.rotation.x = Math.PI;
+  pin.visible = false;
+  scene.add(pin);
+
+  let selected = null;
+  let hovered = null;
   let filterSeg = null;
   let running = true;
+
+  // Foco de câmera na 3D: alvo e posição perseguidos por lerp no animate().
+  const focoAlvo = new THREE.Vector3();
+  const focoCam = new THREE.Vector3();
+  let focando = false;
 
   function setupLights() {
     scene.add(new THREE.AmbientLight(PALETTE.branco, 0.65));
@@ -239,7 +312,6 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     const roof = new THREE.Mesh(new THREE.BoxGeometry(roofW, 0.12, roofD), roofMat);
     roof.position.set(0, colH + 0.9, cz);
     roof.rotation.z = 0.06;
-    roof.castShadow = true;
     gRoof.add(roof);
 
     const roofUnder = new THREE.Mesh(
@@ -279,6 +351,23 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     aisle.position.set(aisleCenterX, 0.02, originZ + wingDepth / 2);
     scene.add(aisle);
 
+    /**
+     * A cobertura inteira fica translúcida e sem sombra.
+     *
+     * Opaca, ela resolvia a 3D em uma laje cinza: de cima tapava os 70 boxes, e
+     * de dentro as vigas riscavam a planta. A sombra era o outro lado do mesmo
+     * problema — uma cobertura de ponta a ponta jogava o galpão na penumbra e
+     * nenhuma cor de setor se distinguia. Translúcida ela ainda dá o volume do
+     * barracão, que é o que a vista 3D tem a acrescentar sobre a 2D.
+     */
+    gRoof.traverse((o) => {
+      if (!o.isMesh) return;
+      o.material.transparent = true;
+      o.material.opacity = Math.min(o.material.opacity, 0.32);
+      o.material.depthWrite = false;
+      o.castShadow = false;
+    });
+
     createEntrance(0, cz + footD / 2, "Entrada · você está aqui");
   }
 
@@ -295,8 +384,12 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   function createStall(box) {
     const group = new THREE.Group();
     const { w, d, h } = box.size;
-    const cat = CATEGORIES[box.category];
     const counterH = 1.0;
+
+    // Box sem loja não tem setor: a categoria dele é só um resto de divisão em
+    // layout.js. Pintar de cinza diz "vago" em vez de mentir um setor.
+    const vago = box.status === "Vago";
+    const corSetor = vago ? PALETTE.tileTop : CATEGORIES[box.category].color;
 
     const counter = new THREE.Mesh(
       new THREE.BoxGeometry(w, counterH, d),
@@ -307,9 +400,12 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     counter.receiveShadow = true;
     group.add(counter);
 
+    // A cor do setor também vai no tampo. Vista de cima, a 2D só enxerga esta
+    // face: com o tampo neutro os 70 boxes ficavam idênticos e a legenda de
+    // setores embaixo não servia para nada.
     const top = new THREE.Mesh(
       new THREE.BoxGeometry(w + 0.06, 0.08, d + 0.06),
-      new THREE.MeshStandardMaterial({ color: PALETTE.tileTop, roughness: 0.4 })
+      new THREE.MeshStandardMaterial({ color: corSetor, roughness: 0.4 })
     );
     top.position.y = counterH + 0.04;
     top.castShadow = true;
@@ -317,7 +413,7 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
 
     const shutter = new THREE.Mesh(
       new THREE.BoxGeometry(w, h - counterH, 0.08),
-      new THREE.MeshStandardMaterial({ color: cat.color, roughness: 0.5, metalness: 0.15 })
+      new THREE.MeshStandardMaterial({ color: corSetor, roughness: 0.5, metalness: 0.15 })
     );
     shutter.position.set(0, counterH + (h - counterH) / 2, -d / 2 + 0.05);
     shutter.castShadow = true;
@@ -344,13 +440,6 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     group.add(awning);
 
     group.position.set(box.position.x, 0, box.position.z);
-    group.traverse((child) => {
-      if (child.isMesh) {
-        child.userData.box = box;
-        child.userData.group = group;
-        boxMeshes.push(child);
-      }
-    });
     group.userData.box = box;
 
     const labelDiv = document.createElement("div");
@@ -361,43 +450,91 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     group.add(label);
     labels.push(label);
 
+    // O filtro apaga o que não casa em vez de sumir com ele, então guardamos a
+    // opacidade de origem de cada peça (a tela lateral já nasce em 0.55).
+    const rec = { group, box, label, meshes: [] };
+    group.traverse((child) => {
+      if (child.isMesh) {
+        child.userData.stall = rec;
+        rec.meshes.push({ mesh: child, opacity: child.material.opacity });
+        boxMeshes.push(child);
+      }
+    });
+
     scene.add(group);
-    stalls.push({ group, box, label });
+    stalls.push(rec);
   }
 
   function applyFilter() {
-    stalls.forEach(({ group, box, label }) => {
-      const on = !filterSeg || box.seg === filterSeg;
-      group.visible = on;
-      label.visible = on;
+    stalls.forEach((s) => {
+      const on = !filterSeg || s.box.seg === filterSeg;
+      s.group.userData.dim = !on;
+      s.meshes.forEach(({ mesh, opacity }) => {
+        mesh.material.transparent = !on || opacity < 1;
+        mesh.material.opacity = on ? opacity : opacity * 0.12;
+        mesh.material.depthWrite = on;
+      });
+      s.label.element.classList.toggle("is-dim", !on);
     });
+    if (selected?.group.userData.dim) {
+      clearSelection();
+      onSelect?.(null);
+    }
   }
 
   function clearSelection() {
-    if (selectedGroup) {
-      selectedOriginals.forEach(({ mesh, material }) => {
-        mesh.material = material;
-      });
+    if (selected) {
+      selected.label.element.classList.remove("is-selected");
+      selected.group.position.y = 0;
     }
-    selectedGroup = null;
-    selectedOriginals = [];
+    selected = null;
+    focando = false;
+    selRing.visible = selShaft.visible = pin.visible = false;
   }
 
-  function selectGroup(group) {
-    clearSelection();
-    if (!group?.userData?.box || !group.visible) {
+  function selectStall(stall) {
+    if (!stall || stall.group.userData.dim) {
+      clearSelection();
       onSelect?.(null);
       return;
     }
 
-    selectedGroup = group;
-    group.traverse((child) => {
-      if (child.isMesh) {
-        selectedOriginals.push({ mesh: child, material: child.material });
-        child.material = highlightMat;
-      }
-    });
-    onSelect?.(group.userData.box);
+    clearSelection();
+    selected = stall;
+    stall.label.element.classList.add("is-selected");
+
+    const { x, z } = stall.box.position;
+    selRing.position.set(x, 0.05, z);
+    selShaft.position.set(x, ALTURA_COLUNA / 2, z);
+    pin.position.set(x, boxH + 1.15, z);
+    selRing.visible = selShaft.visible = true;
+    pin.visible = mode === "3d";
+
+    if (mode === "3d") aproximar(stall);
+    onSelect?.(stall.box);
+  }
+
+  /**
+   * Leva a órbita da 3D até o box escolhido, sempre pelo mesmo ângulo: de cima
+   * e de frente, acima da linha do telhado. Preservar a direção em que a câmera
+   * já estava parecia mais educado, mas descia a câmera para dentro do galpão
+   * quando o giro estava baixo, e aí a viga entrava na frente do box. Um ângulo
+   * fixo é previsível: o box escolhido aparece no mesmo lugar toda vez.
+   */
+  function aproximar(stall) {
+    focoAlvo.set(stall.box.position.x, 1, stall.box.position.z);
+    focoCam.set(focoAlvo.x, focoAlvo.y + 12, focoAlvo.z + 16);
+    focando = true;
+  }
+
+  /** Box mais próximo sob o cursor, ignorando os apagados pelo filtro. */
+  function pick() {
+    raycaster.setFromCamera(pointer, activeCamera);
+    for (const hit of raycaster.intersectObjects(boxMeshes, false)) {
+      const stall = hit.object.userData.stall;
+      if (stall && !stall.group.userData.dim) return stall;
+    }
+    return null;
   }
 
   function fitOrtho() {
@@ -443,7 +580,9 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
       controls2d.enabled = false;
       controls3d.enabled = true;
       gRoof.visible = true;
+      if (selected) aproximar(selected);
     }
+    pin.visible = !!selected && next === "3d";
   }
 
   function setFilter(seg) {
@@ -458,6 +597,8 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
   }
 
   let down = null;
+  let hoverPendente = false;
+
   function onPointerDown(e) {
     down = { x: e.clientX, y: e.clientY };
     setPointer(e);
@@ -469,23 +610,74 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     down = null;
     if (dx * dx + dy * dy > 36) return;
     setPointer(e);
-    raycaster.setFromCamera(pointer, activeCamera);
-    const hits = raycaster.intersectObjects(boxMeshes, false);
-    if (hits.length > 0) selectGroup(hits[0].object.userData.group);
-    else {
-      clearSelection();
-      onSelect?.(null);
+    selectStall(pick());
+  }
+
+  // O totem é touch: lá não existe "passar por cima", e o anel ficaria preso no
+  // último box tocado. O hover é só para mouse, e o raycast roda no máximo uma
+  // vez por quadro em vez de uma vez por evento de movimento.
+  function onPointerMove(e) {
+    if (e.pointerType === "touch") return;
+    setPointer(e);
+    hoverPendente = true;
+  }
+  function onPointerLeave() {
+    hovered = null;
+    hoverPendente = false;
+    canvas.style.cursor = "";
+  }
+
+  function atualizarHover() {
+    hoverPendente = false;
+    hovered = down ? null : pick();
+    canvas.style.cursor = hovered ? "pointer" : "";
+    if (hovered) {
+      hoverRing.position.set(hovered.box.position.x, 0.045, hovered.box.position.z);
     }
   }
 
   canvas.addEventListener("pointerdown", onPointerDown);
   canvas.addEventListener("pointerup", onPointerUp);
+  canvas.addEventListener("pointermove", onPointerMove);
+  canvas.addEventListener("pointerleave", onPointerLeave);
 
   const ro = new ResizeObserver(resize);
+
+  const relogio = new THREE.Clock();
+  let tempo = 0;
 
   function animate() {
     if (!running) return;
     requestAnimationFrame(animate);
+
+    // Clamp porque a aba em segundo plano devolve um dt gigante no primeiro
+    // quadro de volta, e aí todo lerp salta o passo inteiro de uma vez.
+    const dt = Math.min(relogio.getDelta(), 0.1);
+    tempo += dt;
+
+    if (hoverPendente) atualizarHover();
+    hoverRing.visible = !!hovered && hovered !== selected;
+
+    if (selected) {
+      // Pulsação lenta: o marcador respira, então o olho acha a seleção mesmo
+      // num mapa de 70 boxes parados. Pulsa opacidade, não escala — crescer
+      // faria o anel encostar no vizinho e desfazer o que o vão garante.
+      const onda = Math.sin(tempo * 3.2);
+      selRing.material.opacity = 0.8 + onda * 0.2;
+      selShaft.material.opacity = 0.34 + onda * 0.1;
+
+      const alvoY = mode === "3d" ? 0.32 : 0;
+      selected.group.position.y += (alvoY - selected.group.position.y) * Math.min(1, dt * 9);
+      pin.position.y = boxH + 1.15 + alvoY + onda * 0.09;
+    }
+
+    if (focando) {
+      const passo = Math.min(1, dt * 3.5);
+      controls3d.target.lerp(focoAlvo, passo);
+      perspCamera.position.lerp(focoCam, passo);
+      if (controls3d.target.distanceTo(focoAlvo) < 0.05) focando = false;
+    }
+
     activeControls.update();
     renderer.render(scene, activeCamera);
     labelRenderer.render(scene, activeCamera);
@@ -504,10 +696,12 @@ export function createMapScene(canvas, container, { onSelect } = {}) {
     ro.disconnect();
     canvas.removeEventListener("pointerdown", onPointerDown);
     canvas.removeEventListener("pointerup", onPointerUp);
+    canvas.removeEventListener("pointermove", onPointerMove);
+    canvas.removeEventListener("pointerleave", onPointerLeave);
+    canvas.style.cursor = "";
     controls2d.dispose();
     controls3d.dispose();
     clearSelection();
-    highlightMat.dispose();
     scene.traverse((obj) => {
       if (obj.geometry) obj.geometry.dispose();
       if (obj.material) {

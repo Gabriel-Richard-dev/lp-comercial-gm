@@ -7,13 +7,24 @@
  * auditoria de contraste continua valendo para o que é texto.
  */
 
-// O navegador resolve oklch() para rgb quando atribuímos a fillStyle.
+/**
+ * Pinta a cor num pixel e lê de volta o que saiu.
+ *
+ * A versão anterior lia `ctx.fillStyle` de volta contando que o navegador
+ * devolvesse "#rrggbb". O Chrome atual devolve a cor no espaço em que ela foi
+ * escrita — `oklch(0.91 0.002 100)` entra e sai igual —, e o caminho de
+ * fallback então lia os três números do oklch como se fossem RGB: o piso
+ * `oklch(91% .002 100)` virava `#010064`. A cena inteira ficava num azul quase
+ * preto. Ler o pixel devolve sRGB de verdade em qualquer navegador, para
+ * qualquer sintaxe de cor que ele saiba analisar.
+ */
 let ctx = null;
-function resolver(valor) {
-  ctx ??= document.createElement("canvas").getContext("2d");
+function pixel(valor) {
+  ctx ??= document.createElement("canvas").getContext("2d", { willReadFrequently: true });
   ctx.fillStyle = "#000000";
-  ctx.fillStyle = valor;
-  return ctx.fillStyle; // "#rrggbb" ou "rgba(...)"
+  ctx.fillStyle = valor; // valor inválido não muda fillStyle: fica no preto
+  ctx.fillRect(0, 0, 1, 1);
+  return ctx.getImageData(0, 0, 1, 1).data;
 }
 
 const cache = new Map();
@@ -22,13 +33,13 @@ const cache = new Map();
 export function cssColorHex(nome) {
   if (cache.has(nome)) return cache.get(nome);
   const bruto = getComputedStyle(document.documentElement).getPropertyValue(nome).trim();
-  let hex = bruto ? resolver(bruto) : "";
-  if (!hex.startsWith("#")) {
-    // rgb(a) → hex, ou token ausente
-    const n = hex.match(/\d+(\.\d+)?/g);
-    hex = n
-      ? "#" + n.slice(0, 3).map((v) => Math.round(+v).toString(16).padStart(2, "0")).join("")
-      : (console.warn(`[mapa] token ${nome} não encontrado`), "#808080");
+  let hex;
+  if (bruto) {
+    const [r, g, b] = pixel(bruto);
+    hex = "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
+  } else {
+    console.warn(`[mapa] token ${nome} não encontrado`);
+    hex = "#808080";
   }
   cache.set(nome, hex);
   return hex;
